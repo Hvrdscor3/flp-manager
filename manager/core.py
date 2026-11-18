@@ -57,6 +57,81 @@ def fl_paths():
     return out
 
 
+def fl_installs():
+    """Todas las instalaciones de FL Studio del equipo (no solo la predeterminada):
+    'Program location' de cada version, desinstaladores de Windows y la ruta compartida."""
+    found = []
+    try:
+        import winreg
+    except ImportError:
+        return found
+
+    def add(p):
+        if not p:
+            return
+        p = p.strip().strip('"').split('",')[0].split(",")[0]
+        low = p.lower()
+        for tail in ("\\data\\system\\icon.ico", "\\uninstall.exe", "\\fl64.exe", "\\fl.exe", "\\flengine_x64.dll"):
+            if low.endswith(tail):
+                p = p[:-len(tail)]
+                break
+        p = p.rstrip("\\")
+        if p and os.path.isdir(p) and is_fl_install_dir(p) and p.lower() not in {x.lower() for x in found}:
+            found.append(p)
+
+    def val(key, name):
+        try:
+            return winreg.QueryValueEx(key, name)[0]
+        except OSError:
+            return ""
+
+    for hive in (winreg.HKEY_CURRENT_USER, winreg.HKEY_LOCAL_MACHINE):
+        for base in (r"Software\Image-Line", r"SOFTWARE\WOW6432Node\Image-Line"):
+            try:
+                k = winreg.OpenKey(hive, base)
+            except OSError:
+                continue
+            i = 0
+            while True:
+                try:
+                    sub = winreg.EnumKey(k, i)
+                except OSError:
+                    break
+                i += 1
+                if sub.lower().startswith("fl studio"):
+                    try:
+                        add(val(winreg.OpenKey(k, sub + r"\General"), "Program location"))
+                    except OSError:
+                        pass
+            try:
+                sp = winreg.OpenKey(k, r"Shared\Paths")
+                add(val(sp, "Install path"))
+                add(val(sp, "FL Studio"))
+            except OSError:
+                pass
+        for base in (r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+                     r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"):
+            try:
+                k = winreg.OpenKey(hive, base)
+            except OSError:
+                continue
+            i = 0
+            while True:
+                try:
+                    sub = winreg.EnumKey(k, i)
+                except OSError:
+                    break
+                i += 1
+                try:
+                    sk = winreg.OpenKey(k, sub)
+                except OSError:
+                    continue
+                if "fl studio" in val(sk, "DisplayName").lower():
+                    for f in ("InstallLocation", "DisplayIcon", "UninstallString"):
+                        add(val(sk, f))
+    return found
+
+
 FL = fl_paths()
 
 
@@ -76,28 +151,62 @@ def is_fl_install_dir(folder):
     return r
 
 
+FL["installs"] = fl_installs()          # todas las instancias de FL (20, 21, 24, 2025, 2026...)
+
+# Subcarpetas que trae FL de fabrica dentro de una instalacion. Lo demas (p. ej. una carpeta
+# de proyectos que el usuario guardo dentro de la instalacion) NO se excluye.
+_FL_FACTORY = ("data", "system", "plugins", "artwork", "help", "shared", "legacy")
+_FACTORY_RX = re.compile(r"^(.*?)\\data\\(?:demo projects|templates|system|projects|patches)\\")
+_fl_data_cache = {}
+
+
+def _is_fl_data_root(root):
+    """True si root tiene la estructura de datos de FL (aunque falte FL64.exe: instancia copiada)."""
+    r = _fl_data_cache.get(root)
+    if r is None:
+        d = os.path.join(root, "Data")
+        r = is_fl_install_dir(root) or (os.path.isdir(os.path.join(d, "Patches"))
+                                        and os.path.isdir(os.path.join(d, "System")))
+        _fl_data_cache[root] = r
+    return r
+
+
+def _in_factory(low, root):
+    rest = low[len(root.lower().rstrip("\\")) + 1:]
+    return rest.split("\\", 1)[0] in _FL_FACTORY
+
+
 def is_program_file(path):
-    """True si el .flp viene con FL Studio (demos, plantillas, render tests, datos de fabrica)."""
+    """True si el .flp viene con FL Studio (demos, plantillas, render tests, datos de fabrica)
+    de cualquier instancia instalada. Los proyectos del usuario guardados dentro de una
+    instalacion, y sus renders, no se excluyen."""
     low = path.lower().replace("/", "\\")
-    for r in FL["roots"]:
-        if r and low.startswith(r.lower().rstrip("\\") + "\\"):
-            return True
+    for r in FL["installs"]:
+        if low.startswith(r.lower() + "\\"):
+            return _in_factory(low, r)
     keys = ("\\data\\projects\\", "\\data\\templates\\", "\\image-line\\data\\",
             "\\fl studio\\templates\\", "\\templates\\", "\\program files")
     if "image-line" in low and any(k in low for k in keys) or \
             ("\\fl studio" in low and "\\data\\projects\\" in low):
         return True
-    # Dentro de cualquier instalacion de FL (p. ej. A:\FL OG [25]\Data\System\Render tests)
     if "\\plugins\\fruity\\" in low:
         return True
+    # Estructura de fabrica de FL aunque la instancia no este registrada ni tenga FL64.exe
+    m = _FACTORY_RX.match(low)
+    if m and _is_fl_data_root(path[:len(m.group(1))]):
+        return True
+    # Dentro de cualquier otra instalacion (p. ej. A:\FL OG [25]\Data\System\Render tests)
     folder = os.path.dirname(path)
     for _ in range(14):
         parent = os.path.dirname(folder)
         if parent == folder:
             break
         if is_fl_install_dir(folder):
-            return True
+            return _in_factory(low, folder)
         folder = parent
+    for r in FL["roots"]:                # carpeta Image-Line registrada (p. ej. E:\FL 25\)
+        if r and low.startswith(r.lower().rstrip("\\") + "\\"):
+            return True
     return False
 
 
@@ -115,7 +224,7 @@ def is_fl_content(path):
             r = False
         elif "\\image-line\\" in low or "\\plugins\\fruity\\" in low:
             r = True
-        elif any(low.startswith(x.lower().rstrip("\\") + "\\") for x in FL["roots"] if x):
+        elif any(low.startswith(x.lower().rstrip("\\") + "\\") for x in FL["roots"] + FL["installs"] if x):
             r = True
         else:   # instalacion de FL no registrada: solo si la ruta lo sugiere (evita E/S)
             r = any(k in low for k in ("\\data\\", "\\plugins\\", "\\system\\")) and is_program_file(path)

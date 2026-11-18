@@ -383,6 +383,16 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--hover)}
 .comm-card h3{margin:0 0 6px;font-size:16px;font-weight:600}
 .comm-card p{margin:0;color:var(--text2);line-height:1.55;font-size:13.5px}
 .comm-note{margin-top:18px;color:var(--muted);font-size:12.5px}
+aside{scrollbar-width:thin;scrollbar-color:#ffffff22 transparent}aside::-webkit-scrollbar{width:6px}aside::-webkit-scrollbar-thumb{background:#ffffff22;border-radius:6px}
+.nav button,.brand .bt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* instalaciones de FL */
+#flInst:empty{display:none}
+.flinst{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:16px 0}
+.flinst .h{display:flex;align-items:center;gap:10px;font-weight:600}.flinst .h span{color:var(--muted);font-weight:400;font-size:12.5px}
+.flinst ul{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.flinst li{font-size:12.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:4px 9px;color:var(--text2)}
+.flinst li b{color:var(--acc);font-weight:600;margin-right:4px}
+.flinst p{margin:10px 0 0;color:var(--muted);font-size:12.5px}
 /* tour guiado */
 #tourBlock{position:fixed;inset:0;z-index:58;display:none}#tourBlock.on{display:block}
 #tourHole{position:fixed;z-index:59;border-radius:14px;box-shadow:0 0 0 3px var(--mint),0 0 0 9999px #000c18b8;pointer-events:none;transition:all .28s cubic-bezier(.2,.8,.2,1);display:none}
@@ -707,6 +717,7 @@ details.kx[open] summary{margin-bottom:8px}
       <h1><svg width="24" height="24"><use href="#i-hdd"/></svg>Unidades</h1><p class="sub">Elige dónde buscar. Cada disco se escanea por separado: puedes pausarlo, escanear otro y continuar después, incluso tras cerrar la app. Los proyectos ya analizados y sin cambios se omiten.</p>
       <div class="drives" id="drives"></div>
       <div class="topbar" style="margin-top:16px"><button class="pri" id="scanBtn"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear seleccionadas</button><span style="color:var(--muted)" id="scanHint"></span></div>
+      <div id="flInst"></div>
       <div id="jobs"></div>
     </div></section>
 
@@ -1070,7 +1081,11 @@ let DRIVES=[],JOBS={},POLLING=false;
 const STATE={running:['Escaneando','tag dark'],paused:['En pausa','tag cream'],done:['Completo','tag g'],error:['Error','tag b']};
 const fmtT=s=>s<60?Math.round(s)+' s':Math.floor(s/60)+' min '+Math.round(s%60)+' s';
 async function loadDrives(){const {drives,fl}=await api('/api/drives');DRIVES=drives;
-  $('#flinfo').textContent=fl.exe?fl.exe:'FL Studio no detectado';await refreshJobs();}
+  $('#flinfo').textContent=fl.exe?fl.exe:'FL Studio no detectado';renderFlInst(fl);await refreshJobs();}
+function renderFlInst(fl){const l=fl.installs||[];if(!l.length){$('#flInst').innerHTML='';return}
+  $('#flInst').innerHTML=`<div class="flinst"><div class="h">${ico('i-hdd',16)}Instalaciones de FL Studio detectadas <span>${l.length} · se excluyen sus demos, plantillas y archivos de fábrica</span></div>
+   <ul>${l.map(x=>`<li title="${esc(x)}"><b>${esc(x.slice(0,2))}</b>${esc(x.slice(3)||x)}</li>`).join('')}</ul>
+   <p>Tus proyectos, renders y audio sliced dentro de estas carpetas sí se muestran.</p></div>`}
 function jobLine(j){const st=STATE[j.state]||['',''];
   return `<span class="${st[1]}">${st[0]}</span>${j.found?`<small>${(j.analyzed+j.cached).toLocaleString('es')} de ${j.found.toLocaleString('es')} proyectos</small>`:''}`}
 function jobBtns(j,root){if(!j)return '';
