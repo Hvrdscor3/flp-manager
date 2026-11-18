@@ -31,7 +31,8 @@ NIDX = {"state": "none", "dirs": 0, "files": 0, "t": 0, "paths": []}
 try:
     with open(NAMES_FILE, encoding="utf-8") as _f:
         _d = json.load(_f)
-    NIDX.update(state="done", t=_d.get("t", 0), paths=_d.get("paths", []), files=len(_d.get("paths", [])))
+    _p = [p for p in _d.get("paths", []) if not core.is_fl_content(p)]
+    NIDX.update(state="done", t=_d.get("t", 0), paths=_p, files=len(_p))
 except (OSError, ValueError):
     pass
 
@@ -51,7 +52,8 @@ def build_names(smp, force=False):
             def on_dir(d, files):
                 NIDX["dirs"] += 1
                 NIDX["files"] += len(files)
-            found = [p for p, _, _ in fastfs.walk_files(local_roots(), samples.want_audio, samples.skip_dir, on_dir)]
+            found = [p for p, _, _ in fastfs.walk_files(local_roots(), samples.want_audio, samples.skip_dir, on_dir)
+                     if not core.is_fl_content(p)]
             NIDX.update(paths=found, t=time.time(), state="done", files=len(found))
             tmp = NAMES_FILE + ".tmp"
             with open(tmp, "w", encoding="utf-8") as fh:

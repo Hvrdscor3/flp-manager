@@ -88,8 +88,10 @@ def is_program_file(path):
             ("\\fl studio" in low and "\\data\\projects\\" in low):
         return True
     # Dentro de cualquier instalacion de FL (p. ej. A:\FL OG [25]\Data\System\Render tests)
+    if "\\plugins\\fruity\\" in low:
+        return True
     folder = os.path.dirname(path)
-    for _ in range(8):
+    for _ in range(14):
         parent = os.path.dirname(folder)
         if parent == folder:
             break
@@ -97,6 +99,31 @@ def is_program_file(path):
             return True
         folder = parent
     return False
+
+
+_FL_KEEP = ("\\audio\\sliced audio\\", "\\audio\\rendered\\")
+
+
+def is_fl_content(path):
+    """Audio que trae o genera FL Studio (fabrica, demos, descargas, ajustes).
+    Se conservan los renders y el audio sliced del usuario."""
+    low = path.lower().replace("/", "\\")
+    d = low.rpartition("\\")[0]
+    r = _FL_DIR.get(d)
+    if r is None:
+        if any(k in low for k in _FL_KEEP):
+            r = False
+        elif "\\image-line\\" in low or "\\plugins\\fruity\\" in low:
+            r = True
+        elif any(low.startswith(x.lower().rstrip("\\") + "\\") for x in FL["roots"] if x):
+            r = True
+        else:   # instalacion de FL no registrada: solo si la ruta lo sugiere (evita E/S)
+            r = any(k in low for k in ("\\data\\", "\\plugins\\", "\\system\\")) and is_program_file(path)
+        _FL_DIR[d] = r
+    return r
+
+
+_FL_DIR = {}
 
 
 # ------------------------------------------------------------------ discos

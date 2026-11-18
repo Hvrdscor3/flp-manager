@@ -189,6 +189,9 @@ class SampleManager:
                 self.jobs[r] = j
         except (OSError, ValueError):
             pass
+        for p in [p for p in self.files if core.is_fl_content(p)]:
+            del self.files[p]
+            self.cats.pop(p, None)
         self.ids = {sid(p): p for p in self.files}
 
     def save(self):
@@ -256,7 +259,7 @@ class SampleManager:
                 j["elapsed"] = time.time() - t0
             found = fastfs.walk_files([root], want_audio, skip_dir, on_dir, stop)
             for p, sz, mt in found:
-                if core.is_program_file(p):        # samples de fabrica de FL: no se tocan
+                if core.is_fl_content(p):          # FL (salvo renders y sliced): no se toca
                     j["found"] -= 1
                     continue
                 seen.add(p)
