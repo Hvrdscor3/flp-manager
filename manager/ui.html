@@ -320,6 +320,20 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--hover)}
 .tree .y{font-weight:600;font-size:15px;margin:10px 0 2px}.tree .m{padding-left:14px;font-weight:500;color:var(--text2);margin-top:6px}
 .tree .f{padding-left:30px;color:var(--muted);font-size:12.5px;padding-top:2px}.tree .f b{color:var(--ink);font-weight:500}
 
+/* tour guiado */
+#tourBlock{position:fixed;inset:0;z-index:58;display:none}#tourBlock.on{display:block}
+#tourHole{position:fixed;z-index:59;border-radius:14px;box-shadow:0 0 0 3px var(--mint),0 0 0 9999px #000c18b8;pointer-events:none;transition:all .28s cubic-bezier(.2,.8,.2,1);display:none}
+#tourHole.on{display:block}#tourHole.none{box-shadow:0 0 0 9999px #000c18b8}
+#tourTip{position:fixed;z-index:60;width:min(360px,calc(100vw - 32px));background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:16px;padding:18px 18px 14px;box-shadow:0 24px 70px #0007;display:none;transition:left .28s,top .28s}
+#tourTip.on{display:block}
+#tourTip h3{margin:0 0 6px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+#tourTip h3 svg{color:var(--mint-deep, var(--mint))}
+#tourTip p{margin:0;color:var(--text2);font-size:13.5px;line-height:1.5}
+#tourTip .tnav{display:flex;align-items:center;gap:8px;margin-top:16px}
+#tourTip .tdots{display:flex;gap:4px;margin-right:auto}#tourTip .tdots i{width:6px;height:6px;border-radius:50%;background:var(--line2)}#tourTip .tdots i.on{background:var(--mint);width:16px;border-radius:9px}
+#tourTip .pri,#tourTip .sec{padding:7px 12px;font-size:13px}
+.footrow{display:flex;gap:8px;margin-bottom:14px}.footrow #themeBtn{flex:1;margin:0!important}
+#tourBtn{padding:0 11px}#tourBtn:hover{color:var(--mint)}
 /* drawer */
 .scrim{position:fixed;inset:0;background:#1f1f1f33;opacity:0;pointer-events:none;transition:.2s;z-index:19}
 .scrim.on{opacity:1;pointer-events:auto}
@@ -393,6 +407,7 @@ textarea:focus{border-color:var(--ink)}
   <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
   <symbol id="i-vol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
   <symbol id="i-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="m16 9 6 6M22 9l-6 6"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.87l12-7.5a1 1 0 0 0 0-1.74l-12-7.5A1 1 0 0 0 7 4.5z"/></symbol>
   <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
@@ -429,7 +444,7 @@ textarea:focus{border-color:var(--ink)}
     <div class="grp">Filtros</div>
     <div class="nav" id="filters"></div>
     <div class="side-foot">
-      <button class="sec" id="themeBtn" style="width:100%;justify-content:center;margin-bottom:14px"></button>
+      <div class="footrow"><button class="sec" id="themeBtn" style="width:100%;justify-content:center;margin-bottom:14px"></button><button class="sec" id="tourBtn" title="Tour: cómo funciona la app"><svg width="17" height="17"><use href="#i-bulb"/></svg></button></div>
       <div style="display:flex;align-items:center;gap:6px"><b>Versión <span id="ver">—</span></b>
         <button class="sec" id="chkUpd" style="margin-left:auto;padding:4px 9px;font-size:11.5px" title="Buscar actualizaciones"><svg width="13" height="13"><use href="#i-hist"/></svg>Buscar</button></div>
       <div id="flinfo" style="margin-top:4px;word-break:break-all"></div>
@@ -543,6 +558,7 @@ textarea:focus{border-color:var(--ink)}
 <div class="modal" id="modal"><div class="box"><h3 id="mt"></h3><p id="mp"></p>
   <div class="topbar" style="justify-content:flex-end"><button class="sec" id="mno">Cancelar</button><button class="pri" id="myes">Confirmar</button></div></div></div>
 <div class="toast" id="toast"></div>
+<div id="tourBlock"></div><div id="tourHole"></div><div id="tourTip"></div>
 <div id="player"><button class="pbtn" id="plBtn" title="Reproducir / pausa (espacio)"></button><div class="pn"><b id="plName"></b><small id="plInfo"></small><small class="pd" id="plDir"></small></div>
   <canvas id="plWave" height="128"></canvas><span class="tm" id="plTime"></span><div class="vol"><button class="ibtn" id="plMute" title="Silenciar"></button><input type="range" id="plVol" min="0" max="100" step="1" title="Volumen (rueda del ratón)"><span id="plVolN"></span></div><button class="ibtn" id="plClose" title="Cerrar"><svg width="16" height="16"><use href="#i-x"/></svg></button></div>
 <div class="modal" id="rl"><div class="cmpbox" id="rlBox"></div></div>
@@ -1222,6 +1238,55 @@ $('#fsBtn').onclick=async()=>{const r=await api('/api/flscript',{install:true});
 api('/api/flscript',{}).then(fsShow).catch(()=>{});
 setInterval(()=>api('/api/version?force=1').then(showVer).catch(()=>{}),3*3600e3);   // revisa sola cada 3 h
 api('/api/drives').then(d=>{$('#flinfo').textContent=d.fl.exe||'FL Studio no detectado';DRIVES=d.drives;refreshJobs();const h=location.hash.slice(1);if(['drives','organize','samples','plugins'].includes(h))show(h)}).catch(()=>{});
+/* ---------- tour guiado (foquito) ---------- */
+const TOUR=[
+  {t:'Bienvenido a FLP Manager',d:'Un recorrido rápido por lo que puede hacer la app. Puedes salir cuando quieras con <b>Esc</b> y volver a verlo con el <b>foquito</b> de abajo a la izquierda.'},
+  {v:'drives',el:'#drives',t:'1. Elige tus discos',d:'Toca uno o varios discos para seleccionarlos y pulsa <b>Escanear seleccionadas</b>. La app busca todos tus <b>.flp</b> (proyectos y backups). Solo lee; no cambia nada.'},
+  {v:'drives',el:'#jobs',t:'Progreso del escaneo',d:'Aquí ves cada disco: puedes pausar, continuar o <b>escanear de nuevo</b>. Con <b>Ver solo este</b> vas a Proyectos mostrando solo ese disco.'},
+  {v:'projects',el:'#dfil',t:'2. Un disco a la vez',d:'Elige qué discos mostrar. Si tocas <b>G:</b> solo ves esos proyectos; <b>Todos</b> vuelve a mostrar todo. Samples y Reparar siguen buscando en todos los discos.'},
+  {v:'projects',el:'#q',t:'Buscar',d:'Busca por nombre o por ruta. Si el proyecto está en un disco oculto, aparece un aviso para mostrarlo.'},
+  {v:'projects',el:'#viewseg',t:'Vistas',d:'<b>Carpetas</b> (tu árbol de carpetas), <b>Tablero</b> (arrastra proyectos entre Por revisar, Útiles y Descartar) o <b>Lista</b>.'},
+  {v:'projects',el:'.kpis',t:'Resumen',d:'Proyectos por mes, qué tan sanos están (sin samples faltantes ni errores), cuántos archivos tienes y las horas trabajadas.'},
+  {v:'projects',el:'#filters',t:'Filtros rápidos',d:'Encuentra proyectos con <b>samples faltantes</b>, que no se pueden leer, con backups o de los últimos 30 días.'},
+  {v:'projects',el:'#folders .fold, #board .card, #rows tr[data-k]',t:'Detalle del proyecto',d:'Haz clic en un proyecto para ver todas sus versiones. Desde ahí: <b>Abrir en FL</b>, <b>Bounce preview</b> (escuchar sin abrir FL), <b>Ordenar pistas</b>, <b>Reparar samples</b>, notas y plugins usados.'},
+  {v:'projects',el:'#cleanBk',t:'Limpiar backups',d:'Envía a la Papelera los autoguardados más viejos que su proyecto. Siempre te pide confirmar y solo toca los discos visibles.'},
+  {v:'organize',el:'#v-organize .panel',t:'3. Organizar',d:'Copia o mueve tus proyectos a <b>Destino / Año / Mes / Proyecto</b>. Primero ves una vista previa y puedes deshacer el último movimiento.'},
+  {v:'samples',el:'#sTabs',t:'4. Samples',d:'Escanea tus samples y encuentra <b>duplicados</b>, archivos con el <b>mismo nombre</b> (compáralos A/B), explóralos por categoría y arma una librería ordenada.'},
+  {v:'samples',el:'#sView',t:'Por carpeta y en cuadrícula',d:'Agrupa los samples por carpeta y cambia entre lista y cuadrícula. Al darle play aparece el reproductor con volumen abajo.'},
+  {v:'plugins',el:'#v-plugins .hero',t:'5. Metadata VST',d:'Lista tus plugins instalados con su versión y formato, y exporta presets de Serum 1 a Serum 2.'},
+  {el:'#chkUpd',t:'Actualizaciones',d:'Pulsa <b>Buscar</b> para ver si hay una versión nueva; se instala con un clic.'},
+  {el:'#fsSt',t:'Script Auto Organizer',d:'Instala el script para FL Studio que ordena y colorea automatizaciones. En FL: <b>Options › MIDI Settings › Controller type › Auto Organizer</b>.'},
+  {t:'¡Listo!',d:'Eso es todo. Si algo no queda claro, vuelve a abrir este tour con el <b>foquito</b>.'}];
+let TI=-1;
+function tourEl(st){if(!st.el)return null;return [...document.querySelectorAll(st.el)].find(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2})||null}
+function tourShow(i){TI=i;const st=TOUR[i];if(st.v&&!$('#v-'+st.v).classList.contains('on'))show(st.v);
+  setTimeout(()=>{const e=tourEl(st),hole=$('#tourHole'),tip=$('#tourTip');
+    if(e){e.scrollIntoView({block:'nearest',behavior:'smooth'})}
+    const place=()=>{const r=e?e.getBoundingClientRect():null,W=innerWidth,H=innerHeight,pad=8;
+      if(r){const top=Math.max(4,r.top-pad),left=Math.max(4,r.left-pad),w=Math.min(W-8,r.width+pad*2),h=Math.min(H-top-4,r.height+pad*2);
+        Object.assign(hole.style,{top:top+'px',left:left+'px',width:w+'px',height:h+'px'});hole.className='on'}
+      else{Object.assign(hole.style,{top:H/2+'px',left:W/2+'px',width:'0px',height:'0px'});hole.className='on none'}
+      tip.innerHTML=`<h3>${ico(i===0||i===TOUR.length-1?'i-bulb':'i-check',16)}${st.t}</h3><p>${st.d}</p>
+        <div class="tnav"><div class="tdots">${TOUR.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>
+        ${i?`<button class="sec" id="tPrev">Atrás</button>`:`<button class="sec" id="tSkip">Ahora no</button>`}
+        <button class="pri" id="tNext">${i===TOUR.length-1?'Terminar':i?'Siguiente':'Empezar'}</button></div>`;
+      tip.className='on';const tw=tip.offsetWidth,th=tip.offsetHeight;let x,y;
+      if(!r){x=(W-tw)/2;y=(H-th)/2}
+      else if(r.right+16+tw<W){x=r.right+16;y=r.top}
+      else if(r.bottom+16+th<H){x=r.left;y=r.bottom+16}
+      else if(r.top-16-th>0){x=r.left;y=r.top-16-th}
+      else{x=(W-tw)/2;y=H-th-24}
+      tip.style.left=Math.max(12,Math.min(W-tw-12,x))+'px';tip.style.top=Math.max(12,Math.min(H-th-12,y))+'px';
+      $('#tNext').onclick=()=>i===TOUR.length-1?tourEnd():tourShow(i+1);
+      $('#tPrev')&&($('#tPrev').onclick=()=>tourShow(i-1));$('#tSkip')&&($('#tSkip').onclick=tourEnd)};
+    place();setTimeout(place,350)},st.v?260:30)}
+function tourStart(){closeDrawer();$('#tourBlock').classList.add('on');tourShow(0)}
+function tourEnd(){TI=-1;store.set('flpm.tour','1');['tourBlock','tourHole','tourTip'].forEach(x=>$('#'+x).className='');show('projects')}
+$('#tourBtn').onclick=tourStart;$('#tourBlock').onclick=e=>e.stopPropagation();
+document.addEventListener('keydown',e=>{if(TI<0)return;if(e.key==='Escape'){e.stopImmediatePropagation();tourEnd()}
+  else if(e.key==='ArrowRight'||e.key==='Enter'){e.preventDefault();TI===TOUR.length-1?tourEnd():tourShow(TI+1)}else if(e.key==='ArrowLeft'&&TI>0)tourShow(TI-1)},true);
+addEventListener('resize',()=>{if(TI>=0)tourShow(TI)});
+if(!store.get('flpm.tour'))setTimeout(()=>{if(TI<0&&!$('#modal').classList.contains('on'))tourStart()},1500);
 loadProjects();
 </script>
 </body>
