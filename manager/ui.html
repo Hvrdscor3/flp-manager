@@ -128,9 +128,11 @@ h1{display:flex;align-items:center;gap:10px}h1 svg{color:var(--mint-deep)}
 .sfold b{font-weight:600;white-space:nowrap}.sfold small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;text-align:left;min-width:0;flex:1}
 .sfold .n{color:var(--text2);font-size:12px;white-space:nowrap}
 #sRows>.sfold:first-child{border-top:0}
-.sgl>.sfold{background:none;border:0;padding:14px 2px 6px}.sgl>.sfold:first-child{padding-top:0}
-#sBody.sgrid .sgl{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:12px;align-items:start}
-#sBody.sgrid .sgl .dg{margin:0}
+.sgl .sfold{background:none;border:0;padding:14px 2px 6px}.sgl>.sfsec:first-child>.sfold{padding-top:0}
+#sBody.sgrid .sgl{columns:420px;column-gap:12px}
+#sBody.sgrid .sgl .dg{break-inside:avoid;margin:0 0 12px}#sBody.sgrid .sgl>.sfsec{margin:0 0 12px}#sBody.sgrid .sgl .sfold{break-after:avoid;break-inside:avoid}
+
+#sBody.sgrid .sgl>.sfsec>.sfold{padding:4px 2px 6px}
 #sBody.sgrid .dg .srow{grid-template-columns:24px 32px minmax(0,1fr)}#sBody.sgrid .dg .smeta{grid-column:3/-1;flex-wrap:wrap;white-space:normal;gap:6px 10px}
 #sBody.sgrid #sRows{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;border:0;background:none;overflow:visible}
 #sBody.sgrid #sRows .srow{grid-template-columns:24px 32px minmax(0,1fr);border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px;align-content:start}
@@ -900,7 +902,7 @@ async function sGroups(kind,more){const g=SG[kind];if(!more){g.off=0;g.data=[]}
   $('#sTabInfo').textContent=kind==='exact'?`${r.total.toLocaleString('es')} grupos idénticos (bit a bit)`:`${r.total.toLocaleString('es')} grupos con el mismo nombre y distinto contenido`;
   const head=kind==='exact'?`<div class="panel" style="margin:0 0 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:240px">${ico('i-dup',16)} <b>Se conserva la copia sugerida</b> (la que usan tus proyectos o la de ruta más corta). Las copias usadas por algún proyecto nunca se borran en automático.</div>
     <button class="pri" id="sDedupe">${ico('i-broom',15)}Limpiar todos los duplicados</button></div>`:`<div class="panel" style="margin:0 0 14px">${ico('i-ab',16)} Archivos con el mismo nombre pero distinto audio: pueden ser versiones (otro tono, mezcla o recorte). Usa <b>Comparar A/B</b> para escucharlos con la posición sincronizada.</div>`;
-  $('#sBody').innerHTML=head+(g.data.length?'<div class="sgl">'+g.data.map((ps,gi)=>(SGRP&&(!gi||g.data[gi-1][0].dir!==ps[0].dir)?foldHead(ps[0].dir,ps[0].id,''):'')+groupHtml(ps,gi,kind)).join('')+'</div>':`<div class="empty">${kind==='exact'?'Sin duplicados 🎉':'No hay grupos con el mismo nombre.'}</div>`)
+  $('#sBody').innerHTML=head+(g.data.length?'<div class="sgl">'+g.data.map((ps,gi)=>(SGRP&&(!gi||g.data[gi-1][0].dir!==ps[0].dir)?(gi?'</div>':'')+'<div class="sfsec">'+foldHead(ps[0].dir,ps[0].id,''):'')+groupHtml(ps,gi,kind)).join('')+(SGRP?'</div>':'')+'</div>':`<div class="empty">${kind==='exact'?'Sin duplicados 🎉':'No hay grupos con el mismo nombre.'}</div>`)
     +(g.off<r.total?`<button class="more" id="sMore">Ver más grupos (${r.total-g.off} restantes)</button>`:'');
   bindPlay($('#sBody'));
   $$('#sBody [data-cmp]').forEach(b=>b.onclick=()=>openCompare(g.data[+b.dataset.cmp]));
