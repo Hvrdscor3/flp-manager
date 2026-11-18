@@ -60,16 +60,43 @@ def fl_paths():
 FL = fl_paths()
 
 
+# Archivos que identifican una instalacion de FL Studio (aunque no este registrada).
+FL_MARKERS = {"fl64.exe", "fl.exe", "flengine_x64.dll", "flengine.dll"}
+_fl_root_cache = {}
+
+
+def is_fl_install_dir(folder):
+    """True si la carpeta es la raiz de una instalacion de FL Studio (con cache)."""
+    key = folder.lower().rstrip("\\")
+    r = _fl_root_cache.get(key)
+    if r is None:
+        r = any(os.path.isfile(os.path.join(folder, m)) for m in ("FL64.exe", "FL.exe",
+                                                                  "FLEngine_x64.dll"))
+        _fl_root_cache[key] = r
+    return r
+
+
 def is_program_file(path):
-    """True si el .flp viene con FL Studio (demos, plantillas, datos de fabrica)."""
+    """True si el .flp viene con FL Studio (demos, plantillas, render tests, datos de fabrica)."""
     low = path.lower().replace("/", "\\")
     for r in FL["roots"]:
         if r and low.startswith(r.lower().rstrip("\\") + "\\"):
             return True
     keys = ("\\data\\projects\\", "\\data\\templates\\", "\\image-line\\data\\",
             "\\fl studio\\templates\\", "\\templates\\", "\\program files")
-    return "image-line" in low and any(k in low for k in keys) or \
-        ("\\fl studio" in low and "\\data\\projects\\" in low)
+    if "image-line" in low and any(k in low for k in keys) or \
+            ("\\fl studio" in low and "\\data\\projects\\" in low):
+        return True
+    # Dentro de cualquier instalacion de FL (p. ej. A:\FL OG [25]\Data\System\Render tests)
+    folder = os.path.dirname(path)
+    for _ in range(8):
+        parent = os.path.dirname(folder)
+        if parent == folder:
+            break
+        if is_fl_install_dir(folder):
+            return True
+        folder = parent
+    return False
 
 
 # ------------------------------------------------------------------ discos
@@ -191,7 +218,12 @@ def scan_dir(d):
     subs, flps, excluded = [], [], 0
     try:
         with os.scandir(d) as it:
-            for e in it:
+            entries = list(it)
+        if any(e.name.lower() in FL_MARKERS for e in entries):
+            _fl_root_cache[d.lower().rstrip("\\")] = True
+            return [], [], 0   # instalacion de FL: no se entra (demos, render tests, plantillas)
+        if True:
+            for e in entries:
                 try:
                     if e.is_dir(follow_symlinks=False):
                         if e.name.lower() not in SKIP_DIRS:
@@ -265,6 +297,11 @@ class Manager:
             self.undo = d.get("undo", [])
         except (OSError, ValueError):
             pass
+        # Quitar archivos de instalaciones de FL guardados por versiones anteriores.
+        junk = [p for p in self.projects if is_program_file(p)]
+        for p in junk:
+            del self.projects[p]
+        self.purged = len(junk)
         try:
             with open(SCANS_FILE, encoding="utf-8") as f:
                 self.jobs = {d["root"]: ScanJob.from_dict(d) for d in json.load(f)}
