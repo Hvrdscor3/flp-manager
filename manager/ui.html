@@ -120,13 +120,31 @@ h1{display:flex;align-items:center;gap:10px}h1 svg{color:var(--mint-deep)}
 .selbar.on{display:flex}.selbar select{background:#ffffff14;color:#E6E9EC;border:1px solid #ffffff2a;border-radius:8px;padding:5px 8px;font:inherit}
 .selbar .sec{background:#ffffff14;color:#E6E9EC;border-color:#ffffff2a;padding:6px 11px}
 /* reproductor */
-#player{position:fixed;left:264px;right:16px;bottom:14px;background:var(--navy);color:#E6E9EC;border-radius:16px;padding:10px 14px;display:none;align-items:center;gap:14px;z-index:30;box-shadow:0 18px 50px #00203f55}
+#player{position:fixed;left:264px;right:16px;bottom:14px;background:var(--navy);color:#E6E9EC;border-radius:18px;padding:16px 18px;display:none;align-items:center;gap:16px;z-index:30;box-shadow:0 18px 50px #00203f55}
 #player.on{display:flex}
-#player .pbtn{background:var(--mint);color:#00203F;width:38px;height:38px}
-#player .pn{width:240px;min-width:0}#player .pn b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-#player .pn small{color:#8199b0;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-#player canvas{flex:1;height:44px;min-width:0;cursor:pointer}
-#player .tm{font-variant-numeric:tabular-nums;color:#a9bacb;font-size:12px;white-space:nowrap;flex:0 0 120px;text-align:right}
+/* samples: agrupar por carpeta / cuadricula */
+#sView{display:flex;gap:8px;margin-left:12px}
+.sfold{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--cream);border-top:1px solid var(--line);min-width:0}
+.sfold b{font-weight:600;white-space:nowrap}.sfold small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;text-align:left;min-width:0;flex:1}
+.sfold .n{color:var(--text2);font-size:12px;white-space:nowrap}
+#sRows>.sfold:first-child{border-top:0}
+.sgl>.sfold{background:none;border:0;padding:14px 2px 6px}.sgl>.sfold:first-child{padding-top:0}
+#sBody.sgrid .sgl{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:12px;align-items:start}
+#sBody.sgrid .sgl .dg{margin:0}
+#sBody.sgrid .dg .srow{grid-template-columns:24px 32px minmax(0,1fr)}#sBody.sgrid .dg .smeta{grid-column:3/-1;flex-wrap:wrap;white-space:normal;gap:6px 10px}
+#sBody.sgrid #sRows{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;border:0;background:none;overflow:visible}
+#sBody.sgrid #sRows .srow{grid-template-columns:24px 32px minmax(0,1fr);border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px;align-content:start}
+#sBody.sgrid #sRows .smeta{grid-column:1/-1;flex-wrap:wrap;white-space:normal;gap:6px 10px}
+#sBody.sgrid #sRows>.sfold{background:none;border:0;padding:12px 2px 2px}
+#player .pbtn{background:var(--mint);color:#00203F;width:46px;height:46px;flex:0 0 46px}
+#player .pn{width:280px;min-width:0;display:flex;flex-direction:column;gap:3px}#player .pn b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:14.5px;color:#fff}
+#player .pn small{color:#a9bacb;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+#player .pn .pd{color:#7088a0;font-size:11.5px}
+#player canvas{flex:1;height:64px;min-width:0;cursor:pointer}
+#player .tm{font-variant-numeric:tabular-nums;color:#a9bacb;font-size:12px;white-space:nowrap;flex:0 0 96px;text-align:right}
+#player .vol{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+#player .vol input{width:96px;accent-color:var(--mint);cursor:pointer}
+#player .vol span{font-size:11px;color:#8199b0;width:30px;font-variant-numeric:tabular-nums}
 #player .ibtn{color:#8199b0}#player .ibtn:hover{background:#ffffff14;color:#fff}
 .view#v-samples{padding-bottom:80px}
 /* comparador A/B */
@@ -356,6 +374,8 @@ textarea:focus{border-color:var(--ink)}
   <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></symbol>
   <symbol id="i-dots" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-vol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="m16 9 6 6M22 9l-6 6"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.87l12-7.5a1 1 0 0 0 0-1.74l-12-7.5A1 1 0 0 0 7 4.5z"/></symbol>
   <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
@@ -492,7 +512,8 @@ textarea:focus{border-color:var(--ink)}
           <button data-t="similar"><svg width="15" height="15"><use href="#i-ab"/></svg>Mismo nombre</button>
           <button data-t="explore"><svg width="15" height="15"><use href="#i-list"/></svg>Explorar</button>
           <button data-t="org"><svg width="15" height="15"><use href="#i-cal"/></svg>Organizar</button></div>
-          <span style="margin-left:auto;color:var(--muted)" id="sTabInfo"></span></div>
+          <span style="margin-left:auto;color:var(--muted)" id="sTabInfo"></span>
+          <div id="sView"><div class="seg txt" id="sGrp"><button data-g="">Todo</button><button data-g="dir"><svg width="15" height="15"><use href="#i-folder"/></svg>Por carpeta</button></div><div class="seg" id="sLay"><button data-l="list" title="Lista"><svg width="17" height="17"><use href="#i-list"/></svg></button><button data-l="grid" title="Cuadrícula"><svg width="17" height="17"><use href="#i-grid"/></svg></button></div></div></div>
         <div id="sBody"></div>
       </div>
     </section>
@@ -504,8 +525,8 @@ textarea:focus{border-color:var(--ink)}
 <div class="modal" id="modal"><div class="box"><h3 id="mt"></h3><p id="mp"></p>
   <div class="topbar" style="justify-content:flex-end"><button class="sec" id="mno">Cancelar</button><button class="pri" id="myes">Confirmar</button></div></div></div>
 <div class="toast" id="toast"></div>
-<div id="player"><button class="pbtn" id="plBtn" title="Reproducir / pausa (espacio)"></button><div class="pn"><b id="plName"></b><small id="plInfo"></small></div>
-  <canvas id="plWave" height="88"></canvas><span class="tm" id="plTime"></span><button class="ibtn" id="plClose" title="Cerrar"><svg width="16" height="16"><use href="#i-x"/></svg></button></div>
+<div id="player"><button class="pbtn" id="plBtn" title="Reproducir / pausa (espacio)"></button><div class="pn"><b id="plName"></b><small id="plInfo"></small><small class="pd" id="plDir"></small></div>
+  <canvas id="plWave" height="128"></canvas><span class="tm" id="plTime"></span><div class="vol"><button class="ibtn" id="plMute" title="Silenciar"></button><input type="range" id="plVol" min="0" max="100" step="1" title="Volumen (rueda del ratón)"><span id="plVolN"></span></div><button class="ibtn" id="plClose" title="Cerrar"><svg width="16" height="16"><use href="#i-x"/></svg></button></div>
 <div class="modal" id="rl"><div class="cmpbox" id="rlBox"></div></div>
 <div class="modal" id="cmp"><div class="cmpbox" id="cmpBox"></div></div>
 
@@ -854,7 +875,14 @@ function renderSKpis(){const s=SSUM;if(!s)return;
   $('#sCatleg').innerHTML=s.cats.map(([c,n,b])=>`<button data-cat="${esc(c)}"><i style="background:${catColor(c)}"></i>${esc(c)} <b>${n.toLocaleString('es')}</b></button>`).join('');
   $$('#sCatleg [data-cat]').forEach(b=>b.onclick=()=>{SF={...SF,cat:b.dataset.cat,offset:0};STAB='explore';store.set('flpm.stab',STAB);renderSTabs()})}
 
-function renderSTabs(){$$('#sTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===STAB));SPICK.clear();
+let SGRP=store.get('flpm.sgrp')||'',SLAY=store.get('flpm.slay')||'list';
+function paintSView(){$$('#sGrp button').forEach(b=>b.classList.toggle('on',b.dataset.g===SGRP));$$('#sLay button').forEach(b=>b.classList.toggle('on',b.dataset.l===SLAY));
+  $('#sView').style.display=STAB==='org'?'none':'';$('#sBody').classList.toggle('sgrid',SLAY==='grid'&&STAB!=='org')}
+$$('#sGrp button').forEach(b=>b.onclick=()=>{SGRP=b.dataset.g;store.set('flpm.sgrp',SGRP);renderSTabs()});
+$$('#sLay button').forEach(b=>b.onclick=()=>{SLAY=b.dataset.l;store.set('flpm.slay',SLAY);paintSView()});
+const dirName=d=>(d||'').split(/[\\/]/).filter(Boolean).pop()||d||'';
+function foldHead(dir,id,n){return `<div class="sfold">${ico('i-folder',15)}<b>${esc(dirName(dir))}</b><small title="${esc(dir)}">&lrm;${esc(dir)}</small>${n?`<span class="n">${n}</span>`:''}<button class="ibtn" data-sreveal="${id}" title="Abrir carpeta">${ico('i-folder',14)}</button></div>`}
+function renderSTabs(){$$('#sTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===STAB));SPICK.clear();paintSView();
   if(!SSUM||!SSUM.total){$('#sBody').innerHTML=`<div class="empty">Aún no hay samples.<br>Selecciona uno o más discos arriba y pulsa <b>Escanear seleccionadas</b>.</div>`;$('#sTabInfo').textContent='';return}
   ({dups:()=>sGroups('exact'),similar:()=>sGroups('similar'),explore:sExplore,org:sOrganize})[STAB]()}
 $$('#sTabs button').forEach(b=>b.onclick=()=>{STAB=b.dataset.t;store.set('flpm.stab',STAB);renderSTabs()});
@@ -867,12 +895,12 @@ function bindPlay(root){root.querySelectorAll('[data-play]').forEach(b=>b.onclic
 /* ---- duplicados / mismo nombre ---- */
 let SG={exact:{off:0,data:[]},similar:{off:0,data:[]}};
 async function sGroups(kind,more){const g=SG[kind];if(!more){g.off=0;g.data=[]}
-  const r=await api('/api/samples/groups',{kind,offset:g.off,limit:30});g.data.push(...r.items);g.off+=r.items.length;
+  const r=await api('/api/samples/groups',{kind,offset:g.off,limit:30,group:SGRP});g.data.push(...r.items);g.off+=r.items.length;
   g.data.forEach(ps=>ps.forEach(it=>SITEMS[it.id]=it));
   $('#sTabInfo').textContent=kind==='exact'?`${r.total.toLocaleString('es')} grupos idénticos (bit a bit)`:`${r.total.toLocaleString('es')} grupos con el mismo nombre y distinto contenido`;
   const head=kind==='exact'?`<div class="panel" style="margin:0 0 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:240px">${ico('i-dup',16)} <b>Se conserva la copia sugerida</b> (la que usan tus proyectos o la de ruta más corta). Las copias usadas por algún proyecto nunca se borran en automático.</div>
     <button class="pri" id="sDedupe">${ico('i-broom',15)}Limpiar todos los duplicados</button></div>`:`<div class="panel" style="margin:0 0 14px">${ico('i-ab',16)} Archivos con el mismo nombre pero distinto audio: pueden ser versiones (otro tono, mezcla o recorte). Usa <b>Comparar A/B</b> para escucharlos con la posición sincronizada.</div>`;
-  $('#sBody').innerHTML=head+(g.data.length?g.data.map((ps,gi)=>groupHtml(ps,gi,kind)).join(''):`<div class="empty">${kind==='exact'?'Sin duplicados 🎉':'No hay grupos con el mismo nombre.'}</div>`)
+  $('#sBody').innerHTML=head+(g.data.length?'<div class="sgl">'+g.data.map((ps,gi)=>(SGRP&&(!gi||g.data[gi-1][0].dir!==ps[0].dir)?foldHead(ps[0].dir,ps[0].id,''):'')+groupHtml(ps,gi,kind)).join('')+'</div>':`<div class="empty">${kind==='exact'?'Sin duplicados 🎉':'No hay grupos con el mismo nombre.'}</div>`)
     +(g.off<r.total?`<button class="more" id="sMore">Ver más grupos (${r.total-g.off} restantes)</button>`:'');
   bindPlay($('#sBody'));
   $$('#sBody [data-cmp]').forEach(b=>b.onclick=()=>openCompare(g.data[+b.dataset.cmp]));
@@ -892,10 +920,10 @@ function groupHtml(ps,gi,kind){const a=ps[0],save=kind==='exact'?a.size*(ps.leng
 
 /* ---- explorar ---- */
 async function sExplore(more){if(!more)SF.offset=0;
-  const r=await api('/api/samples/query',{...SF,limit:150});r.items.forEach(it=>SITEMS[it.id]=it);
+  if(!more)SF._dir=null;const r=await api('/api/samples/query',{...SF,limit:150,group:SGRP});r.items.forEach(it=>SITEMS[it.id]=it);
   $('#sTabInfo').textContent=`${r.total.toLocaleString('es')} samples`;
   const opts=CATS_ALL.map(c=>`<option ${SF.cat===c?'selected':''}>${esc(c)}</option>`).join('');
-  const rows=r.items.map(it=>`<div class="srow" data-id="${it.id}"><input type="checkbox" data-pick="${it.id}">${pbtn(it)}
+  const rows=r.items.map(it=>(SGRP&&it.dir!==SF._dir?foldHead(SF._dir=it.dir,it.id,''):'')+`<div class="srow" data-id="${it.id}"><input type="checkbox" data-pick="${it.id}">${pbtn(it)}
     <div style="min-width:0"><div class="sname">${esc(it.name)}${it.bad?' <span class="tag b">Dañado</span>':''}</div><div class="spath" title="${esc(it.path)}">&lrm;${esc(it.dir)}</div></div>
     <div class="smeta">${it.bpm?`<span class="chip">${it.bpm} BPM</span>`:''}${it.key?`<span class="chip">${esc(it.key)}</span>`:''}${usedTag(it)}<span>${fmtDur(it.dur)}</span><span>${fmtB(it.size)}</span>
      <select data-scat="${it.id}" title="Categoría">${CATS_ALL.map(c=>`<option ${it.cat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
@@ -953,14 +981,21 @@ const BUF=new Map(),PEAKS=new Map();
 function getBuf(it){if(BUF.has(it.id))return BUF.get(it.id);
   const pr=fetch(`/sample/${it.id}.${it.ext}?t=${TOKEN}`).then(r=>{if(!r.ok)throw new Error('No disponible');return r.arrayBuffer()}).then(a=>AC().decodeAudioData(a));
   BUF.set(it.id,pr);pr.catch(()=>BUF.delete(it.id));if(BUF.size>24){const k=BUF.keys().next().value;BUF.delete(k);PEAKS.delete(k)}return pr}
+/* volumen: un solo nodo de ganancia, recordado entre sesiones */
+let GN=null,VOL=Math.min(100,Math.max(0,+(store.get('flpm.vol')??80))),MUTE=store.get('flpm.mute')==='1';
+const GAIN=()=>{if(!GN){GN=AC().createGain();GN.connect(AC().destination)}applyVol();return GN};
+function applyVol(){const v=MUTE?0:(VOL/100)**2;if(GN)GN.gain.setTargetAtTime(v,AC().currentTime,.015);
+  $('#plVol').value=VOL;$('#plVolN').textContent=MUTE?'—':VOL+'%';$('#plMute').innerHTML=ico(MUTE||!VOL?'i-mute':'i-vol',15);
+  $('#plVol').style.opacity=MUTE?.45:1}
+function setVol(v){VOL=Math.min(100,Math.max(0,v));if(VOL)MUTE=false;store.set('flpm.vol',VOL);store.set('flpm.mute',MUTE?'1':'0');applyVol()}
 let PL={src:null,id:null,t0:0,buf:null,it:null,raf:0};
 function pos(){return PL.src?Math.min(PL.buf.duration,AC().currentTime-PL.t0):0}
 function stopPlay(){if(PL.src){PL.src.onended=null;try{PL.src.stop()}catch{}PL.src=null}cancelAnimationFrame(PL.raf);paintPlay()}
 async function play(it,offset=0){const ac=AC();if(ac.state==='suspended')await ac.resume();let b;
   try{b=await getBuf(it)}catch{toast('Este formato no se puede reproducir aquí');return}
-  stopPlay();const src=ac.createBufferSource();src.buffer=b;src.connect(ac.destination);offset=Math.max(0,Math.min(offset,b.duration-0.01));src.start(0,offset);
+  stopPlay();const src=ac.createBufferSource();src.buffer=b;src.connect(GAIN());offset=Math.max(0,Math.min(offset,b.duration-0.01));src.start(0,offset);
   PL={src,id:it.id,t0:ac.currentTime-offset,buf:b,it,raf:0};src.onended=()=>{if(PL.src===src){PL.src=null;paintPlay();frame()}};
-  $('#player').classList.add('on');$('#plName').textContent=it.name;$('#plInfo').textContent=[it.cat,it.sr?(it.sr/1000)+' kHz':'',it.bits?it.bits+' bit':'',it.dir].filter(Boolean).join(' · ');
+  $('#player').classList.add('on');$('#plName').textContent=it.name;$('#plInfo').textContent=[it.cat,(it.ext||'').toUpperCase(),it.sr?(it.sr/1000)+' kHz':'',it.bits?it.bits+' bit':''].filter(Boolean).join(' · ');$('#plDir').textContent=it.dir||'';$('#plDir').title=it.dir||'';
   paintPlay();loop()}
 function toggle(it){if(PL.id===it.id&&PL.src)stopPlay();else play(it,0)}
 function loop(){PL.raf=requestAnimationFrame(()=>{frame();if(PL.src)loop()})}
@@ -993,6 +1028,10 @@ function frame(){if(!PL.buf)return;const f=PL.src?pos()/PL.buf.duration:0;drawWa
 function paintPlay(){$('#plBtn').innerHTML=ico(PL.src?'i-pause':'i-play',16);
   $$('[data-play]').forEach(b=>{const on=b.dataset.play===PL.id&&!!PL.src;b.classList.toggle('on',on);b.innerHTML=ico(on?'i-pause':'i-play',13)});
   $$('#cmpBox .crow').forEach(r=>r.classList.toggle('cur',r.dataset.id===PL.id))}
+$('#plVol').oninput=e=>setVol(+e.target.value);
+$('#plVol').onwheel=e=>{e.preventDefault();setVol(VOL+(e.deltaY<0?5:-5))};
+$('#plMute').onclick=()=>{MUTE=!MUTE;store.set('flpm.mute',MUTE?'1':'0');applyVol()};
+applyVol();
 $('#plBtn').onclick=()=>{if(PL.src)stopPlay();else if(PL.it)play(PL.it,0)};
 $('#plClose').onclick=()=>{stopPlay();$('#player').classList.remove('on')};
 $('#plWave').onclick=e=>{if(!PL.it||!PL.buf)return;const r=e.target.getBoundingClientRect();play(PL.it,(e.clientX-r.left)/r.width*PL.buf.duration)};

@@ -299,9 +299,9 @@ def _samples_post(h, a, b):
         return {"ok": True}
     if a == "query":
         return SMP.query(b.get("cat"), b.get("q", ""), b.get("filter", "all"), b.get("sort", "name"),
-                         int(b.get("offset", 0)), min(500, int(b.get("limit", 200))))
+                         int(b.get("offset", 0)), min(500, int(b.get("limit", 200))), b.get("group", ""))
     if a == "groups":
-        return SMP.groups(b.get("kind", "exact"), int(b.get("offset", 0)), min(100, int(b.get("limit", 40))))
+        return SMP.groups(b.get("kind", "exact"), int(b.get("offset", 0)), min(100, int(b.get("limit", 40))), b.get("group", ""))
     if a == "setcat":
         SMP.set_cat(known, b.get("cat"))
         return {"ok": True}

@@ -473,7 +473,7 @@ class SampleManager:
                 "bad": sum(1 for d in files.values() if d.get("bad")),
                 "projects": len(self.refs), "canUndo": bool(self.undo)}
 
-    def query(self, cat=None, q="", flt="all", sort="name", offset=0, limit=200):
+    def query(self, cat=None, q="", flt="all", sort="name", offset=0, limit=200, group=""):
         idx = self.index()
         q = (q or "").lower().strip()
         out = []
@@ -493,12 +493,16 @@ class SampleManager:
                "date": lambda p: -idx["files"][p]["mtime"],
                "used": lambda p: -len(idx["use"].get(os.path.normcase(p), []))}.get(sort)
         out.sort(key=key)
+        if group == "dir":       # por carpeta (estable: conserva el orden elegido dentro)
+            out.sort(key=lambda p: os.path.dirname(p).lower())
         return {"total": len(out), "items": [self.item(p, idx) for p in out[offset:offset + limit]]}
 
-    def groups(self, kind="exact", offset=0, limit=40):
+    def groups(self, kind="exact", offset=0, limit=40, group=""):
         idx = self.index()
         g = idx["dups"] if kind == "exact" else idx["similar"]
         g = [ps for ps in g if all(p in idx["files"] for p in ps)]
+        if group == "dir":       # por la carpeta de la copia sugerida
+            g = sorted(g, key=lambda ps: os.path.dirname(ps[0]).lower())
         return {"total": len(g), "items": [[self.item(p, idx) for p in ps] for ps in g[offset:offset + limit]]}
 
     def path_of(self, i):
