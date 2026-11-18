@@ -1,0 +1,14 @@
+{
+  "name": "Auto Organizer",
+  "type": "hardware",
+  "folder": "AutoOrganizer",
+  "file": "device_AutoOrganizer.py",
+  "what": "Ordena las automatizaciones del proyecto abierto: las clasifica por tipo (Volumen, Filtro, Pan, FX, Pitch, Otros), las colorea y les pone prefijo ([VOL], [FLT]...). Además crea pistas en el Playlist (desde la 400) con el mismo nombre y color para cada clip.",
+  "how": [
+    "Instálalo aquí y reinicia FL Studio (o recarga los scripts).",
+    "En FL: Options › MIDI Settings › elige un puerto de entrada y en Controller type selecciona «Auto Organizer».",
+    "Ejecútalo con View › Script output › pestaña Auto Organizer, escribiendo organizar() — o con un teclado MIDI: C5 = organizar, C#5 = solo colorear, D5 = limpiar pistas AUTO.",
+    "Arrastra cada clip a su pista (la API de FL no permite moverlos). Si prefieres que se muevan solos, usa «Ordenar pistas» en el detalle del proyecto."
+  ],
+  "limits": "No puede mover clips ni crear pistas; necesita un puerto MIDI asignado."
+}

@@ -1,5 +1,6 @@
 """Scripts de FL Studio: los que trae FLP Manager y los que ya hay instalados en FL."""
 import ast
+import json
 import os
 import re
 import sys
@@ -7,26 +8,10 @@ import sys
 import core
 
 HERE = getattr(sys, "_MEIPASS", os.path.dirname(core.HERE))
-
-# Catalogo de scripts que FLP Manager puede instalar.
-CATALOG = [{
-    "id": "autoorg",
-    "name": "Auto Organizer",
-    "kind": "Controlador MIDI",
-    "file": "device_AutoOrganizer.py",
-    "dest": ("Hardware", "AutoOrganizer", "device_AutoOrganizer.py"),
-    "what": "Ordena las automatizaciones del proyecto abierto: las clasifica por tipo (Volumen, Filtro, Pan, FX, "
-            "Pitch, Otros), las colorea y les pone prefijo ([VOL], [FLT]...). Además crea pistas en el Playlist "
-            "(desde la 400) con el mismo nombre y color para cada clip.",
-    "how": ["Instálalo aquí y reinicia FL Studio (o recarga los scripts).",
-            "En FL: Options › MIDI Settings › elige un puerto de entrada y en Controller type selecciona "
-            "«Auto Organizer».",
-            "Ejecútalo con View › Script output › pestaña Auto Organizer, escribiendo organizar() — o con un "
-            "teclado MIDI: C5 = organizar, C#5 = solo colorear, D5 = limpiar pistas AUTO.",
-            "Arrastra cada clip a su pista (la API de FL no permite moverlos). Si prefieres que se muevan "
-            "solos, usa «Ordenar pistas» en el detalle del proyecto."],
-    "limits": "No puede mover clips ni crear pistas; necesita un puerto MIDI asignado.",
-}]
+SRC_DIR = os.path.join(HERE, "fl_scripts")     # un subdirectorio por script, con info.json (ver fl_scripts/README.md)
+TYPES = {"hardware": ("Hardware", "Controlador MIDI"),
+         "pianoroll": ("Piano roll scripts", "Script de Piano roll"),
+         "audio": ("Audio scripts", "Script de Edison")}
 
 KINDS = [("Hardware", "Controladores MIDI", "device_*.py"),
          ("Piano roll scripts", "Piano roll", "*.pyscript"),
@@ -37,12 +22,45 @@ def settings_dir():
     return os.path.join(core.FL["user"], "Settings")
 
 
+def load_catalog():
+    """Lee fl_scripts/<id>/info.json. Un script mal descrito se ignora (no rompe la app)."""
+    out = []
+    try:
+        ids = sorted(os.listdir(SRC_DIR))
+    except OSError:
+        return out
+    for sid in ids:
+        try:
+            with open(os.path.join(SRC_DIR, sid, "info.json"), encoding="utf-8") as f:
+                it = json.load(f)
+            if it.get("type") not in TYPES or not it.get("file") or os.sep in it["file"] or "/" in it["file"]:
+                continue
+            if it["type"] == "hardware" and not re.fullmatch(r"[\w .()-]+", it.get("folder", "")):
+                continue
+        except (OSError, ValueError):
+            continue
+        it["id"] = sid
+        it["kind"] = TYPES[it["type"]][1]
+        out.append(it)
+    return out
+
+
 def _src(item):
-    return os.path.join(HERE, item["file"])
+    return os.path.join(SRC_DIR, item["id"], item["file"])
 
 
 def _dst(item):
-    return os.path.join(settings_dir(), *item["dest"])
+    base = os.path.join(settings_dir(), TYPES[item["type"]][0])
+    if item["type"] == "hardware":
+        return os.path.join(base, item["folder"], item["file"])
+    return os.path.join(base, item["file"])
+
+
+def find(sid):
+    for it in load_catalog():
+        if it["id"] == sid:
+            return it
+    raise OSError("Script desconocido")
 
 
 def _read(p):
@@ -86,16 +104,16 @@ def _meta(path):
 
 def catalog():
     out = []
-    for it in CATALOG:
+    for it in load_catalog():
         new, cur = _read(_src(it)), _read(_dst(it))
-        out.append({k: it[k] for k in ("id", "name", "kind", "what", "how", "limits")} | {
+        out.append({k: it.get(k, "" if k != "how" else []) for k in ("id", "name", "kind", "what", "how", "limits")} | {
             "installed": cur is not None, "current": cur is not None and cur == new, "path": _dst(it),
             "available": new is not None})
     return out
 
 
 def installed():
-    ours = {os.path.normcase(_dst(it)) for it in CATALOG}
+    ours = {os.path.normcase(_dst(it)) for it in load_catalog()}
     res = []
     for folder, label, pat in KINDS:
         base = os.path.join(settings_dir(), folder)
@@ -129,17 +147,37 @@ def listing():
 
 
 def install(sid):
-    for it in CATALOG:
-        if it["id"] == sid:
-            new = _read(_src(it))
-            if new is None:
-                raise OSError("El script no viene incluido en esta versión")
-            d = _dst(it)
-            os.makedirs(os.path.dirname(d), exist_ok=True)
-            with open(d, "wb") as f:
-                f.write(new)
-            return True
-    raise OSError("Script desconocido")
+    """Instala o actualiza (sobrescribe solo el archivo del script)."""
+    it = find(sid)
+    new = _read(_src(it))
+    if new is None:
+        raise OSError("El script no viene incluido en esta versión")
+    d = _dst(it)
+    os.makedirs(os.path.dirname(d), exist_ok=True)
+    tmp = d + ".tmp"
+    with open(tmp, "wb") as f:
+        f.write(new)
+    os.replace(tmp, d)
+    return True
+
+
+def uninstall(sid):
+    """Envia el script a la Papelera. En controladores, tambien su carpeta si solo queda cache de Python."""
+    it = find(sid)
+    d = _dst(it)
+    if not os.path.exists(d):
+        raise OSError("No está instalado")
+    if not core.recycle(d):
+        raise OSError("No se pudo enviar a la Papelera (¿FL Studio lo tiene abierto?)")
+    if it["type"] == "hardware":
+        folder = os.path.dirname(d)
+        try:
+            rest = [x for x in os.listdir(folder) if x != "__pycache__"]
+        except OSError:
+            rest = None
+        if rest == []:
+            core.recycle(folder)
+    return True
 
 
 def is_inside(path):

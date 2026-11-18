@@ -20,7 +20,7 @@ git push origin v1.0.1
 GitHub Actions compila el `.exe` y crea el Release. Las copias instaladas lo detectan al abrirse.
 
 ## Otras herramientas incluidas
-- `device_AutoOrganizer.py`: script de FL Studio que colorea y nombra las automatizaciones.
+- `fl_scripts/`: scripts de FL Studio que la app instala (ver `fl_scripts/README.md`).
 - `flp_ordenar.py` / `Ordenar proyecto FL.bat`: junta cada automatización en su propia pista (edita una copia del `.flp`).
 
 ## Compilar en local

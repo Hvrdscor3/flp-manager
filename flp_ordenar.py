@@ -197,6 +197,84 @@ def organize_arrangement(lst, pl_idx, blocks, chans, log):
     lst[pl_idx][1] = bytes(pl)
 
 
+def _arr_stats(lst, pl_idx, blocks, chans):
+    pl = lst[pl_idx][1]
+    sz = item_size(pl)
+    by_track = {}
+    for o in range(0, len(pl), sz):
+        base, ii = struct.unpack_from("<HH", pl, o + 4)
+        t = MAX_IDX - struct.unpack_from("<H", pl, o + 12)[0]
+        auto = ii < base and chans.get(ii, {}).get("type") == F.CT_AUTOMATION
+        d = by_track.setdefault(t, {"auto": set(), "other": 0})
+        if auto:
+            d["auto"].add(ii)
+        else:
+            d["other"] += 1
+    used = sorted(by_track)
+    names = {t: block_name(lst[a:b]) for t, (a, b) in enumerate(blocks)}
+    auto_ch = {c for d in by_track.values() for c in d["auto"]}
+    last = used[-1] if used else -1
+    gaps = sum(1 for t in range(last + 1) if t not in by_track)
+    unnamed = [t for t in used if not names.get(t, "").strip()]
+    mixed = [t for t in used if by_track[t]["auto"] and by_track[t]["other"]]
+    # automatizaciones repartidas: un mismo canal de automatizacion en varias pistas
+    spread = sum(1 for c in auto_ch if sum(1 for d in by_track.values() if c in d["auto"]) > 1)
+    # automatizaciones intercaladas entre pistas de audio/patterns
+    first_other_after = 0
+    seen_auto = False
+    for t in used:
+        if by_track[t]["auto"] and not by_track[t]["other"]:
+            seen_auto = True
+        elif seen_auto and by_track[t]["other"]:
+            first_other_after += 1
+    return {"used": len(used), "last": last + 1, "gaps": gaps, "unnamed": len(unnamed), "mixed": len(mixed),
+            "autos": len(auto_ch), "spread": spread, "interleaved": first_other_after}
+
+
+def analizar(src):
+    """Revisa el orden de las pistas SIN modificar nada. -> {"score", "level", "issues", "stats"}"""
+    with open(src, "rb") as f:
+        raw = f.read()
+    header, events = F.loads(raw)
+    chans = read_channels(events)
+    arrs = find_arrangements(events)
+    if not arrs:
+        raise ValueError("No se encontro ningun arreglo en el proyecto")
+    st = None
+    for lst, k, blocks in arrs:      # el arreglo con mas pistas usadas es el principal
+        try:
+            s = _arr_stats(lst, k, blocks, chans)
+        except ValueError:
+            continue
+        if st is None or s["used"] > st["used"]:
+            st = s
+    if st is None:
+        raise ValueError("Formato de playlist desconocido")
+    used = max(1, st["used"])
+    small = st["used"] <= 4          # bocetos cortos: se juzgan con menos rigor
+    issues, pts = [], 0
+    if st["gaps"] > 1:
+        pts += min(25, st["gaps"] / max(1, st["last"]) * 40)
+        issues.append("%d pista(s) vacía(s) entre las que tienen clips" % st["gaps"])
+    if st["unnamed"] and not small:
+        pts += min(20, st["unnamed"] / used * 20)
+        issues.append("%d de %d pistas con clips no tienen nombre" % (st["unnamed"], st["used"]))
+    if st["mixed"]:
+        pts += min(20, st["mixed"] * 6)
+        issues.append("%d pista(s) mezclan automatizaciones con audio o patterns" % st["mixed"])
+    if st["spread"]:
+        pts += min(15, st["spread"] * 3)
+        issues.append("%d automatización(es) repartidas en varias pistas" % st["spread"])
+    if st["interleaved"]:
+        pts += min(15, st["interleaved"] * 3)
+        issues.append("Automatizaciones intercaladas entre pistas de audio/patterns")
+    if small:
+        pts /= 2
+    score = max(0, round(100 - pts))
+    level = "ordenado" if score >= 80 else "regular" if score >= 55 else "desordenado"
+    return {"score": score, "level": level, "issues": issues, "stats": st}
+
+
 def ordenar(src, dry=False, dst=None):
     """Ordena el proyecto. Nunca toca el original. -> {"log": [...], "dst": ruta o ""}"""
     with open(src, "rb") as f:

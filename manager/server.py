@@ -39,24 +39,16 @@ def _projects_json():
     return _PJ[1]
 
 
-FL_SCRIPT = os.path.join(getattr(sys, "_MEIPASS", os.path.dirname(core.HERE)), "device_AutoOrganizer.py")
 
 
 def _fl_script(install=False):
-    """Script Auto Organizer para FL (Options > MIDI Settings > Controller type)."""
-    dst = os.path.join(core.FL["user"], "Settings", "Hardware", "AutoOrganizer", "device_AutoOrganizer.py")
-    with open(FL_SCRIPT, "rb") as f:
-        new = f.read()
+    """Estado del script Auto Organizer (lo muestra el pie del menu)."""
     if install:
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-        with open(dst, "wb") as f:
-            f.write(new)
-    try:
-        with open(dst, "rb") as f:
-            cur = f.read()
-    except OSError:
-        cur = None
-    return {"installed": cur is not None, "current": cur == new, "path": dst}
+        flscripts.install("autoorg")
+    for c in flscripts.catalog():
+        if c["id"] == "autoorg":
+            return {"installed": c["installed"], "current": c["current"], "path": c["path"]}
+    return {"installed": False, "current": True, "path": ""}
 
 
 def _paths(body):
@@ -230,12 +222,27 @@ class Handler(BaseHTTPRequestHandler):
                 except OSError as e:
                     return self._send(200, {"error": str(e)[:200]})
                 return self._send(200, flscripts.listing())
+            if p == "/api/scripts/uninstall":
+                try:
+                    flscripts.uninstall(body.get("id"))
+                except OSError as e:
+                    return self._send(200, {"error": str(e)[:200]})
+                return self._send(200, flscripts.listing())
             if p == "/api/scripts/reveal":
                 x = body.get("path", "")
                 if flscripts.is_inside(x) and os.path.exists(x):
                     core.reveal(x)
                     return self._send(200, {"ok": True})
                 return self._send(404, {"error": "Ruta no permitida"})
+            if p == "/api/orden/check":
+                for x in _paths(body)[:1]:
+                    try:
+                        return self._send(200, flp_ordenar.analizar(x))
+                    except FileNotFoundError:
+                        return self._send(200, {"error": "El archivo ya no existe"})
+                    except Exception as e:  # noqa: BLE001
+                        return self._send(200, {"error": str(e)[:200]})
+                return self._send(404, {"error": "Proyecto desconocido"})
             if p == "/api/ordenar":
                 for x in _paths(body)[:1]:
                     try:
@@ -265,6 +272,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"ok": True})
             if p == "/api/preview/state":
                 return self._send(200, {x: preview.state(x) for x in _paths(body)})
+            if p == "/api/openurl":
+                if body.get("url") in ("https://www.instagram.com/xidian_dj/",):
+                    webbrowser.open(body["url"])
+                    return self._send(200, {"ok": True})
+                return self._send(403, {"error": "URL no permitida"})
             if p == "/api/reveal":
                 for x in _paths(body)[:1]:
                     core.reveal(x)

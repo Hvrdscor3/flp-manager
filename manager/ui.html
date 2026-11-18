@@ -12,19 +12,19 @@
 <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#00203F;--on-ink:#fff;--on-ink-muted:#9fb3c6;--ink-line:#1b3d5e;--ink-hover:#00172e;
+  --ink:#061226;--on-ink:#fff;--on-ink-muted:#9fb3c6;--ink-line:#1b3d5e;--ink-hover:#00172e;
   --cream:#E6E9EC;--cream2:#d8dde2;--soft:#eef1f3;--white:#f7f8f9;--card:#fff;--hover:#f3f6f8;
   --line:#e3e7eb;--line2:#d3d9df;--line3:#b8c1ca;--muted:#6a7888;--muted2:#97a3af;--text2:#384a5c;--hatch:#7f93a6;
-  --mint:#36ECDE;--mint-ink:#00203F;--mint-soft:#36ecde2e;--mint-deep:#0aa99c;--navy:#00203F;
+  --mint:#64A2F9;--mint-ink:#061226;--mint-soft:#64a2f92e;--mint-deep:#2F6FD6;--navy:#061226;
   --ok:#0e9a73;--warn:#b7791f;--bad:#d1432b;--ok-bg:#e2f6ef;--warn-bg:#fbf3e4;--bad-bg:#fceae6;
   --shadow:#00203f12;--r:14px;--font:'General Sans',ui-sans-serif,system-ui,'Segoe UI',sans-serif;
   color-scheme:light;
 }
 :root[data-theme="dark"]{
-  --ink:#E6E9EC;--on-ink:#00203F;--on-ink-muted:#3d5a76;--ink-line:#b8c1ca;--ink-hover:#fff;
+  --ink:#E6E9EC;--on-ink:#061226;--on-ink-muted:#3d5a76;--ink-line:#b8c1ca;--ink-hover:#fff;
   --cream:#2F2F2F;--cream2:#3b3b3b;--soft:#2a2a2a;--white:#232323;--card:#2b2b2b;--hover:#333;
   --line:#373737;--line2:#444;--line3:#5a5a5a;--muted:#9aa1a8;--muted2:#767c83;--text2:#c5cad0;--hatch:#7b8a96;
-  --mint-soft:#36ecde24;--mint-deep:#36ECDE;--navy:#001a33;
+  --mint-soft:#64a2f924;--mint-deep:#64A2F9;--navy:#001a33;
   --ok:#3fd6a6;--warn:#e9b25c;--bad:#ff7a63;--ok-bg:#16352d;--warn-bg:#382c16;--bad-bg:#3d1f1a;
   --shadow:#0000005c;color-scheme:dark;
 }
@@ -52,33 +52,33 @@ aside{border-right:1px solid var(--line);display:flex;flex-direction:column;padd
 
 /* ---- paleta Clustr: barra lateral navy, acentos mint ---- */
 aside{background:var(--navy);border-right:0;color:#E6E9EC;
-  --ink:#E6E9EC;--text2:#a9bacb;--soft:#ffffff12;--card:#ffffff0f;--line:#ffffff1a;--line2:#ffffff26;--line3:#ffffff45;--muted:#8199b0;--muted2:#6d88a2;--on-ink:#00203F}
+  --ink:#E6E9EC;--text2:#a9bacb;--soft:#ffffff12;--card:#ffffff0f;--line:#ffffff1a;--line2:#ffffff26;--line3:#ffffff45;--muted:#8199b0;--muted2:#6d88a2;--on-ink:#061226}
 .nav button svg{color:#7f97ae;transition:color .15s}.nav button:hover svg{color:#E6E9EC}
-.nav button.on{background:#36ecde1c;color:var(--mint);box-shadow:inset 3px 0 0 var(--mint)}.nav button.on svg{color:var(--mint)}
-.nav button.on .n{background:var(--mint);color:#00203F;border-color:transparent}
+.nav button.on{background:#64a2f91c;color:var(--mint);box-shadow:inset 3px 0 0 var(--mint)}.nav button.on svg{color:var(--mint)}
+.nav button.on .n{background:var(--mint);color:#061226;border-color:transparent}
 .grp{color:#6d88a2;text-transform:uppercase;letter-spacing:.08em;font-size:10.5px;font-weight:600}
-.updcard{background:var(--mint);color:#00203F}.updcard p{color:#00203Fb3}
-.updcard .sec{background:#00203F;color:#fff;border-color:#00203F}
-:root[data-theme="dark"] .pri{background:var(--mint);color:#00203F}
-:root[data-theme="dark"] .pri:hover{background:#6af3e8}
+.updcard{background:var(--mint);color:#061226}.updcard p{color:#061226b3}
+.updcard .sec{background:#061226;color:#fff;border-color:#061226}
+:root[data-theme="dark"] .pri{background:var(--mint);color:#061226}
+:root[data-theme="dark"] .pri:hover{background:#8DBBFF}
 .pri:focus-visible,.sec:focus-visible,.seg button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
 .search{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 12px}
 .search:focus-within{border-color:var(--mint-deep);box-shadow:0 0 0 3px var(--mint-soft)}
 .col:last-child .b:not(.h){background:var(--mint-deep)}
 .scanbar>div,.pv .pbar div{background:var(--mint)!important}
 .fold.open>.fh{box-shadow:inset 3px 0 0 var(--mint)}
-.tag.dark{background:var(--mint);color:#00203F}
+.tag.dark{background:var(--mint);color:#061226}
 .tag svg{opacity:.85}
 .field input:focus{border-color:var(--mint-deep);box-shadow:0 0 0 3px var(--mint-soft)}
 .opts input{accent-color:var(--mint-deep)}
-.drive.sel .chk{background:var(--mint);border-color:var(--mint);color:#00203F}
+.drive.sel .chk{background:var(--mint);border-color:var(--mint);color:#061226}
 .drive.sel .meter>div{background:var(--mint)}
 .kv div svg{vertical-align:-2px;margin-right:4px;color:var(--muted2)}
 h1{display:flex;align-items:center;gap:10px}h1 svg{color:var(--mint-deep)}
 .kpi h4{display:flex;align-items:center;gap:8px}.kpi h4 svg{color:var(--mint-deep)}
 .colh h3{display:flex;align-items:center;gap:9px}
 .lico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--soft);color:var(--text2)}
-.lico.util{background:var(--mint);color:#00203F}.lico.descartar{background:var(--cream2);color:var(--muted)}
+.lico.util{background:var(--mint);color:#061226}.lico.descartar{background:var(--cream2);color:var(--muted)}
 .lico.problemas{background:var(--warn-bg);color:var(--warn)}.lico.pendiente{background:var(--mint-soft);color:var(--mint-deep)}
 .seg.txt button{gap:6px;align-items:center}
 .scrim{background:#00203f55!important}.modal{background:#00203f66!important}
@@ -105,7 +105,7 @@ h1{display:flex;align-items:center;gap:10px}h1 svg{color:var(--mint-deep)}
 .srow:hover{background:var(--hover)}
 .srow input[type=radio],.srow input[type=checkbox]{accent-color:var(--mint-deep);width:16px;height:16px;margin:0}
 .pbtn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--ink);transition:.12s}
-.pbtn:hover{background:var(--mint-soft)}.pbtn.on{background:var(--mint);color:#00203F}
+.pbtn:hover{background:var(--mint-soft)}.pbtn.on{background:var(--mint);color:#061226}
 .sname{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .spath{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;text-align:left}
 .smeta{display:flex;gap:10px;align-items:center;color:var(--text2);font-size:12px;white-space:nowrap}
@@ -139,7 +139,7 @@ body:has(#player.on) .modal{padding-bottom:124px;box-sizing:border-box}body:has(
 #sBody.sgrid #sRows .srow{grid-template-columns:24px 32px minmax(0,1fr);border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px;align-content:start}
 #sBody.sgrid #sRows .smeta{grid-column:1/-1;flex-wrap:wrap;white-space:normal;gap:6px 10px}
 #sBody.sgrid #sRows>.sfold{background:none;border:0;padding:12px 2px 2px}
-#player .pbtn{background:var(--mint);color:#00203F;width:46px;height:46px;flex:0 0 46px}
+#player .pbtn{background:var(--mint);color:#061226;width:46px;height:46px;flex:0 0 46px}
 #player .pn{width:280px;min-width:0;display:flex;flex-direction:column;gap:3px}#player .pn b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:14.5px;color:#fff}
 #player .pn small{color:#a9bacb;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 #player .pn .pd{color:#7088a0;font-size:11.5px}
@@ -155,7 +155,7 @@ body:has(#player.on) .modal{padding-bottom:124px;box-sizing:border-box}body:has(
 .cmpbox h3{margin:0 0 4px;font-size:18px;font-weight:600;display:flex;align-items:center;gap:10px}
 .crow{display:grid;grid-template-columns:30px 36px minmax(0,1fr);gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
 .crow .k{width:26px;height:26px;border-radius:8px;background:var(--soft);display:grid;place-items:center;font-weight:700;font-size:12px}
-.crow.cur .k{background:var(--mint);color:#00203F}
+.crow.cur .k{background:var(--mint);color:#061226}
 .crow canvas{width:100%;height:54px;display:block;margin:6px 0;cursor:pointer;border-radius:8px;background:var(--soft)}
 .cstats{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text2)}
 .cstats span b{color:var(--ink);font-weight:600}.cstats span.dif b{color:var(--warn)}
@@ -186,7 +186,7 @@ main{overflow:auto;position:relative}
 .dfil{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:14px;font-size:12.5px;color:var(--muted)}
 .dfil button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .dfil button span{font-weight:400;color:var(--muted)}
-.dfil button.on{background:var(--mint);border-color:var(--mint);color:#00203F}.dfil button.on span{color:#00203Fb0}
+.dfil button.on{background:var(--mint);border-color:var(--mint);color:#061226}.dfil button.on span{color:#061226b0}
 .dfil .hint{margin-left:4px}
 #dHid:empty{display:none}#dHid{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:var(--warn-bg);color:var(--warn);border-radius:999px;padding:4px 6px 4px 12px;font-weight:500}
 #dHid button{background:var(--card);border-color:transparent;padding:3px 10px}
@@ -333,7 +333,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--hover)}
 .app.mini #sideTgl{margin:0}.app.mini #sideTgl svg{transform:rotate(180deg)}
 .app.mini .nav button{font-size:0;justify-content:center;gap:0;padding:10px 0}
 .app.mini .nav button .n{display:none}
-.app.mini .nav button.on{box-shadow:inset 0 0 0 1px #36ecde55}
+.app.mini .nav button.on{box-shadow:inset 0 0 0 1px #64a2f955}
 .app.mini .grp{font-size:0;margin:14px 8px;height:1px;background:#ffffff14}
 .app.mini .side-foot{padding:12px 0 0}
 .app.mini .side-foot>*:not(.footrow):not(.updcard){display:none!important}
@@ -359,6 +359,30 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--hover)}
 .sctab .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line)}
 .sctab .r b{font-weight:600}.sctab .r small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sctab .empty{padding:14px 16px;color:var(--muted);font-size:13px}
+/* grupos plegables del menu */
+.grp.tg{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;border-radius:6px}
+.grp.tg:hover{color:#AEB7C4}
+.grp.tg svg{transition:transform .18s;margin-left:auto;opacity:.7}
+.grp.tg.shut svg{transform:rotate(-90deg)}
+.nav.shut{display:none}
+.app.mini .grp.tg svg{display:none}.app.mini .nav.shut{display:flex}
+.nav .soon{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);border:1px solid var(--acc-line);border-radius:6px;padding:1px 6px}
+.app.mini .nav .soon{display:none}
+/* comunidad */
+.comm-hero{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:34px 34px 30px;margin-top:6px}
+.comm-hero::after{content:'';position:absolute;right:-120px;top:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,#2a5fb044,transparent 65%);pointer-events:none}
+.comm-hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+.comm-hero h2{margin:10px 0 8px;font-size:34px;line-height:1.1;font-weight:700;letter-spacing:-.02em;color:var(--acc);text-shadow:var(--glow-t)}
+.comm-hero p{margin:0;max-width:640px;color:var(--text2);font-size:15px;line-height:1.6}
+.comm-hero .pill{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:6px 12px;border-radius:999px;border:1px solid var(--acc-line);color:var(--acc);font-size:12.5px;font-weight:600}
+.comm-hero .pill i{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc);animation:cpulse 1.6s ease-in-out infinite}
+@keyframes cpulse{50%{opacity:.35}}
+.comm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:16px}
+.comm-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.comm-card .ci{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--acc-soft);color:var(--acc);margin-bottom:14px}
+.comm-card h3{margin:0 0 6px;font-size:16px;font-weight:600}
+.comm-card p{margin:0;color:var(--text2);line-height:1.55;font-size:13.5px}
+.comm-note{margin-top:18px;color:var(--muted);font-size:12.5px}
 /* tour guiado */
 #tourBlock{position:fixed;inset:0;z-index:58;display:none}#tourBlock.on{display:block}
 #tourHole{position:fixed;z-index:59;border-radius:14px;box-shadow:0 0 0 3px var(--mint),0 0 0 9999px #000c18b8;pointer-events:none;transition:all .28s cubic-bezier(.2,.8,.2,1);display:none}
@@ -401,8 +425,13 @@ textarea:focus{border-color:var(--ink)}
 .miss{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--bad);background:var(--bad-bg);border-radius:10px;padding:9px 11px;max-height:150px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-top:8px}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .acts .pri,.acts .sec{padding:7px 12px;font-size:13px;border-radius:9px}
-.acts .bounce{background:var(--mint);color:#00203F;border:0;font-weight:700;letter-spacing:.06em;font-size:12px!important;text-transform:uppercase}
-.acts .bounce:hover{background:#6af3e8}.acts .bounce:disabled{opacity:.55;cursor:default}
+.acts .bounce{background:var(--mint);color:#061226;border:0;font-weight:700;letter-spacing:.06em;font-size:12px!important;text-transform:uppercase}
+.acts .bounce:hover{background:#8DBBFF}.acts .bounce:disabled{opacity:.55;cursor:default}
+.ordres:empty{display:none}.ordres{margin-top:10px;border-radius:12px;padding:12px 14px;background:var(--cream);font-size:13px}
+.ordres .oh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.ordres .oh b{font-size:14px}
+.ordres .sc{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.ordres ul{margin:8px 0 0;padding-left:18px;color:var(--text2);line-height:1.5}
+.ordres .oa{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.ordres .oa button{padding:6px 12px;font-size:12.5px}
 .pv:empty{display:none}.pv{margin-top:10px;font-size:12.5px;color:var(--text2)}
 .pv audio{width:100%;height:38px;margin-top:6px;display:block}
 .pv .pbar{height:4px;border-radius:9px;background:var(--cream2);overflow:hidden;margin-top:7px}
@@ -420,15 +449,147 @@ textarea:focus{border-color:var(--ink)}
 
 @media (max-width:1180px){.board{grid-template-columns:repeat(2,minmax(220px,1fr))}.kpis{grid-template-columns:1fr 1fr}}
 @media (max-width:760px){.app{grid-template-columns:1fr}aside{display:none}.hero,.content{padding-left:16px;padding-right:16px}.board,.kpis{grid-template-columns:1fr}}
+/* =====================================================================
+   ESTUDIO PRO: azul profundo, superficies planas, acento azul suave.
+   Sin degradados de color: solo brillo (glow) en titulos y sombras.
+   ===================================================================== */
+:root{--acc:#64A2F9;--acc-ink:#061226;--acc-soft:#64a2f91f;--acc-line:#64a2f955;
+  --glow-t:0 0 28px #64a2f95c,0 0 2px #64a2f966;--r:14px}
+:root[data-theme="dark"]{
+  --white:#0A0E16;--card:#0F131A;--cream:#0C1220;--cream2:#232830;--soft:#151A23;--hover:#171D27;
+  --line:#1F252E;--line2:#2A313B;--line3:#3A424E;--muted:#7D8796;--muted2:#5C6574;--text2:#AEB7C4;--ink:#E9EEF5;--hatch:#4A5363;
+  --mint:#64A2F9;--mint-deep:#64A2F9;--mint-soft:#64a2f91f;--navy:#040F25;
+  --shadow:#0000008a;--ok-bg:#0f2620;--warn-bg:#2a2112;--bad-bg:#2e1517}
+:root[data-theme="light"]{--white:#F3F5F9;--cream:#E9EDF3;--cream2:#DCE2EA;--soft:#EEF1F6;--line:#E0E5EC;--line2:#D0D7E1;
+  --mint:#3B82F6;--mint-deep:#2F6FD6;--mint-soft:#3b82f61f;--acc:#2F6FD6;--glow-t:none}
+html,body{background:var(--white)}
+body{background:radial-gradient(1100px 480px at 50% -12%,#2a5fb033,transparent 70%),var(--white);background-attachment:fixed}
+:root[data-theme="light"] body{background:var(--white)}
+main{background:transparent!important}
+
+/* titulos con brillo */
+h1,.kpi .big,.skpi b,#about h2{color:var(--acc);text-shadow:var(--glow-t)}
+h1 svg{color:var(--acc);filter:drop-shadow(0 0 8px #64a2f966)}
+.brand .bt{color:#E9EEF5}
+
+/* menu lateral */
+aside{background:#040F25;border-right:1px solid #ffffff0d}
+.brand{font-weight:700;letter-spacing:-.02em}
+.brand>svg{filter:drop-shadow(0 0 14px #64a2f955);border-radius:8px;cursor:pointer}.brand .bt{cursor:pointer}
+.app.mini .brand .bt{display:none}
+.nav button{border-radius:10px;transition:background .15s,color .15s}
+.nav button.on{background:#64a2f91a;color:#fff;box-shadow:inset 2px 0 0 var(--acc)}
+.nav button.on svg{color:var(--acc)}
+.nav button.on .n{background:var(--acc);color:var(--acc-ink)}
+.grp{color:#5A6A86}
+.updcard{background:#0F1A33;color:#E9EEF5;border:1px solid var(--acc-line)}.updcard p{color:#AEB7C4}
+.updcard .sec{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+
+/* cabecera y KPIs */
+.hero{background:transparent;border-bottom:1px solid var(--line)}
+.kpis{gap:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;min-height:100%;box-shadow:0 1px 0 #ffffff05 inset}
+.kpi .big{font-weight:600}
+.kpi .lbl{margin-top:16px}
+.col .b{background:var(--acc)}.col:last-child .b:not(.h){background:var(--acc)}
+
+/* botones */
+.pri{background:var(--acc);color:var(--acc-ink);font-weight:600;box-shadow:0 4px 14px #64a2f92e}
+.pri:hover{background:#7DB2FB;box-shadow:0 6px 20px #64a2f940}
+:root[data-theme="light"] .pri{background:#0F172A;color:#fff;box-shadow:0 4px 14px #0f172a26}
+:root[data-theme="light"] .pri:hover{background:#1E293B}
+.sec{border-radius:10px;transition:border-color .15s,background .15s}
+.sec:hover{border-color:var(--line3);background:var(--hover)}
+.seg{background:var(--soft);border:1px solid var(--line)}
+.seg button.on{background:var(--card);box-shadow:0 2px 8px var(--shadow)}
+.search{border-radius:12px}
+.acts .bounce{background:transparent!important;color:var(--acc)!important;border:1px solid var(--acc-line)!important}
+.acts .bounce:hover{background:var(--acc-soft)!important}
+
+/* tablero: tarjetas de proyecto */
+.colh h3{font-weight:600;font-size:16px}
+.card{position:relative;border-radius:14px;padding:14px 14px 12px 17px;background:var(--card);border:1px solid var(--line);overflow:hidden}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:hsl(var(--h,215) 55% 58%)}
+.card:hover{border-color:var(--line3);box-shadow:0 12px 30px var(--shadow);transform:translateY(-1px)}
+.card.dark{background:#64a2f90f;color:var(--ink);border-color:var(--acc-line)}
+.card.dark .desc,.card.dark .meta{color:var(--text2)}
+.card .t{font-size:15px;align-items:center}
+.card .desc{font-size:12px;margin:3px 0 10px}
+.card .meta{gap:8px;flex-wrap:wrap}
+.card .chip{border:0;background:var(--soft);padding:3px 8px;border-radius:7px}
+.card .bpm{font-variant-numeric:tabular-nums;color:var(--text2)}
+.card .ic.warn{color:var(--warn)}.card .ic.bad{color:var(--bad)}
+
+/* carpetas */
+.fold{border-radius:14px;background:var(--card)}
+.fold.open>.fh{background:var(--cream)}
+.prow.act{background:#64a2f914;color:var(--ink);box-shadow:inset 2px 0 0 var(--acc)}
+.prow.act .meta,.prow.act .pp{color:var(--text2)}
+
+/* detalle del proyecto */
+.drawer{border-color:var(--line2);box-shadow:0 30px 90px #000000a0!important}
+.dh{background:var(--cream);border-bottom:1px solid var(--line)}
+.dh h2{color:var(--acc);text-shadow:var(--glow-t)}
+.flist .file{border-radius:14px;background:var(--card)}
+.file.latest{border-color:var(--acc-line);box-shadow:0 0 0 1px #64a2f91a}
+.kv{grid-template-columns:repeat(3,1fr);gap:12px}
+.kv b{font-size:14px}
+details.kx{margin:-4px 0 8px;font-size:12.5px;color:var(--muted)}
+details.kx summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px}
+details.kx summary::-webkit-details-marker{display:none}
+details.kx[open] summary{margin-bottom:8px}
+.flist .acts{grid-template-columns:repeat(3,1fr)}
+.acts2{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.acts2 button{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;font-size:12.5px;color:var(--text2);background:transparent;border:1px solid var(--line)}
+.acts2 button:hover{background:var(--hover);color:var(--ink);border-color:var(--line2)}
+.acts2 button.danger{color:var(--bad)}.acts2 button.danger:hover{background:var(--bad-bg)}
+.acts2 button.warn{color:var(--warn);border-color:#e9b25c44}
+
+/* samples: navegador de sonidos */
+.skpi{border-radius:14px}
+.skpi b{font-weight:600}
+.dg{border-radius:14px}
+.srow{position:relative;transition:background .12s}
+.srow::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--cc,transparent);opacity:.85}
+.srow:hover{background:var(--hover)}
+.pbtn{width:34px;height:34px;background:var(--soft);border:1px solid var(--line2);transition:.15s}
+.pbtn:hover{border-color:var(--acc);color:var(--acc)}
+.pbtn.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);box-shadow:0 0 0 4px #64a2f91f,0 0 18px #64a2f955}
+.sname{font-size:14px}
+#sBody.sgrid #sRows .srow{border-radius:12px;background:var(--card)}
+#sBody.sgrid #sRows .srow::before{top:0;bottom:auto;left:0;right:0;width:auto;height:2px;border-radius:0}
+
+/* reproductor: plano, con sombra y desenfoque */
+#player{background:#0F131Aeb;backdrop-filter:blur(16px) saturate(1.2);border:1px solid #2A313B;box-shadow:0 24px 60px #000000b0}
+#player .pbtn{background:var(--acc);color:var(--acc-ink);border:0;box-shadow:0 0 22px #64a2f966}
+#player .vol input{accent-color:var(--acc)}
+
+/* ventanas */
+.modal>div,.cmpbox{border-radius:18px}
+.toast{border-radius:12px}
+
+/* Acerca de */
+#about .abox{width:min(440px,92vw);background:var(--card);border:1px solid var(--line2);border-radius:20px;overflow:hidden;box-shadow:0 30px 90px #000000b0;text-align:center}
+#about .ahead{padding:34px 24px 22px;background:radial-gradient(380px 180px at 50% 0%,#2a5fb055,transparent 72%);border-bottom:1px solid var(--line)}
+#about .ahead svg{filter:drop-shadow(0 0 24px #64a2f977)}
+#about h2{margin:14px 0 2px;font-size:24px;font-weight:700;letter-spacing:-.02em}
+#about .av{color:var(--muted);font-size:13px}
+#about .abody{padding:20px 26px 26px}
+#about .abody p{margin:0 0 18px;color:var(--text2);line-height:1.55}
+#about .ig{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:12px;font-weight:600;color:var(--ink);background:var(--soft);border:1px solid var(--line2)}
+#about .ig svg{color:var(--acc)}
+#about .ig:hover{border-color:var(--acc-line);background:#64a2f914}
+#about .by{margin-top:14px;font-size:12px;color:var(--muted)}
+#about .ax{position:absolute;right:14px;top:14px}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute">
-  <symbol id="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="7.5" fill="#36ECDE"/>
-    <rect x="4.5" y="5.4" width="5.8" height="21.2" rx="1.4" fill="#00203F"/><rect x="4.5" y="10.3" width="3.5" height="3" fill="#36ECDE"/><rect x="4.5" y="18.2" width="3.5" height="3" fill="#36ECDE"/>
-    <rect x="12.8" y="6.4" width="7" height="3" rx="1" fill="#00203F"/><rect x="17.9" y="10.3" width="9.6" height="3" rx="1" fill="#00203F"/>
-    <rect x="12.8" y="14.3" width="3.8" height="3" rx="1" fill="#fff"/><rect x="19.2" y="18.2" width="5.8" height="3" rx="1" fill="#00203F"/>
-    <rect x="14.1" y="22.1" width="13.4" height="3" rx="1" fill="#00203F"/></symbol>
+  <symbol id="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="7.5" fill="#64A2F9"/>
+    <rect x="4.5" y="5.4" width="5.8" height="21.2" rx="1.4" fill="#061226"/><rect x="4.5" y="10.3" width="3.5" height="3" fill="#64A2F9"/><rect x="4.5" y="18.2" width="3.5" height="3" fill="#64A2F9"/>
+    <rect x="12.8" y="6.4" width="7" height="3" rx="1" fill="#061226"/><rect x="17.9" y="10.3" width="9.6" height="3" rx="1" fill="#061226"/>
+    <rect x="12.8" y="14.3" width="3.8" height="3" rx="1" fill="#fff"/><rect x="19.2" y="18.2" width="5.8" height="3" rx="1" fill="#061226"/>
+    <rect x="14.1" y="22.1" width="13.4" height="3" rx="1" fill="#061226"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
   <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
@@ -451,6 +612,12 @@ textarea:focus{border-color:var(--ink)}
   <symbol id="i-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></symbol>
   <symbol id="i-side" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M15 10l-2 2 2 2"/></symbol>
   <symbol id="i-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></symbol>
+  <symbol id="i-ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.4 3.5 5.2"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.87l12-7.5a1 1 0 0 0 0-1.74l-12-7.5A1 1 0 0 0 7 4.5z"/></symbol>
   <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
@@ -476,17 +643,24 @@ textarea:focus{border-color:var(--ink)}
 
 <div class="app">
   <aside>
-    <div class="brand"><svg width="30" height="30"><use href="#logo"/></svg>FLP Manager<button id="sideTgl" title="Ocultar menú (Ctrl+B)"><svg width="16" height="16"><use href="#i-side"/></svg></button></div>
+    <div class="brand"><svg width="30" height="30" title="Acerca de"><use href="#logo"/></svg><span class="bt" title="Acerca de">FLP Manager</span><button id="sideTgl" title="Ocultar menú (Ctrl+B)"><svg width="16" height="16"><use href="#i-side"/></svg></button></div>
     <div class="nav" id="mainnav">
       <button data-v="projects" class="on"><svg width="18" height="18"><use href="#i-grid"/></svg>Proyectos<span class="n" id="nProj">0</span></button>
       <button data-v="drives"><svg width="18" height="18"><use href="#i-drive"/></svg>Unidades</button>
       <button data-v="organize"><svg width="18" height="18"><use href="#i-cal"/></svg>Organizar</button>
+    </div>
+    <div class="grp tg" data-tg="filters" title="Mostrar u ocultar">Filtros<svg width="12" height="12"><use href="#i-chev"/></svg></div>
+    <div class="nav" id="filters"></div>
+    <div class="grp tg" data-tg="toolnav" title="Mostrar u ocultar">Herramientas<svg width="12" height="12"><use href="#i-chev"/></svg></div>
+    <div class="nav" id="toolnav">
       <button data-v="samples"><svg width="18" height="18"><use href="#i-wave"/></svg>Samples<span class="n" id="nSmp" style="display:none"></span></button>
       <button data-v="plugins"><svg width="18" height="18"><use href="#i-plug"/></svg>Metadata VST</button>
       <button data-v="scripts"><svg width="18" height="18"><use href="#i-code"/></svg>Scripts<span class="n" id="nScr" style="display:none"></span></button>
     </div>
-    <div class="grp">Filtros</div>
-    <div class="nav" id="filters"></div>
+    <div class="grp tg" data-tg="commnav" title="Mostrar u ocultar">Comunidad<svg width="12" height="12"><use href="#i-chev"/></svg></div>
+    <div class="nav" id="commnav">
+      <button data-v="community"><svg width="18" height="18"><use href="#i-users"/></svg>Comunidad<span class="soon">Pronto</span></button>
+    </div>
     <div class="side-foot">
       <div class="footrow"><button class="sec" id="themeBtn" style="width:100%;justify-content:center;margin-bottom:14px"></button><button class="sec" id="tourBtn" title="Tour: cómo funciona la app"><svg width="17" height="17"><use href="#i-bulb"/></svg></button></div>
       <div style="display:flex;align-items:center;gap:6px"><b>Versión <span id="ver">—</span></b>
@@ -594,6 +768,19 @@ textarea:focus{border-color:var(--ink)}
         <div id="sBody"></div>
       </div>
     </section>
+    <section class="view" id="v-community"><div class="content">
+      <div class="comm-hero"><div class="eyebrow">En desarrollo</div>
+        <h2>Comunidad FLP Manager</h2>
+        <p>Un espacio para productores dentro de la app: comparte samples, habla en vivo con otros productores y colabora en proyectos enviando archivos sin salir de FLP Manager.</p>
+        <span class="pill"><i></i>Próximamente</span></div>
+      <div class="comm-grid">
+        <div class="comm-card"><div class="ci"><svg width="20" height="20"><use href="#i-share"/></svg></div><h3>Compartir samples</h3><p>Publica tus kits, loops y one-shots, y descarga los de otros productores con vista previa.</p></div>
+        <div class="comm-card"><div class="ci"><svg width="20" height="20"><use href="#i-chat"/></svg></div><h3>Chat en vivo</h3><p>Salas por género y mensajes directos para pedir feedback o armar sesiones.</p></div>
+        <div class="comm-card"><div class="ci"><svg width="20" height="20"><use href="#i-users"/></svg></div><h3>Colaboraciones</h3><p>Invita a otros a un proyecto, comparte versiones y lleva el registro de quién cambió qué.</p></div>
+        <div class="comm-card"><div class="ci"><svg width="20" height="20"><use href="#i-send"/></svg></div><h3>Envío de archivos</h3><p>Manda tus .flp con sus samples empaquetados para que el otro los abra completos, sin faltantes.</p></div>
+      </div>
+      <p class="comm-note">Esta sección aún no está disponible. Síguenos en Instagram <b>@xidian_dj</b> para enterarte cuando salga.</p>
+    </div></section>
     <section class="view" id="v-scripts"><div class="content">
       <h1><svg width="24" height="24"><use href="#i-code"/></svg>Scripts</h1>
       <p class="sub">Scripts para FL Studio: los que puedes instalar desde aquí, qué hacen y cómo usarlos, y los que ya tienes instalados.</p>
@@ -607,6 +794,12 @@ textarea:focus{border-color:var(--ink)}
 <div class="modal" id="modal"><div class="box"><h3 id="mt"></h3><p id="mp"></p>
   <div class="topbar" style="justify-content:flex-end"><button class="sec" id="mno">Cancelar</button><button class="pri" id="myes">Confirmar</button></div></div></div>
 <div class="toast" id="toast"></div>
+<div class="modal" id="about"><div class="abox" style="position:relative">
+  <button class="x ax" id="aboutX" title="Cerrar"><svg width="18" height="18"><use href="#i-x"/></svg></button>
+  <div class="ahead"><svg width="64" height="64"><use href="#logo"/></svg><h2>FLP Manager</h2><div class="av">Versión <span id="aboutV">—</span></div></div>
+  <div class="abody"><p>Organiza tus proyectos de FL Studio, encuentra samples faltantes, limpia duplicados y escucha tus ideas sin abrir FL.</p>
+   <button class="ig" id="aboutIg"><svg width="18" height="18"><use href="#i-ig"/></svg>@xidian_dj</button>
+   <div class="by">Hecho por un productor, para productores · Sígueme en Instagram</div></div></div></div>
 <div id="tourBlock"></div><div id="tourHole"></div><div id="tourTip"></div>
 <div id="player"><button class="pbtn" id="plBtn" title="Reproducir / pausa (espacio)"></button><div class="pn"><b id="plName"></b><small id="plInfo"></small><small class="pd" id="plDir"></small></div>
   <canvas id="plWave" height="128"></canvas><span class="tm" id="plTime"></span><div class="vol"><button class="ibtn" id="plMute" title="Silenciar"></button><input type="range" id="plVol" min="0" max="100" step="1" title="Volumen (rueda del ratón)"><span id="plVolN"></span></div><button class="ibtn" id="plClose" title="Cerrar"><svg width="16" height="16"><use href="#i-x"/></svg></button></div>
@@ -635,9 +828,12 @@ $('#themeBtn').onclick=()=>{const t=document.documentElement.dataset.theme==='da
 paintThemeBtn();
 
 /* ---------- navegación ---------- */
-function show(v){closeDrawer();$$('#mainnav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+function show(v){closeDrawer();$$('#mainnav button,#toolnav button,#commnav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   $$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));$('#main').scrollTop=0;if(v==='projects')loadProjects();if(v==='drives')loadDrives();if(v==='samples')loadSamples();if(v==='plugins')loadVst();if(v==='scripts')loadScripts()}
-$$('#mainnav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+$$('#mainnav button,#toolnav button,#commnav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+/* grupos plegables del menu (se recuerdan) */
+$$('.grp.tg').forEach(h=>{const id=h.dataset.tg,k='flpm.shut.'+id,set=on=>{h.classList.toggle('shut',on);$('#'+id).classList.toggle('shut',on)};
+  set(store.get(k)==='1');h.onclick=()=>{const on=!h.classList.contains('shut');set(on);store.set(k,on?'1':'0')}});
 $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 
 /* ---------- proyectos ---------- */
@@ -772,14 +968,15 @@ let QT;$('#q').oninput=()=>{clearTimeout(QT);QT=setTimeout(render,180)};$('#sort
 
 function card(g){const dark=g.key===ACTIVE,ghost=g.mark==='descartar';
   const folder=(g.latest.split(/[\\/]/).slice(0,-1).join('\\'));
-  return `<div class="card ${dark?'dark':ghost?'ghost':''}" draggable="true" data-k="${esc(g.key)}">
-   <div class="t"><span>${esc(g.name)}</span>${ico('i-dots',16)}</div><div class="desc" title="${esc(g.latest)}">&lrm;${esc(folder)}</div>
+  const pm=g.members.find(m=>m.primary)||g.members[0],hue=195+Math.abs([...g.name].reduce((a,c)=>a*31+c.charCodeAt(0)|0,7))%75;
+  const where=folder.split('\\').filter(x=>x&&!/^backup$/i.test(x)).slice(-2).join(' › ');
+  return `<div class="card ${dark?'dark':ghost?'ghost':''}" draggable="true" data-k="${esc(g.key)}" style="--h:${hue}">
+   <div class="t"><span>${esc(g.name)}</span>${ico('i-dots',16)}</div><div class="desc" title="${esc(g.latest)}">${esc(where)}</div>
    <div class="meta"><span class="chip">${ico('i-cal',12)}${fmtS(g.mtime)}</span>
-    <span class="ic" title="Versiones">${ico('i-copy',13)}${g.count}</span>
-    ${g.backups?`<span class="ic" title="Backups">${ico('i-hist',13)}${g.backups}</span>`:''}
+    ${pm&&pm.tempo?`<span class="bpm">${Math.round(pm.tempo)} BPM</span>`:''}
+    ${g.count>1?`<span class="ic" title="${g.count} versiones">${ico('i-copy',13)}${g.count}</span>`:''}
     ${g.missing?`<span class="ic warn" title="Samples faltantes">${ico('i-alert',13)}${g.missing}</span>`:''}
-    ${g.error?`<span class="ic bad" title="No se puede leer">${ico('i-x',13)}</span>`:''}
-    <span style="margin-left:auto">${esc((g.version||'').split('.').slice(0,2).join('.'))}</span></div></div>`}
+    ${g.error?`<span class="ic bad" title="No se puede leer">${ico('i-x',13)}</span>`:''}</div></div>`}
 
 function renderBoard(list){
   if(!GROUPS.length){$('#board').innerHTML=`<div class="empty" style="grid-column:1/-1">Aún no hay proyectos.<br><br><button class="pri" onclick="show('drives')">${ico('i-scan',16)}Escanear unidades</button></div>`;return}
@@ -815,11 +1012,12 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><b style="font-weight:600;word-break:break-word">${esc(m.name)}</b>
      <span style="white-space:nowrap">${m.latest?'<span class="tag dark">Más reciente</span>':''}${m.primary&&!m.latest?'<span class="tag cream">Principal</span>':''}${m.backup?'<span class="tag">Backup</span>':''}${m.error?'<span class="tag b">Error</span>':m.missing.length?`<span class="tag w">${m.missing.length} faltan</span>`:'<span class="tag g">OK</span>'}</span></div>
     <div class="pp" style="max-width:none;white-space:normal;word-break:break-all;margin-top:4px">${esc(m.path)}</div>
-    <div class="kv"><div>${ico('i-hdd',12)}FL Studio<b>${esc(m.version||'—')}</b></div><div>${ico('i-music',12)}Tempo<b>${m.tempo?m.tempo+' BPM':'—'}</b></div><div>${ico('i-copy',12)}Tamaño<b>${fmtB(m.size)}</b></div>
-     <div>${ico('i-cal',12)}Modificado<b>${fmtD(m.mtime)}</b></div><div>${ico('i-cal',12)}Creado<b>${fmtD(m.created)}</b></div><div>${ico('i-clock',12)}Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
-     <div>${ico('i-list',12)}Canales<b>${m.channels}</b></div><div>${ico('i-grid',12)}Patterns<b>${m.patterns}</b></div><div>${ico('i-wave',12)}Samples<b>${m.samples}</b></div></div>
+    <div class="kv"><div>${ico('i-music',12)}Tempo<b>${m.tempo?m.tempo+' BPM':'—'}</b></div><div>${ico('i-cal',12)}Modificado<b>${fmtD(m.mtime)}</b></div><div>${ico('i-clock',12)}Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div></div>
+    <details class="kx"><summary>${ico('i-expand',12)}Más datos</summary><div class="kv" style="margin:0"><div>${ico('i-hdd',12)}FL Studio<b>${esc(m.version||'—')}</b></div><div>${ico('i-copy',12)}Tamaño<b>${fmtB(m.size)}</b></div><div>${ico('i-cal',12)}Creado<b>${fmtD(m.created)}</b></div>
+     <div>${ico('i-list',12)}Canales<b>${m.channels}</b></div><div>${ico('i-grid',12)}Patterns<b>${m.patterns}</b></div><div>${ico('i-wave',12)}Samples<b>${m.samples}</b></div></div></details>
     ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
-    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec" data-a="ordenar" data-i="${i}" title="Junta automatizaciones, nombra y colorea pistas. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button>${m.missing.length?`<button class="sec" data-a="relink" data-i="${i}">${ico('i-unlink',15)}Reparar samples (${m.missing.length})</button>`:''}<button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('')+'</div>'+`<div class="dtop"><div><div class="lab">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea></div>
+    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="ordenar" data-i="${i}" title="Junta automatizaciones, nombra y colorea pistas. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button></div>
+    <div class="acts2">${m.missing.length?`<button class="warn" data-a="relink" data-i="${i}">${ico('i-unlink',14)}Reparar samples (${m.missing.length})</button>`:''}<button data-a="verorden" data-i="${i}" title="Revisa si las pistas del Playlist están en orden (no cambia nada)">${ico('i-eye',14)}Verificar orden</button><button data-a="reveal" data-i="${i}">${ico('i-folder',14)}Mostrar</button><button class="danger" data-a="del" data-i="${i}">${ico('i-trash',14)}Papelera</button></div><div class="ordres" data-or="${i}"></div><div class="pv" data-pv="${i}"></div></div>`).join('')+'</div>'+`<div class="dtop"><div><div class="lab">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea></div>
    <div><div class="lab">Plugins del proyecto</div><div id="pPlug"><button class="sec" id="pPlugBtn">${ico('i-plug',15)}Ver plugins y versiones</button></div></div></div>`;
   $('#drawer').classList.add('on');$('#scrim').classList.add('on');$('#dx').onclick=closeDrawer;
   for(const k in PVS)delete PVS[k];pollPreviews(g);
@@ -834,6 +1032,16 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
       if(!await ask('Ordenar pistas',r.log.join('\n')+'\n\nSe guardará una copia "'+m.name.replace(/\.flp$/i,'')+' - ordenado.flp". El original no se toca.','Crear copia ordenada'))return;
       const s=await api('/api/ordenar',{paths:[m.path]});if(s.error){toast('Error: '+s.error);return}
       toast('Guardado: '+s.dst.split('\\').pop());loadProjects()}
+    if(a==='verorden'){b.disabled=true;const el=$(`#db [data-or="${b.dataset.i}"]`);el.innerHTML='Revisando pistas…';
+      const r=await api('/api/orden/check',{paths:[m.path]});b.disabled=false;
+      if(r.error){el.innerHTML=`<div class="perr" style="color:var(--bad)">No se pudo revisar: ${esc(r.error)}</div>`;return}
+      const lab={ordenado:['g','Ordenado'],regular:['w','Algo desordenado'],desordenado:['b','Desordenado']}[r.level];
+      el.innerHTML=`<div class="oh"><span class="sc">${r.score}</span><span style="color:var(--muted)">/ 100</span><span class="tag ${lab[0]}">${lab[1]}</span>
+        <span style="color:var(--muted);margin-left:auto">${r.stats.used} pistas con clips · ${r.stats.autos} automatizaciones</span></div>
+        ${r.issues.length?`<ul>${r.issues.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<div style="margin-top:6px;color:var(--text2)">Las pistas están en orden. No hace falta acomodar nada.</div>'}
+        <div class="oa">${r.level!=='ordenado'?`<button class="pri" data-ofix="${b.dataset.i}">${ico('i-list',14)}Ordenar pistas</button>`:''}<button class="sec" data-oclose>Cerrar</button></div>`;
+      el.querySelector('[data-oclose]').onclick=()=>el.innerHTML='';
+      const fx=el.querySelector('[data-ofix]');if(fx)fx.onclick=()=>$(`#db [data-a="ordenar"][data-i="${b.dataset.i}"]`).click()}
     if(a==='bounce'){b.disabled=true;await api('/api/preview',{paths:[m.path]});pollPreviews(g)}
     if(a==='mark'){await mark(all,b.dataset.s);toast('Marcado')}
     if(a==='del'&&await ask('Enviar a la Papelera',m.path+'\n\nPodrás recuperarlo desde la Papelera de reciclaje.','Enviar a Papelera')){const r=await api('/api/delete',{paths:[m.path]});toast(r.deleted?'Enviado a la Papelera':'No se pudo borrar');loadProjects()}
@@ -939,7 +1147,7 @@ $('#undo').onclick=async()=>{if(!await ask('Deshacer','Los archivos de la últim
 
 
 /* =================== SAMPLES =================== */
-const SCOL=['#36ECDE','#00203F','#2bb3a8','#6aa7d8','#9fb3c6','#e3a94e','#ff7a63','#7c6ae0','#4caf7d','#d16aa8','#8a9aa8','#c9a227','#5c7c99','#b8c1ca'];
+const SCOL=['#64A2F9','#061226','#2bb3a8','#6aa7d8','#9fb3c6','#e3a94e','#ff7a63','#7c6ae0','#4caf7d','#d16aa8','#8a9aa8','#c9a227','#5c7c99','#b8c1ca'];
 let SSUM=null,SREV=0,STAB=store.get('flpm.stab')||'dups',SSEL=new Set(JSON.parse(store.get('flpm.sdrives')||'[]')),SJOBS={},SPOLL=0;
 let SF={cat:'',q:'',filter:'all',sort:'name',offset:0},SITEMS={},SPICK=new Set();
 const fmtDur=t=>t==null?'—':t<60?t.toFixed(t<10?2:1)+' s':Math.floor(t/60)+':'+String(Math.round(t%60)).padStart(2,'0');
@@ -1029,7 +1237,7 @@ async function sExplore(more){if(!more)SF.offset=0;
   if(!more)SF._dir=null;const r=await api('/api/samples/query',{...SF,limit:150,group:SGRP});r.items.forEach(it=>SITEMS[it.id]=it);
   $('#sTabInfo').textContent=`${r.total.toLocaleString('es')} samples`;
   const opts=CATS_ALL.map(c=>`<option ${SF.cat===c?'selected':''}>${esc(c)}</option>`).join('');
-  const rows=r.items.map(it=>(SGRP&&it.dir!==SF._dir?foldHead(SF._dir=it.dir,it.id,''):'')+`<div class="srow" data-id="${it.id}"><input type="checkbox" data-pick="${it.id}">${pbtn(it)}
+  const rows=r.items.map(it=>(SGRP&&it.dir!==SF._dir?foldHead(SF._dir=it.dir,it.id,''):'')+`<div class="srow" data-id="${it.id}" style="--cc:${catColor(it.cat||'')}"><input type="checkbox" data-pick="${it.id}">${pbtn(it)}
     <div style="min-width:0"><div class="sname">${esc(it.name)}${it.bad?' <span class="tag b">Dañado</span>':''}</div><div class="spath" title="${esc(it.path)}">&lrm;${esc(it.dir)}</div></div>
     <div class="smeta">${it.bpm?`<span class="chip">${it.bpm} BPM</span>`:''}${it.key?`<span class="chip">${esc(it.key)}</span>`:''}${usedTag(it)}<span>${fmtDur(it.dur)}</span><span>${fmtB(it.size)}</span>
      <select data-scat="${it.id}" title="Categoría">${CATS_ALL.map(c=>`<option ${it.cat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
@@ -1117,12 +1325,14 @@ function peaksOf(id,b){if(PEAKS.has(id))return PEAKS.get(id);const ch=[...Array(
 function waveImgs(cv,id,b,w,h){const dark=!!cv.closest('#player'),key=[id,w,h,dark,document.documentElement.dataset.theme].join('|');
   if(cv._wk===key)return cv._wi;const {pk,rm,top}=peaksOf(id,b),mid=h/2,amp=mid*.92/Math.max(top,.05);
   const base=dark?'#4d6b88':getComputedStyle(document.documentElement).getPropertyValue('--line3').trim()||'#9aa8b6';
-  const mk=(c1,c2)=>{const o=document.createElement('canvas');o.width=w;o.height=h;const g=o.getContext('2d');
+  const acc=getComputedStyle(document.documentElement).getPropertyValue('--acc').trim()||'#64A2F9';
+  const mk=(c1,c2,glow)=>{const o=document.createElement('canvas');o.width=w;o.height=h;const g=o.getContext('2d');if(glow){g.shadowColor=acc+'99';g.shadowBlur=Math.round(h*.12)}
     const at=(arr,x)=>{const f=x/w*NB,i=Math.min(NB-1,Math.floor(f)),j=Math.min(NB-1,i+1),t=f-i;return arr[i]*(1-t)+arr[j]*t};
     const span=NB/w,band=(arr,x)=>{if(span<=1)return at(arr,x);let m=0;const s=Math.floor(x*span),e=Math.min(NB,Math.ceil((x+1)*span));for(let i=s;i<e;i++)if(arr[i]>m)m=arr[i];return m};
     const path=arr=>{g.beginPath();g.moveTo(0,mid);for(let x=0;x<=w;x++)g.lineTo(x,mid-Math.max(.5,band(arr,x)*amp));for(let x=w;x>=0;x--)g.lineTo(x,mid+Math.max(.5,band(arr,x)*amp));g.closePath();g.fill()};
-    g.fillStyle=c1;g.globalAlpha=.55;path(pk);g.globalAlpha=1;g.fillStyle=c2;path(rm);return o};
-  cv._wk=key;cv._wi=[mk(base,base),mk('#36ECDE','#36ECDE')];return cv._wi}
+    const fill=c=>c;
+    g.fillStyle=fill(c1);g.globalAlpha=.55;path(pk);g.globalAlpha=1;g.fillStyle=fill(c2);path(rm);return o};
+  cv._wk=key;cv._wi=[mk(base,base),mk(acc,acc,true)];return cv._wi}
 function drawWave(cv,id,b,frac){const dpr=devicePixelRatio||1,w=Math.max(10,Math.round(cv.clientWidth*dpr)),h=Math.max(4,Math.round(cv.clientHeight*dpr));
   if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
   const [a,p]=waveImgs(cv,id,b,w,h),g=cv.getContext('2d'),px=frac*w;
@@ -1297,14 +1507,14 @@ const TOUR=[
   {v:'projects',el:'#viewseg',t:'Vistas',d:'<b>Carpetas</b> (tu árbol de carpetas), <b>Tablero</b> (arrastra proyectos entre Por revisar, Útiles y Descartar) o <b>Lista</b>.'},
   {v:'projects',el:'.kpis',t:'Resumen',d:'Proyectos por mes, qué tan sanos están (sin samples faltantes ni errores), cuántos archivos tienes y las horas trabajadas.'},
   {v:'projects',el:'#filters',t:'Filtros rápidos',d:'Encuentra proyectos con <b>samples faltantes</b>, que no se pueden leer, con backups o de los últimos 30 días.'},
-  {v:'projects',el:'#folders .fold, #board .card, #rows tr[data-k]',t:'Detalle del proyecto',d:'Haz clic en un proyecto para ver todas sus versiones. Desde ahí: <b>Abrir en FL</b>, <b>Bounce preview</b> (escuchar sin abrir FL), <b>Ordenar pistas</b>, <b>Reparar samples</b>, notas y plugins usados.'},
+  {v:'projects',el:'#folders .fold, #board .card, #rows tr[data-k]',t:'Detalle del proyecto',d:'Haz clic en un proyecto para ver todas sus versiones. Desde ahí: <b>Abrir en FL</b>, <b>Bounce preview</b> (escuchar sin abrir FL), <b>Verificar orden</b> (revisa si las pistas están desordenadas), <b>Ordenar pistas</b>, <b>Reparar samples</b>, notas y plugins usados.'},
   {v:'projects',el:'#cleanBk',t:'Limpiar backups',d:'Envía a la Papelera los autoguardados más viejos que su proyecto. Siempre te pide confirmar y solo toca los discos visibles.'},
   {v:'organize',el:'#v-organize .panel',t:'3. Organizar',d:'Copia o mueve tus proyectos a <b>Destino / Año / Mes / Proyecto</b>. Primero ves una vista previa y puedes deshacer el último movimiento.'},
   {v:'samples',el:'#sTabs',t:'4. Samples',d:'Escanea tus samples y encuentra <b>duplicados</b>, archivos con el <b>mismo nombre</b> (compáralos A/B), explóralos por categoría y arma una librería ordenada.'},
   {v:'samples',el:'#sView',t:'Por carpeta y en cuadrícula',d:'Agrupa los samples por carpeta y cambia entre lista y cuadrícula. Al darle play aparece el reproductor con volumen abajo.'},
   {v:'plugins',el:'#v-plugins .hero',t:'5. Metadata VST',d:'Lista tus plugins instalados con su versión y formato, y exporta presets de Serum 1 a Serum 2.'},
   {v:'scripts',el:'#v-scripts .sccard',t:'6. Scripts',d:'Instala scripts para FL Studio, mira qué hace cada uno y cómo se usa, y revisa los que ya tienes instalados.'},
-  {el:'#sideTgl',t:'Más espacio',d:'Oculta este menú para tener más espacio (también con <b>Ctrl+B</b>). Quedan solo los iconos.'},
+  {el:'#sideTgl',t:'Más espacio',d:'Oculta este menú para tener más espacio (también con <b>Ctrl+B</b>). Quedan solo los iconos. Toca <b>Filtros</b>, <b>Herramientas</b> o <b>Comunidad</b> para plegar cada grupo.'},
   {el:'#chkUpd',t:'Actualizaciones',d:'Pulsa <b>Buscar</b> para ver si hay una versión nueva; se instala con un clic.'},
   {el:'#fsSt',t:'Script Auto Organizer',d:'Instala el script para FL Studio que ordena y colorea automatizaciones. En FL: <b>Options › MIDI Settings › Controller type › Auto Organizer</b>.'},
   {t:'¡Listo!',d:'Eso es todo. Si algo no queda claro, vuelve a abrir este tour con el <b>foquito</b>.'}];
@@ -1361,8 +1571,10 @@ async function loadScripts(){let d;try{d=await api('/api/scripts',{})}catch{$('#
   $('#scBody').innerHTML=`<div class="lab" style="margin-top:0">Disponibles en FLP Manager</div><div class="scgrid">`
    +d.catalog.map(c=>`<div class="sccard"><h3>${ico('i-code',18)}${esc(c.name)}${st(c)}</h3><div class="k">${esc(c.kind)}</div>
       <p>${esc(c.what)}</p><div class="lab" style="margin:0">Cómo se usa</div>${scStep(c.how)}<div class="lim">${ico('i-alert',13)} ${esc(c.limits)}</div>
-      <div class="acts">${c.current?'':`<button class="pri" data-scin="${c.id}">${ico('i-dl',15)}${c.installed?'Actualizar':'Instalar'}</button>`}
-       ${c.installed?`<button class="sec" data-screv="${esc(c.path)}">${ico('i-folder',15)}Abrir carpeta</button>`:''}</div></div>`).join('')
+      <div class="acts">${!c.available?'<span class="tag b">Falta el archivo del script</span>':!c.installed?`<button class="pri" data-scin="${c.id}">${ico('i-dl',15)}Instalar</button>`
+         :`${c.current?`<button class="sec" data-scin="${c.id}" title="Vuelve a copiar el script">${ico('i-hist',15)}Reinstalar</button>`:`<button class="pri" data-scin="${c.id}">${ico('i-dl',15)}Actualizar</button>`}
+           <button class="sec" data-screv="${esc(c.path)}">${ico('i-folder',15)}Abrir carpeta</button>
+           <button class="sec danger" data-scun="${c.id}" data-n="${esc(c.name)}">${ico('i-trash',15)}Desinstalar</button>`}</div></div>`).join('')
    +TOOLS.map(t=>`<div class="sccard"><h3>${ico('i-list',18)}${esc(t.name)}<span class="tag g">Incluido</span></h3><div class="k">${esc(t.kind)}</div>
       <p>${esc(t.what)}</p><div class="lab" style="margin:0">Cómo se usa</div>${scStep(t.how)}<div class="lim">${ico('i-alert',13)} ${esc(t.limits)}</div>
       <div class="acts"><button class="sec" onclick="show('projects')">${ico('i-grid',15)}Ir a Proyectos</button></div></div>`).join('')
@@ -1376,7 +1588,17 @@ async function loadScripts(){let d;try{d=await api('/api/scripts',{})}catch{$('#
    +`<p style="margin:14px 0 0;color:var(--muted);font-size:12.5px">Los controladores MIDI se activan en FL con Options › MIDI Settings › Controller type. Los de Piano roll y Edison aparecen en su menú Tools › Scripting.</p>`;
   $$('[data-scin]').forEach(b=>b.onclick=async()=>{b.disabled=true;const r=await api('/api/scripts/install',{id:b.dataset.scin});
     if(r.error){toast(r.error);b.disabled=false;return}toast('Instalado. Reinicia FL Studio para verlo en MIDI Settings.');loadScripts();api('/api/flscript',{}).then(fsShow).catch(()=>{})});
+  $$('[data-scun]').forEach(b=>b.onclick=async()=>{if(!await ask('Desinstalar '+b.dataset.n,'El script irá a la Papelera de reciclaje (puedes recuperarlo). Reinicia FL Studio para que deje de aparecer en MIDI Settings.','Desinstalar'))return;
+    b.disabled=true;const r=await api('/api/scripts/uninstall',{id:b.dataset.scun});if(r.error){toast(r.error);b.disabled=false;return}
+    toast(b.dataset.n+' desinstalado (está en la Papelera)');loadScripts();api('/api/flscript',{}).then(fsShow).catch(()=>{})});
   $$('[data-screv]').forEach(b=>b.onclick=()=>api('/api/scripts/reveal',{path:b.dataset.screv}))}
+/* ---------- acerca de ---------- */
+function openAbout(){$('#aboutV').textContent=$('#ver').textContent;$('#about').classList.add('on')}
+function closeAbout(){$('#about').classList.remove('on')}
+$$('.brand>svg,.brand .bt').forEach(e=>e.onclick=openAbout);$('#aboutX').onclick=closeAbout;
+$('#about').onclick=e=>{if(e.target.id==='about')closeAbout()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#about').classList.contains('on')){e.stopImmediatePropagation();closeAbout()}},true);
+$('#aboutIg').onclick=()=>api('/api/openurl',{url:'https://www.instagram.com/xidian_dj/'}).catch(()=>toast('No se pudo abrir el navegador'));
 loadProjects();
 </script>
 </body>
