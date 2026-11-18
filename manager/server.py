@@ -11,9 +11,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import core  # noqa: E402
 import updater  # noqa: E402
 import preview  # noqa: E402
+import samples  # noqa: E402
+import relink  # noqa: E402
+import plugins  # noqa: E402
 
 TOKEN = secrets.token_urlsafe(24)
 MGR = core.Manager()
+samples._MGR[0] = MGR
+SMP = samples.SampleManager()
+PIX = plugins.PluginIndex(MGR)
 UI = os.path.join(getattr(sys, "_MEIPASS", core.HERE), "ui.html")
 HOOKS = {"pick_folder": core.pick_folder, "quit": lambda: os._exit(0)}
 
@@ -61,7 +67,7 @@ class Handler(BaseHTTPRequestHandler):
             with open(UI, encoding="utf-8") as f:
                 html = f.read().replace("__TOKEN__", TOKEN)
             return self._send(200, ctype="text/html", raw=html.encode("utf-8"))
-        if self.path.startswith("/preview/"):
+        if self.path.startswith("/preview/") or self.path.startswith("/sample/"):
             return self._audio()
         if self.headers.get("X-Token") != TOKEN:
             return self._send(403, {"error": "token"})
@@ -77,6 +83,16 @@ class Handler(BaseHTTPRequestHandler):
             if q and q == str(MGR.rev):
                 return self._send(200, {"same": True, "rev": MGR.rev})
             return self._send(200, raw=_projects_json(), ctype="application/json")
+        if self.path == "/api/plugins":
+            if not PIX.state["running"] and PIX.mgr_rev != MGR.rev:
+                PIX.refresh()
+            return self._send(200, PIX.summary())
+        if self.path == "/api/relink/index":
+            return self._send(200, relink.index_status())
+        if self.path == "/api/samples/status":
+            return self._send(200, SMP.status())
+        if self.path == "/api/samples/summary":
+            return self._send(200, SMP.summary())
         if self.path == "/api/backups":
             c = MGR.backup_candidates()
             return self._send(200, {"items": c, "size": sum(x["size"] for x in c)})
@@ -88,9 +104,13 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         if parse_qs(u.query).get("t", [""])[0] != TOKEN:
             return self._send(403, {"error": "token"})
-        f = preview.file_for(os.path.basename(u.path).split(".")[0])
-        if not f:
+        k = os.path.basename(u.path).split(".")[0]
+        f = preview.file_for(k) if u.path.startswith("/preview/") else SMP.path_of(k)
+        if not f or not os.path.isfile(f):
             return self._send(404, {"error": "no encontrado"})
+        ext = os.path.splitext(f)[1].lower()
+        ctype = {".wav": "audio/wav", ".flac": "audio/flac", ".ogg": "audio/ogg", ".aif": "audio/aiff",
+                 ".aiff": "audio/aiff"}.get(ext, "audio/mpeg")
         size = os.path.getsize(f)
         start, end = 0, size - 1
         rng = self.headers.get("Range", "")
@@ -100,7 +120,7 @@ class Handler(BaseHTTPRequestHandler):
             end = int(b) if a and b else end
         end = min(end, size - 1)
         self.send_response(206 if rng else 200)
-        self.send_header("Content-Type", "audio/mpeg")
+        self.send_header("Content-Type", ctype)
         self.send_header("Accept-Ranges", "bytes")
         self.send_header("Content-Length", str(end - start + 1))
         if rng:
@@ -118,6 +138,10 @@ class Handler(BaseHTTPRequestHandler):
                     left -= len(chunk)
             except (ConnectionError, OSError):
                 pass
+
+    def _samples(self, a, b):
+        r = _samples_post(self, a, b)
+        return self._send(200, r) if r is not None else self._send(404, {"error": "no encontrado"})
 
     def do_POST(self):
         if not self._ok_host() or self.headers.get("X-Token") != TOKEN:
@@ -146,6 +170,39 @@ class Handler(BaseHTTPRequestHandler):
                 for x in _paths(body)[:1]:
                     core.open_in_fl(x)
                 return self._send(200, {"ok": True})
+            if p == "/api/plugins/refresh":
+                PIX.refresh()
+                return self._send(200, {"ok": True})
+            if p == "/api/plugins/projects":
+                return self._send(200, {"items": PIX.projects_using(body.get("name", ""), body.get("fmt", ""))})
+            if p == "/api/plugins/project":
+                for x in _paths(body)[:1]:
+                    return self._send(200, {"items": PIX.for_project(x)})
+                return self._send(404, {"error": "Proyecto desconocido"})
+            if p == "/api/plugins/export":
+                if body.get("all"):
+                    # con Serum segun el indice; los aun no leidos tambien se revisan
+                    projs = [k for k in MGR.projects if not core.is_backup(k) and
+                             (k not in PIX.cache or any(x["id"] == "XfsX" for x in PIX.cache[k][1]))]
+                    return self._send(200, {"started": plugins.export_async(projs)})
+                r = plugins.export_presets(_paths(body))
+                if r["exported"] and body.get("open", True):
+                    os.startfile(r["dest"])  # noqa: S606
+                return self._send(200, r)
+            if p == "/api/relink/index":
+                return self._send(200, {"started": relink.build_names(SMP, force=True)})
+            if p == "/api/relink/scan":
+                for x in _paths(body)[:1]:
+                    return self._send(200, relink.candidates(MGR, SMP, x))
+                return self._send(404, {"error": "Proyecto desconocido"})
+            if p == "/api/relink/apply":
+                m = {k: v for k, v in (body.get("map") or {}).items()
+                     if os.path.splitext(v or "")[1].lower() in samples.EXTS}
+                for x in _paths(body)[:1]:
+                    return self._send(200, relink.apply(MGR, x, m))
+                return self._send(404, {"error": "Proyecto desconocido"})
+            if p.startswith("/api/samples/"):
+                return self._samples(p[13:], body)
             if p == "/api/preview":
                 for x in _paths(body)[:1]:
                     preview.request(x)
@@ -184,6 +241,42 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as e:  # noqa: BLE001
             return self._send(500, {"error": str(e)})
         return self._send(404, {"error": "no encontrado"})
+
+
+def _samples_post(h, a, b):
+    known = [x for x in b.get("paths", []) if x in SMP.files]
+    if a == "scan":
+        roots = [d["root"] for d in core.list_drives()]
+        SMP.start([r for r in b.get("roots", []) if r in roots or os.path.isdir(r)])
+        return {"ok": True}
+    if a == "pause":
+        for r in b.get("roots", []):
+            SMP.pause(r)
+        return {"ok": True}
+    if a == "query":
+        return SMP.query(b.get("cat"), b.get("q", ""), b.get("filter", "all"), b.get("sort", "name"),
+                         int(b.get("offset", 0)), min(500, int(b.get("limit", 200))))
+    if a == "groups":
+        return SMP.groups(b.get("kind", "exact"), int(b.get("offset", 0)), min(100, int(b.get("limit", 40))))
+    if a == "setcat":
+        SMP.set_cat(known, b.get("cat"))
+        return {"ok": True}
+    if a == "recycle":
+        return SMP.recycle(known)
+    if a == "reveal":
+        for x in known[:1]:
+            core.reveal(x)
+        return {"ok": True}
+    if a == "plan":
+        pl = SMP.plan(b["dest"], b.get("cats"), b.get("skipUsed", True))
+        return {"total": len(pl), "plan": pl[:400]}
+    if a == "apply":
+        return SMP.apply(SMP.plan(b["dest"], b.get("cats"), b.get("skipUsed", True)), copy=b.get("copy", True))
+    if a == "undo":
+        return SMP.undo_last()
+    if a == "dedupe":
+        return SMP.dedupe()
+    return None
 
 
 def serve(port=0):

@@ -509,22 +509,18 @@ class Manager:
         return plan
 
     def apply(self, plan, copy=False):
-        done, errors = [], []
-        for step in plan:
-            src, dst = step["src"], _unique(step["dst"])
-            try:
-                os.makedirs(os.path.dirname(dst), exist_ok=True)
-                (shutil.copy2 if copy else shutil.move)(src, dst)
-                done.append([src, dst])
-                with self.lock:
-                    info = self.projects.pop(src, None) if not copy else dict(self.projects.get(src, {}))
-                    if info:
-                        info["path"], info["dir"] = dst, os.path.dirname(dst)
-                        self.projects[dst] = info
-                    if not copy and src in self.marks:
-                        self.marks[dst] = self.marks.pop(src)
-            except OSError as e:
-                errors.append("%s: %s" % (src, e))
+        import fastfs
+        pairs = list(zip([s["src"] for s in plan], unique_many([s["dst"] for s in plan])))
+
+        def moved(src, dst):
+            with self.lock:
+                info = self.projects.pop(src, None) if not copy else dict(self.projects.get(src, {}))
+                if info:
+                    info["path"], info["dir"] = dst, os.path.dirname(dst)
+                    self.projects[dst] = info
+                if not copy and src in self.marks:
+                    self.marks[dst] = self.marks.pop(src)
+        done, errors = fastfs.transfer_many(pairs, copy, moved)   # nativo y en paralelo segun el disco
         self.undo = [] if copy else done
         self.touch()
         self.save()
@@ -596,6 +592,20 @@ class Manager:
 
 def _safe(name):
     return re.sub(r'[<>:"/\\|?*]', "_", name).strip(" .") or "Proyecto"
+
+
+def unique_many(paths):
+    """Nombres de destino unicos tambien entre si (para copiar/mover en paralelo)."""
+    taken, out = set(), []
+    for p in paths:
+        root, ext = os.path.splitext(p)
+        q, n = p, 2
+        while os.path.normcase(q) in taken or os.path.exists(q):
+            q = "%s (%d)%s" % (root, n, ext)
+            n += 1
+        taken.add(os.path.normcase(q))
+        out.append(q)
+    return out
 
 
 def _unique(path):
