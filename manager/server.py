@@ -14,7 +14,8 @@ import preview  # noqa: E402
 import samples  # noqa: E402
 import relink  # noqa: E402
 import plugins  # noqa: E402
-import flp_ordenar  # noqa: E402
+import flp_ordenar
+import flscripts  # noqa: E402
 
 TOKEN = secrets.token_urlsafe(24)
 MGR = core.Manager()
@@ -221,6 +222,20 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send(200, _fl_script(bool(body.get("install"))))
                 except OSError as e:
                     return self._send(200, {"error": str(e)[:200]})
+            if p == "/api/scripts":
+                return self._send(200, flscripts.listing())
+            if p == "/api/scripts/install":
+                try:
+                    flscripts.install(body.get("id"))
+                except OSError as e:
+                    return self._send(200, {"error": str(e)[:200]})
+                return self._send(200, flscripts.listing())
+            if p == "/api/scripts/reveal":
+                x = body.get("path", "")
+                if flscripts.is_inside(x) and os.path.exists(x):
+                    core.reveal(x)
+                    return self._send(200, {"ok": True})
+                return self._send(404, {"error": "Ruta no permitida"})
             if p == "/api/ordenar":
                 for x in _paths(body)[:1]:
                     try:

@@ -320,18 +320,59 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--hover)}
 .tree .y{font-weight:600;font-size:15px;margin:10px 0 2px}.tree .m{padding-left:14px;font-weight:500;color:var(--text2);margin-top:6px}
 .tree .f{padding-left:30px;color:var(--muted);font-size:12.5px;padding-top:2px}.tree .f b{color:var(--ink);font-weight:500}
 
+/* menu lateral plegable */
+.app{transition:grid-template-columns .22s cubic-bezier(.2,.8,.2,1)}
+.brand{position:relative}
+#sideTgl{margin-left:auto;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#7f97ae;flex:0 0 30px}
+#sideTgl:hover{background:#ffffff14;color:#E6E9EC}
+#sideTgl svg{transition:transform .22s}
+.app.mini{grid-template-columns:72px 1fr}
+.app.mini aside{padding:22px 10px;overflow-x:hidden}
+.app.mini .brand{font-size:0;gap:0;flex-direction:column;padding:0 0 18px;align-items:center}
+.app.mini .brand>svg{display:none}
+.app.mini #sideTgl{margin:0}.app.mini #sideTgl svg{transform:rotate(180deg)}
+.app.mini .nav button{font-size:0;justify-content:center;gap:0;padding:10px 0}
+.app.mini .nav button .n{display:none}
+.app.mini .nav button.on{box-shadow:inset 0 0 0 1px #36ecde55}
+.app.mini .grp{font-size:0;margin:14px 8px;height:1px;background:#ffffff14}
+.app.mini .side-foot{padding:12px 0 0}
+.app.mini .side-foot>*:not(.footrow):not(.updcard){display:none!important}
+.app.mini .footrow{flex-direction:column;gap:8px;margin:0}
+.app.mini #themeBtn{font-size:0;gap:0;padding:9px 0}
+.app.mini #tourBtn{padding:9px 0;justify-content:center}
+.app.mini .updcard{display:none!important}
+.app.mini.hasupd #sideTgl::after{content:'';position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--mint)}
+.app.mini #sideTgl{position:relative}
+.app.mini~#player,body:has(.app.mini) #player{left:88px}
+/* scripts */
+.scgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px;margin-top:14px}
+.sccard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.sccard h3{margin:0;font-size:17px;font-weight:600;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sccard .k{font-size:12px;color:var(--muted)}
+.sccard p{margin:0;color:var(--text2);line-height:1.55}
+.sccard ol{margin:0;padding-left:20px;color:var(--text2);line-height:1.55}.sccard ol li{margin:3px 0}
+.sccard .lim{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+.sccard .acts{margin-top:auto}
+.sctab{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:12px}
+.sctab .h{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--cream);font-weight:600}
+.sctab .h span{color:var(--muted);font-weight:400;font-size:12.5px}
+.sctab .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line)}
+.sctab .r b{font-weight:600}.sctab .r small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sctab .empty{padding:14px 16px;color:var(--muted);font-size:13px}
 /* tour guiado */
 #tourBlock{position:fixed;inset:0;z-index:58;display:none}#tourBlock.on{display:block}
 #tourHole{position:fixed;z-index:59;border-radius:14px;box-shadow:0 0 0 3px var(--mint),0 0 0 9999px #000c18b8;pointer-events:none;transition:all .28s cubic-bezier(.2,.8,.2,1);display:none}
 #tourHole.on{display:block}#tourHole.none{box-shadow:0 0 0 9999px #000c18b8}
-#tourTip{position:fixed;z-index:60;width:min(360px,calc(100vw - 32px));background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:16px;padding:18px 18px 14px;box-shadow:0 24px 70px #0007;display:none;transition:left .28s,top .28s}
+#tourTip{position:fixed;z-index:60;width:min(420px,calc(100vw - 32px));box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:18px;padding:22px 22px 18px;box-shadow:0 24px 70px #0007;display:none;transition:left .28s,top .28s}
 #tourTip.on{display:block}
-#tourTip h3{margin:0 0 6px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+#tourTip h3{margin:0 0 10px;font-size:17px;line-height:1.3;font-weight:700;display:flex;align-items:center;gap:8px}
 #tourTip h3 svg{color:var(--mint-deep, var(--mint))}
-#tourTip p{margin:0;color:var(--text2);font-size:13.5px;line-height:1.5}
-#tourTip .tnav{display:flex;align-items:center;gap:8px;margin-top:16px}
-#tourTip .tdots{display:flex;gap:4px;margin-right:auto}#tourTip .tdots i{width:6px;height:6px;border-radius:50%;background:var(--line2)}#tourTip .tdots i.on{background:var(--mint);width:16px;border-radius:9px}
-#tourTip .pri,#tourTip .sec{padding:7px 12px;font-size:13px}
+#tourTip p{margin:0;color:var(--text2);font-size:14.5px;line-height:1.6}
+#tourTip .tprog{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:12px;color:var(--muted);white-space:nowrap}
+#tourTip .tbar{flex:1;height:4px;border-radius:9px;background:var(--line2);overflow:hidden}#tourTip .tbar div{height:100%;background:var(--mint);border-radius:9px;transition:width .25s}
+#tourTip .tnav{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
+#tourTip .tnav .tsk{margin-right:auto;background:none;border:0;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;padding:6px 2px}#tourTip .tnav .tsk:hover{color:var(--ink)}
+#tourTip .pri,#tourTip .sec{padding:9px 16px;font-size:13.5px;white-space:nowrap}
 .footrow{display:flex;gap:8px;margin-bottom:14px}.footrow #themeBtn{flex:1;margin:0!important}
 #tourBtn{padding:0 11px}#tourBtn:hover{color:var(--mint)}
 /* drawer */
@@ -408,6 +449,8 @@ textarea:focus{border-color:var(--ink)}
   <symbol id="i-vol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
   <symbol id="i-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="m16 9 6 6M22 9l-6 6"/></symbol>
   <symbol id="i-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></symbol>
+  <symbol id="i-side" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M15 10l-2 2 2 2"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.87l12-7.5a1 1 0 0 0 0-1.74l-12-7.5A1 1 0 0 0 7 4.5z"/></symbol>
   <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
@@ -433,13 +476,14 @@ textarea:focus{border-color:var(--ink)}
 
 <div class="app">
   <aside>
-    <div class="brand"><svg width="30" height="30"><use href="#logo"/></svg>FLP Manager</div>
+    <div class="brand"><svg width="30" height="30"><use href="#logo"/></svg>FLP Manager<button id="sideTgl" title="Ocultar menú (Ctrl+B)"><svg width="16" height="16"><use href="#i-side"/></svg></button></div>
     <div class="nav" id="mainnav">
       <button data-v="projects" class="on"><svg width="18" height="18"><use href="#i-grid"/></svg>Proyectos<span class="n" id="nProj">0</span></button>
       <button data-v="drives"><svg width="18" height="18"><use href="#i-drive"/></svg>Unidades</button>
       <button data-v="organize"><svg width="18" height="18"><use href="#i-cal"/></svg>Organizar</button>
       <button data-v="samples"><svg width="18" height="18"><use href="#i-wave"/></svg>Samples<span class="n" id="nSmp" style="display:none"></span></button>
       <button data-v="plugins"><svg width="18" height="18"><use href="#i-plug"/></svg>Metadata VST</button>
+      <button data-v="scripts"><svg width="18" height="18"><use href="#i-code"/></svg>Scripts<span class="n" id="nScr" style="display:none"></span></button>
     </div>
     <div class="grp">Filtros</div>
     <div class="nav" id="filters"></div>
@@ -550,6 +594,11 @@ textarea:focus{border-color:var(--ink)}
         <div id="sBody"></div>
       </div>
     </section>
+    <section class="view" id="v-scripts"><div class="content">
+      <h1><svg width="24" height="24"><use href="#i-code"/></svg>Scripts</h1>
+      <p class="sub">Scripts para FL Studio: los que puedes instalar desde aquí, qué hacen y cómo usarlos, y los que ya tienes instalados.</p>
+      <div id="scBody"></div>
+    </div></section>
   </main>
 </div>
 
@@ -587,7 +636,7 @@ paintThemeBtn();
 
 /* ---------- navegación ---------- */
 function show(v){closeDrawer();$$('#mainnav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
-  $$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));$('#main').scrollTop=0;if(v==='projects')loadProjects();if(v==='drives')loadDrives();if(v==='samples')loadSamples();if(v==='plugins')loadVst()}
+  $$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));$('#main').scrollTop=0;if(v==='projects')loadProjects();if(v==='drives')loadDrives();if(v==='samples')loadSamples();if(v==='plugins')loadVst();if(v==='scripts')loadScripts()}
 $$('#mainnav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
 $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 
@@ -596,7 +645,7 @@ $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 let ALLG=[],SHOWD=new Set((()=>{try{return JSON.parse(store.get('flpm.showdrives')||'[]')}catch{return []}})());
 const drv=p=>/^[a-z]:/i.test(p)?p.slice(0,2).toUpperCase():'Red';
 const gDrv=g=>drv((g.members.find(m=>m.primary)||g.members[0]).path);
-function applyDrives(){const have=new Set(ALLG.map(gDrv));[...SHOWD].forEach(d=>{if(!have.has(d))SHOWD.delete(d)});
+function applyDrives(){const have=new Set(ALLG.map(gDrv));[...SHOWD].forEach(d=>{if(!have.has(d))SHOWD.delete(d)});if(SHOWD.size&&[...have].every(d=>SHOWD.has(d))){SHOWD.clear();store.set('flpm.showdrives','[]')}
   GROUPS=SHOWD.size?ALLG.filter(g=>SHOWD.has(gDrv(g))):ALLG;renderDfil()}
 function paintNProj(){$('#nProj').textContent=SHOWD.size?GROUPS.length.toLocaleString('es')+' / '+ALLG.length.toLocaleString('es'):GROUPS.length;$('#nProj').title=SHOWD.size?'Mostrando solo '+[...SHOWD].join(', ')+' · '+(ALLG.length-GROUPS.length)+' proyecto(s) ocultos':''}
 function setShowDrives(list){SHOWD=new Set(list);store.set('flpm.showdrives',JSON.stringify([...SHOWD]));applyDrives();paintNProj();renderFilters();renderKpis();render()}
@@ -1241,7 +1290,7 @@ api('/api/drives').then(d=>{$('#flinfo').textContent=d.fl.exe||'FL Studio no det
 /* ---------- tour guiado (foquito) ---------- */
 const TOUR=[
   {t:'Bienvenido a FLP Manager',d:'Un recorrido rápido por lo que puede hacer la app. Puedes salir cuando quieras con <b>Esc</b> y volver a verlo con el <b>foquito</b> de abajo a la izquierda.'},
-  {v:'drives',el:'#drives',t:'1. Elige tus discos',d:'Toca uno o varios discos para seleccionarlos y pulsa <b>Escanear seleccionadas</b>. La app busca todos tus <b>.flp</b> (proyectos y backups). Solo lee; no cambia nada.'},
+  {v:'drives',el:'#drives .drive',t:'1. Elige tus discos',d:'Toca uno o varios discos para seleccionarlos y pulsa <b>Escanear seleccionadas</b>. La app busca todos tus <b>.flp</b> (proyectos y backups). Solo lee; no cambia nada.'},
   {v:'drives',el:'#jobs',t:'Progreso del escaneo',d:'Aquí ves cada disco: puedes pausar, continuar o <b>escanear de nuevo</b>. Con <b>Ver solo este</b> vas a Proyectos mostrando solo ese disco.'},
   {v:'projects',el:'#dfil',t:'2. Un disco a la vez',d:'Elige qué discos mostrar. Si tocas <b>G:</b> solo ves esos proyectos; <b>Todos</b> vuelve a mostrar todo. Samples y Reparar siguen buscando en todos los discos.'},
   {v:'projects',el:'#q',t:'Buscar',d:'Busca por nombre o por ruta. Si el proyecto está en un disco oculto, aparece un aviso para mostrarlo.'},
@@ -1254,6 +1303,8 @@ const TOUR=[
   {v:'samples',el:'#sTabs',t:'4. Samples',d:'Escanea tus samples y encuentra <b>duplicados</b>, archivos con el <b>mismo nombre</b> (compáralos A/B), explóralos por categoría y arma una librería ordenada.'},
   {v:'samples',el:'#sView',t:'Por carpeta y en cuadrícula',d:'Agrupa los samples por carpeta y cambia entre lista y cuadrícula. Al darle play aparece el reproductor con volumen abajo.'},
   {v:'plugins',el:'#v-plugins .hero',t:'5. Metadata VST',d:'Lista tus plugins instalados con su versión y formato, y exporta presets de Serum 1 a Serum 2.'},
+  {v:'scripts',el:'#v-scripts .sccard',t:'6. Scripts',d:'Instala scripts para FL Studio, mira qué hace cada uno y cómo se usa, y revisa los que ya tienes instalados.'},
+  {el:'#sideTgl',t:'Más espacio',d:'Oculta este menú para tener más espacio (también con <b>Ctrl+B</b>). Quedan solo los iconos.'},
   {el:'#chkUpd',t:'Actualizaciones',d:'Pulsa <b>Buscar</b> para ver si hay una versión nueva; se instala con un clic.'},
   {el:'#fsSt',t:'Script Auto Organizer',d:'Instala el script para FL Studio que ordena y colorea automatizaciones. En FL: <b>Options › MIDI Settings › Controller type › Auto Organizer</b>.'},
   {t:'¡Listo!',d:'Eso es todo. Si algo no queda claro, vuelve a abrir este tour con el <b>foquito</b>.'}];
@@ -1262,31 +1313,70 @@ function tourEl(st){if(!st.el)return null;return [...document.querySelectorAll(s
 function tourShow(i){TI=i;const st=TOUR[i];if(st.v&&!$('#v-'+st.v).classList.contains('on'))show(st.v);
   setTimeout(()=>{const e=tourEl(st),hole=$('#tourHole'),tip=$('#tourTip');
     if(e){e.scrollIntoView({block:'nearest',behavior:'smooth'})}
-    const place=()=>{const r=e?e.getBoundingClientRect():null,W=innerWidth,H=innerHeight,pad=8;
-      if(r){const top=Math.max(4,r.top-pad),left=Math.max(4,r.left-pad),w=Math.min(W-8,r.width+pad*2),h=Math.min(H-top-4,r.height+pad*2);
-        Object.assign(hole.style,{top:top+'px',left:left+'px',width:w+'px',height:h+'px'});hole.className='on'}
+    const place=()=>{const W=innerWidth,H=innerHeight,pad=8,er=e?e.getBoundingClientRect():null;let r=null;
+      if(er){const top=Math.max(4,er.top-pad),left=Math.max(4,er.left-pad),bottom=Math.min(H-4,er.bottom+pad),right=Math.min(W-4,er.right+pad);
+        r={top,left,bottom,right,width:right-left,height:bottom-top};
+        Object.assign(hole.style,{top:top+'px',left:left+'px',width:r.width+'px',height:r.height+'px'});hole.className='on'}
       else{Object.assign(hole.style,{top:H/2+'px',left:W/2+'px',width:'0px',height:'0px'});hole.className='on none'}
       tip.innerHTML=`<h3>${ico(i===0||i===TOUR.length-1?'i-bulb':'i-check',16)}${st.t}</h3><p>${st.d}</p>
-        <div class="tnav"><div class="tdots">${TOUR.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>
+        <div class="tprog"><span>Paso ${i+1} de ${TOUR.length}</span><div class="tbar"><div style="width:${(i+1)/TOUR.length*100}%"></div></div></div>
+        <div class="tnav">${i&&i<TOUR.length-1?`<button class="tsk" id="tSkip">Salir del tour</button>`:''}
         ${i?`<button class="sec" id="tPrev">Atrás</button>`:`<button class="sec" id="tSkip">Ahora no</button>`}
         <button class="pri" id="tNext">${i===TOUR.length-1?'Terminar':i?'Siguiente':'Empezar'}</button></div>`;
       tip.className='on';const tw=tip.offsetWidth,th=tip.offsetHeight;let x,y;
       if(!r){x=(W-tw)/2;y=(H-th)/2}
-      else if(r.right+16+tw<W){x=r.right+16;y=r.top}
-      else if(r.bottom+16+th<H){x=r.left;y=r.bottom+16}
-      else if(r.top-16-th>0){x=r.left;y=r.top-16-th}
-      else{x=(W-tw)/2;y=H-th-24}
+      else if(r.right+14+tw<W-12){x=r.right+14;y=r.top}
+      else if(r.bottom+14+th<H-12){x=r.left;y=r.bottom+14}
+      else if(r.top-14-th>12){x=r.left;y=r.top-14-th}
+      else if(r.left-14-tw>12){x=r.left-14-tw;y=r.top}
+      else{x=r.right-tw-16;y=r.bottom-th-16}   /* elemento enorme: dentro, abajo a la derecha */
       tip.style.left=Math.max(12,Math.min(W-tw-12,x))+'px';tip.style.top=Math.max(12,Math.min(H-th-12,y))+'px';
       $('#tNext').onclick=()=>i===TOUR.length-1?tourEnd():tourShow(i+1);
       $('#tPrev')&&($('#tPrev').onclick=()=>tourShow(i-1));$('#tSkip')&&($('#tSkip').onclick=tourEnd)};
     place();setTimeout(place,350)},st.v?260:30)}
-function tourStart(){closeDrawer();$('#tourBlock').classList.add('on');tourShow(0)}
-function tourEnd(){TI=-1;store.set('flpm.tour','1');['tourBlock','tourHole','tourTip'].forEach(x=>$('#'+x).className='');show('projects')}
+let TMINI=false;function tourStart(){closeDrawer();TMINI=$('.app').classList.contains('mini');if(TMINI)$('.app').classList.remove('mini');$('#tourBlock').classList.add('on');tourShow(0)}
+function tourEnd(){TI=-1;store.set('flpm.tour','1');if(TMINI){TMINI=false;$('.app').classList.add('mini')}['tourBlock','tourHole','tourTip'].forEach(x=>$('#'+x).className='');show('projects')}
 $('#tourBtn').onclick=tourStart;$('#tourBlock').onclick=e=>e.stopPropagation();
 document.addEventListener('keydown',e=>{if(TI<0)return;if(e.key==='Escape'){e.stopImmediatePropagation();tourEnd()}
   else if(e.key==='ArrowRight'||e.key==='Enter'){e.preventDefault();TI===TOUR.length-1?tourEnd():tourShow(TI+1)}else if(e.key==='ArrowLeft'&&TI>0)tourShow(TI-1)},true);
 addEventListener('resize',()=>{if(TI>=0)tourShow(TI)});
 if(!store.get('flpm.tour'))setTimeout(()=>{if(TI<0&&!$('#modal').classList.contains('on'))tourStart()},1500);
+/* ---------- menu lateral plegable ---------- */
+function setMini(on){$('.app').classList.toggle('mini',on);store.set('flpm.mini',on?'1':'0');
+  $('#sideTgl').title=on?'Mostrar menú (Ctrl+B)':'Ocultar menú (Ctrl+B)';
+  $$('aside .nav button').forEach(b=>{if(on)b.title=b.childNodes[1]?.textContent?.trim()||'';else b.removeAttribute('title')});
+  $('#themeBtn').title=on?$('#themeBtn').textContent.trim():'';if(TI>=0)tourShow(TI)}
+$('#sideTgl').onclick=()=>setMini(!$('.app').classList.contains('mini'));
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='b'&&!e.target.matches?.('input,textarea')){e.preventDefault();$('#sideTgl').click()}});
+new MutationObserver(()=>$('.app').classList.toggle('hasupd',$('#upd').classList.contains('on'))).observe($('#upd'),{attributes:true,attributeFilter:['class']});
+setMini(store.get('flpm.mini')==='1');
+
+/* ---------- scripts ---------- */
+const TOOLS=[{name:'Ordenar pistas',kind:'Herramienta de FLP Manager',what:'Edita el .flp sin abrir FL: junta los clips de cada automatización en una sola pista, la nombra y colorea por categoría, sube las pistas con clips y elimina las vacías.',
+  how:['Abre un proyecto en Proyectos.','En el archivo que quieras, pulsa «Ordenar pistas».','Revisa la vista previa y confirma: se crea «<nombre> - ordenado.flp» junto al original.'],limits:'Nunca toca el original. Si el proyecto está abierto en FL, abre la copia para ver el resultado.'}];
+function scStep(list){return `<ol>${list.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`}
+async function loadScripts(){let d;try{d=await api('/api/scripts',{})}catch{$('#scBody').innerHTML='<div class="empty">No se pudo leer la carpeta de FL Studio.</div>';return}
+  const n=d.installed.reduce((a,k)=>a+k.items.length,0);$('#nScr').textContent=n;$('#nScr').style.display=n?'':'none';
+  const st=c=>c.current?'<span class="tag g">Instalado</span>':c.installed?'<span class="tag w">Hay una versión nueva</span>':'<span class="tag">No instalado</span>';
+  $('#scBody').innerHTML=`<div class="lab" style="margin-top:0">Disponibles en FLP Manager</div><div class="scgrid">`
+   +d.catalog.map(c=>`<div class="sccard"><h3>${ico('i-code',18)}${esc(c.name)}${st(c)}</h3><div class="k">${esc(c.kind)}</div>
+      <p>${esc(c.what)}</p><div class="lab" style="margin:0">Cómo se usa</div>${scStep(c.how)}<div class="lim">${ico('i-alert',13)} ${esc(c.limits)}</div>
+      <div class="acts">${c.current?'':`<button class="pri" data-scin="${c.id}">${ico('i-dl',15)}${c.installed?'Actualizar':'Instalar'}</button>`}
+       ${c.installed?`<button class="sec" data-screv="${esc(c.path)}">${ico('i-folder',15)}Abrir carpeta</button>`:''}</div></div>`).join('')
+   +TOOLS.map(t=>`<div class="sccard"><h3>${ico('i-list',18)}${esc(t.name)}<span class="tag g">Incluido</span></h3><div class="k">${esc(t.kind)}</div>
+      <p>${esc(t.what)}</p><div class="lab" style="margin:0">Cómo se usa</div>${scStep(t.how)}<div class="lim">${ico('i-alert',13)} ${esc(t.limits)}</div>
+      <div class="acts"><button class="sec" onclick="show('projects')">${ico('i-grid',15)}Ir a Proyectos</button></div></div>`).join('')
+   +`</div><div class="lab" style="margin-top:28px">Instalados en FL Studio</div>
+     <p style="margin:0 0 4px;color:var(--muted);font-size:12.5px">Carpeta: ${esc(d.settings)}</p>`
+   +d.installed.map(k=>`<div class="sctab"><div class="h">${esc(k.kind)} <span>${k.items.length} script(s)</span></div>
+      ${k.items.length?k.items.map(i=>`<div class="r"><div style="min-width:0"><b>${esc(i.name)}</b>${i.ours?' <span class="tag g">FLP Manager</span>':''}
+        <small title="${esc(i.path)}">${esc(i.ours||k.kind!=='Controladores MIDI'?(i.desc||i.folder||''):(i.folder?'Controlador · carpeta '+i.folder:'Controlador MIDI'))}</small></div>
+        <button class="ibtn" data-screv="${esc(i.path)}" title="Mostrar en carpeta">${ico('i-folder',15)}</button></div>`).join('')
+       :`<div class="empty">${k.kind==='Controladores MIDI'?'No hay scripts de controlador.':'Ninguno instalado.'} ${k.kind==='Piano roll'?'Se usan desde el Piano roll › Tools › Scripting.':k.kind.startsWith('Audio')?'Se usan en Edison › Tools › Scripting.':''}</div>`}</div>`).join('')
+   +`<p style="margin:14px 0 0;color:var(--muted);font-size:12.5px">Los controladores MIDI se activan en FL con Options › MIDI Settings › Controller type. Los de Piano roll y Edison aparecen en su menú Tools › Scripting.</p>`;
+  $$('[data-scin]').forEach(b=>b.onclick=async()=>{b.disabled=true;const r=await api('/api/scripts/install',{id:b.dataset.scin});
+    if(r.error){toast(r.error);b.disabled=false;return}toast('Instalado. Reinicia FL Studio para verlo en MIDI Settings.');loadScripts();api('/api/flscript',{}).then(fsShow).catch(()=>{})});
+  $$('[data-screv]').forEach(b=>b.onclick=()=>api('/api/scripts/reveal',{path:b.dataset.screv}))}
 loadProjects();
 </script>
 </body>
