@@ -26,6 +26,17 @@ small{color:#7a7a74}</style></head><body><div class="w">
 <small>La app se reiniciar&aacute; sola en unos segundos</small></div></body></html>"""
 
 
+def windows_dark():
+    """True si Windows usa el tema oscuro para apps (evita destello blanco al abrir)."""
+    try:
+        import winreg
+        k = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                           r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
+        return winreg.QueryValueEx(k, "AppsUseLightTheme")[0] == 0
+    except OSError:
+        return False
+
+
 def main():
     url = server.serve(0)
     try:
@@ -46,7 +57,8 @@ def main():
                                     height=300, resizable=False, background_color="#f6f7ed")
     else:
         win = webview.create_window("FLP Manager %s" % VERSION, url, width=1320, height=860,
-                                    min_size=(900, 600), background_color="#ffffff")
+                                    min_size=(900, 600),
+                                    background_color="#131312" if windows_dark() else "#ffffff")
 
     def pick_folder():
         r = win.create_file_dialog(webview.FOLDER_DIALOG)
