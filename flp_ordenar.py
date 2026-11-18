@@ -108,7 +108,7 @@ def find_arrangements(events):
 
 
 def item_size(pl):
-    for sz in (88, 60, 32):
+    for sz in (88, 80, 60, 32):     # 80: FL 25.2.5+
         if len(pl) % sz == 0 and all(
                 struct.unpack_from("<H", pl, o + 4)[0] == 20480 for o in range(0, len(pl), sz)):
             return sz
@@ -197,31 +197,48 @@ def organize_arrangement(lst, pl_idx, blocks, chans, log):
     lst[pl_idx][1] = bytes(pl)
 
 
-def main(argv):
-    if len(argv) < 2:
-        print(__doc__)
-        return 1
-    src = argv[1]
-    dry = "--probar" in argv
-    header, events = F.load(src)
+def ordenar(src, dry=False, dst=None):
+    """Ordena el proyecto. Nunca toca el original. -> {"log": [...], "dst": ruta o ""}"""
+    with open(src, "rb") as f:
+        raw = f.read()
+    header, events = F.loads(raw)
+    body = F.dump_events(events)
+    if header + b"FLdt" + struct.pack("<I", len(body)) + body != raw:
+        raise ValueError("Este proyecto no se puede editar de forma segura (formato inesperado)")
     chans = read_channels(events)
     arrs = find_arrangements(events)
     if not arrs:
-        print("No se encontro ningun arreglo en el proyecto.")
-        return 1
+        raise ValueError("No se encontro ningun arreglo en el proyecto")
     log = []
     for n, (lst, pl_idx, blocks) in enumerate(reversed(arrs)):  # de atras hacia delante
         log.append("Arreglo %d:" % (len(arrs) - n))
         organize_arrangement(lst, pl_idx, blocks, chans, log)
-    print("\n".join(log))
     if dry:
-        print("\n(--probar: no se guardo nada)")
-        return 0
-    root, ext = os.path.splitext(src)
-    dst = root + " - ordenado" + ext
-    F.save(dst, header, events)
-    F.load(dst)  # verificacion: el archivo resultante se puede leer
-    print("\nGuardado: " + dst)
+        return {"log": log, "dst": ""}
+    if not dst:
+        root, ext = os.path.splitext(src)
+        dst, n = root + " - ordenado" + ext, 2
+        while os.path.exists(dst):
+            dst, n = "%s - ordenado (%d)%s" % (root, n, ext), n + 1
+    tmp = dst + ".tmp"
+    F.save(tmp, header, events)
+    F.load(tmp)  # verificacion: el archivo resultante se puede leer
+    os.replace(tmp, dst)
+    return {"log": log, "dst": dst}
+
+
+def main(argv):
+    if len(argv) < 2:
+        print(__doc__)
+        return 1
+    dry = "--probar" in argv
+    try:
+        r = ordenar(argv[1], dry)
+    except ValueError as e:
+        print(e)
+        return 1
+    print("\n".join(r["log"]))
+    print("\n(--probar: no se guardo nada)" if dry else "\nGuardado: " + r["dst"])
     return 0
 
 

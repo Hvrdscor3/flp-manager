@@ -7,5 +7,6 @@ if exist ".venv\Scripts\python.exe" set PY=.venv\Scripts\python.exe
   --icon manager\icon.ico ^
   --paths . --paths manager ^
   --add-data "manager\ui.html;." ^
-  --hidden-import flpraw ^
+  --add-data "device_AutoOrganizer.py;." ^
+  --hidden-import flpraw --hidden-import flp_ordenar ^
   manager\app.py

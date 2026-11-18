@@ -14,6 +14,7 @@ import preview  # noqa: E402
 import samples  # noqa: E402
 import relink  # noqa: E402
 import plugins  # noqa: E402
+import flp_ordenar  # noqa: E402
 
 TOKEN = secrets.token_urlsafe(24)
 MGR = core.Manager()
@@ -35,6 +36,26 @@ def _projects_json():
                             ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         _PJ[0] = rev
     return _PJ[1]
+
+
+FL_SCRIPT = os.path.join(getattr(sys, "_MEIPASS", os.path.dirname(core.HERE)), "device_AutoOrganizer.py")
+
+
+def _fl_script(install=False):
+    """Script Auto Organizer para FL (Options > MIDI Settings > Controller type)."""
+    dst = os.path.join(core.FL["user"], "Settings", "Hardware", "AutoOrganizer", "device_AutoOrganizer.py")
+    with open(FL_SCRIPT, "rb") as f:
+        new = f.read()
+    if install:
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        with open(dst, "wb") as f:
+            f.write(new)
+    try:
+        with open(dst, "rb") as f:
+            cur = f.read()
+    except OSError:
+        cur = None
+    return {"installed": cur is not None, "current": cur == new, "path": dst}
 
 
 def _paths(body):
@@ -194,6 +215,26 @@ class Handler(BaseHTTPRequestHandler):
             if p == "/api/relink/scan":
                 for x in _paths(body)[:1]:
                     return self._send(200, relink.candidates(MGR, SMP, x))
+                return self._send(404, {"error": "Proyecto desconocido"})
+            if p == "/api/flscript":
+                try:
+                    return self._send(200, _fl_script(bool(body.get("install"))))
+                except OSError as e:
+                    return self._send(200, {"error": str(e)[:200]})
+            if p == "/api/ordenar":
+                for x in _paths(body)[:1]:
+                    try:
+                        r = flp_ordenar.ordenar(x, dry=bool(body.get("dry")))
+                    except Exception as e:  # noqa: BLE001 - formato raro, sin arreglos, etc.
+                        return self._send(200, {"error": str(e)[:200]})
+                    if r["dst"]:
+                        import fastscan
+                        info = fastscan.analyze(r["dst"], fastscan.FsCache(), core.placeholders())
+                        with MGR.lock:
+                            MGR.projects[r["dst"]] = info
+                        MGR.touch()
+                        MGR.save()
+                    return self._send(200, r)
                 return self._send(404, {"error": "Proyecto desconocido"})
             if p == "/api/relink/apply":
                 m = {k: v for k, v in (body.get("map") or {}).items()

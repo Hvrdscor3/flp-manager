@@ -396,6 +396,8 @@ textarea:focus{border-color:var(--ink)}
       <div style="display:flex;align-items:center;gap:6px"><b>Versión <span id="ver">—</span></b>
         <button class="sec" id="chkUpd" style="margin-left:auto;padding:4px 9px;font-size:11.5px" title="Buscar actualizaciones"><svg width="13" height="13"><use href="#i-hist"/></svg>Buscar</button></div>
       <div id="flinfo" style="margin-top:4px;word-break:break-all"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px" title="Script de FL para ordenar automatizaciones: Options › MIDI Settings › Controller type › Auto Organizer">
+        <span>Auto Organizer: <b id="fsSt">—</b></span><button class="sec" id="fsBtn" style="margin-left:auto;padding:4px 9px;font-size:11.5px;display:none"></button></div>
       <div class="updcard" id="upd"><b id="updT"></b><p id="updN"></p><button class="sec" style="width:100%;justify-content:center" id="updBtn"><svg width="16" height="16"><use href="#i-dl"/></svg>Actualizar ahora</button></div>
     </div>
   </aside>
@@ -695,7 +697,7 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
      <div>${ico('i-cal',12)}Modificado<b>${fmtD(m.mtime)}</b></div><div>${ico('i-cal',12)}Creado<b>${fmtD(m.created)}</b></div><div>${ico('i-clock',12)}Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
      <div>${ico('i-list',12)}Canales<b>${m.channels}</b></div><div>${ico('i-grid',12)}Patterns<b>${m.patterns}</b></div><div>${ico('i-wave',12)}Samples<b>${m.samples}</b></div></div>
     ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
-    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button>${m.missing.length?`<button class="sec" data-a="relink" data-i="${i}">${ico('i-unlink',15)}Reparar samples (${m.missing.length})</button>`:''}<button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('');
+    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec" data-a="ordenar" data-i="${i}" title="Junta automatizaciones, nombra y colorea pistas. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button>${m.missing.length?`<button class="sec" data-a="relink" data-i="${i}">${ico('i-unlink',15)}Reparar samples (${m.missing.length})</button>`:''}<button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('');
   $('#drawer').classList.add('on');$('#scrim').classList.add('on');$('#dx').onclick=closeDrawer;
   for(const k in PVS)delete PVS[k];pollPreviews(g);
   $('#pPlugBtn').onclick=()=>projPlugins(p.path,$('#pPlug'));
@@ -704,6 +706,11 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
     if(a==='open'){await api('/api/open',{paths:[m.path]});toast('Abriendo en FL Studio…')}
     if(a==='reveal')await api('/api/reveal',{paths:[m.path]});
     if(a==='relink')openRelink(m.path);
+    if(a==='ordenar'){b.disabled=true;const r=await api('/api/ordenar',{paths:[m.path],dry:true});b.disabled=false;
+      if(r.error){toast('No se pudo ordenar: '+r.error);return}
+      if(!await ask('Ordenar pistas',r.log.join('\n')+'\n\nSe guardará una copia "'+m.name.replace(/\.flp$/i,'')+' - ordenado.flp". El original no se toca.','Crear copia ordenada'))return;
+      const s=await api('/api/ordenar',{paths:[m.path]});if(s.error){toast('Error: '+s.error);return}
+      toast('Guardado: '+s.dst.split('\\').pop());loadProjects()}
     if(a==='bounce'){b.disabled=true;await api('/api/preview',{paths:[m.path]});pollPreviews(g)}
     if(a==='mark'){await mark(all,b.dataset.s);toast('Marcado')}
     if(a==='del'&&await ask('Enviar a la Papelera',m.path+'\n\nPodrás recuperarlo desde la Papelera de reciclaje.','Enviar a Papelera')){const r=await api('/api/delete',{paths:[m.path]});toast(r.deleted?'Enviado a la Papelera':'No se pudo borrar');loadProjects()}
@@ -1127,6 +1134,12 @@ $('#chkUpd').onclick=async()=>{const b=$('#chkUpd');b.disabled=true;b.lastChild.
     else toast('Ya tienes la última versión ('+v.current+')')}
   catch(e){toast('No se pudo buscar')}b.disabled=false;b.lastChild.textContent='Buscar'};
 api('/api/version').then(showVer).catch(()=>{});
+function fsShow(r){if(r.error){$('#fsSt').textContent='error';toast(r.error);return}
+  $('#fsSt').textContent=r.current?'instalado':r.installed?'desactualizado':'no instalado';
+  const b=$('#fsBtn');b.style.display=r.current?'none':'';b.textContent=r.installed?'Actualizar':'Instalar'}
+$('#fsBtn').onclick=async()=>{const r=await api('/api/flscript',{install:true});fsShow(r);
+  if(r.current)toast('Listo. En FL: Options › MIDI Settings › Controller type › Auto Organizer (reinicia FL si estaba abierto)')};
+api('/api/flscript',{}).then(fsShow).catch(()=>{});
 setInterval(()=>api('/api/version?force=1').then(showVer).catch(()=>{}),3*3600e3);   // revisa sola cada 3 h
 api('/api/drives').then(d=>{$('#flinfo').textContent=d.fl.exe||'FL Studio no detectado';DRIVES=d.drives;refreshJobs();const h=location.hash.slice(1);if(['drives','organize','samples','plugins'].includes(h))show(h)}).catch(()=>{});
 loadProjects();
