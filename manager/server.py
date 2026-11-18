@@ -10,6 +10,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import core  # noqa: E402
 import updater  # noqa: E402
+import preview  # noqa: E402
 
 TOKEN = secrets.token_urlsafe(24)
 MGR = core.Manager()
@@ -47,6 +48,8 @@ class Handler(BaseHTTPRequestHandler):
             with open(UI, encoding="utf-8") as f:
                 html = f.read().replace("__TOKEN__", TOKEN)
             return self._send(200, ctype="text/html", raw=html.encode("utf-8"))
+        if self.path.startswith("/preview/"):
+            return self._audio()
         if self.headers.get("X-Token") != TOKEN:
             return self._send(403, {"error": "token"})
         if self.path == "/api/drives":
@@ -59,6 +62,43 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, {"groups": MGR.listing(), "excluded": MGR.status["excluded"],
                                     "canUndo": bool(MGR.undo)})
         return self._send(404, {"error": "no encontrado"})
+
+    def _audio(self):
+        """Sirve un MP3 de vista previa (token en la URL; admite Range para poder adelantar)."""
+        from urllib.parse import parse_qs, urlparse
+        u = urlparse(self.path)
+        if parse_qs(u.query).get("t", [""])[0] != TOKEN:
+            return self._send(403, {"error": "token"})
+        f = preview.file_for(os.path.basename(u.path).split(".")[0])
+        if not f:
+            return self._send(404, {"error": "no encontrado"})
+        size = os.path.getsize(f)
+        start, end = 0, size - 1
+        rng = self.headers.get("Range", "")
+        if rng.startswith("bytes="):
+            a, _, b = rng[6:].partition("-")
+            start = int(a) if a else max(0, size - int(b))
+            end = int(b) if a and b else end
+        end = min(end, size - 1)
+        self.send_response(206 if rng else 200)
+        self.send_header("Content-Type", "audio/mpeg")
+        self.send_header("Accept-Ranges", "bytes")
+        self.send_header("Content-Length", str(end - start + 1))
+        if rng:
+            self.send_header("Content-Range", "bytes %d-%d/%d" % (start, end, size))
+        self.end_headers()
+        with open(f, "rb") as fh:
+            fh.seek(start)
+            left = end - start + 1
+            try:
+                while left > 0:
+                    chunk = fh.read(min(65536, left))
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+                    left -= len(chunk)
+            except (ConnectionError, OSError):
+                pass
 
     def do_POST(self):
         if not self._ok_host() or self.headers.get("X-Token") != TOKEN:
@@ -87,6 +127,12 @@ class Handler(BaseHTTPRequestHandler):
                 for x in _paths(body)[:1]:
                     core.open_in_fl(x)
                 return self._send(200, {"ok": True})
+            if p == "/api/preview":
+                for x in _paths(body)[:1]:
+                    preview.request(x)
+                return self._send(200, {"ok": True})
+            if p == "/api/preview/state":
+                return self._send(200, {x: preview.state(x) for x in _paths(body)})
             if p == "/api/reveal":
                 for x in _paths(body)[:1]:
                     core.reveal(x)

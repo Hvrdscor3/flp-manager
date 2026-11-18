@@ -187,6 +187,14 @@ textarea:focus{border-color:var(--ink)}
 .miss{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--bad);background:var(--bad-bg);border-radius:10px;padding:9px 11px;max-height:150px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-top:8px}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .acts .pri,.acts .sec{padding:7px 12px;font-size:13px;border-radius:9px}
+.acts .bounce{background:#ff8a3d;color:#1f1f1f;border:0;font-weight:700;letter-spacing:.06em;font-size:12px!important;text-transform:uppercase}
+.acts .bounce:hover{background:#ff7a22}.acts .bounce:disabled{opacity:.55;cursor:default}
+.pv:empty{display:none}.pv{margin-top:10px;font-size:12.5px;color:var(--text2)}
+.pv audio{width:100%;height:38px;margin-top:6px;display:block}
+.pv .pbar{height:4px;border-radius:9px;background:var(--cream2);overflow:hidden;margin-top:7px}
+.pv .pbar div{width:35%;height:100%;background:#ff8a3d;border-radius:9px;animation:pm 1.2s ease-in-out infinite}
+@keyframes pm{0%{transform:translateX(-100%)}100%{transform:translateX(290%)}}
+.pv .perr{color:var(--bad);background:var(--bad-bg);border-radius:9px;padding:7px 10px;margin-top:6px}
 
 /* modal / toast */
 .modal{position:fixed;inset:0;background:#1f1f1f40;display:none;place-items:center;z-index:40;backdrop-filter:blur(2px)}
@@ -480,16 +488,33 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
      <div>Modificado<b>${fmtD(m.mtime)}</b></div><div>Creado<b>${fmtD(m.created)}</b></div><div>Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
      <div>Canales<b>${m.channels}</b></div><div>Patterns<b>${m.patterns}</b></div><div>Samples<b>${m.samples}</b></div></div>
     ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
-    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div></div>`).join('');
+    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-play',13)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('');
   $('#drawer').classList.add('on');$('#scrim').classList.add('on');$('#dx').onclick=closeDrawer;
+  pollPreviews(g);
   $('#note').onchange=async e=>{await api('/api/mark',{paths:all,note:e.target.value});toast('Nota guardada')};
   $$('#drawer [data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a,m=g.members[b.dataset.i];
     if(a==='open'){await api('/api/open',{paths:[m.path]});toast('Abriendo en FL Studio…')}
     if(a==='reveal')await api('/api/reveal',{paths:[m.path]});
+    if(a==='bounce'){b.disabled=true;await api('/api/preview',{paths:[m.path]});pollPreviews(g)}
     if(a==='mark'){await api('/api/mark',{paths:all,status:b.dataset.s});toast('Marcado');loadProjects()}
     if(a==='del'&&await ask('Enviar a la Papelera',m.path+'\n\nPodrás recuperarlo desde la Papelera de reciclaje.','Enviar a Papelera')){const r=await api('/api/delete',{paths:[m.path]});toast(r.deleted?'Enviado a la Papelera':'No se pudo borrar');loadProjects()}
     if(a==='delall'&&await ask('Borrar proyecto completo',`Los ${g.count} archivo(s) de "${g.name}" irán a la Papelera de reciclaje.`,'Enviar a Papelera')){const r=await api('/api/delete',{paths:all});toast(r.deleted+' archivo(s) a la Papelera');closeDrawer();loadProjects()}})}
-function closeDrawer(){ACTIVE=null;$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');$$('.card.dark').forEach(c=>c.classList.remove('dark'));$$('.prow.act').forEach(r=>r.classList.remove('act'))}
+/* ---------- bounce preview ---------- */
+let PVT=null;const PVS={};
+async function pollPreviews(g){clearTimeout(PVT);if(ACTIVE!==g.key)return;let st;
+  try{st=await api('/api/preview/state',{paths:g.members.map(m=>m.path)})}catch{return}
+  let busy=false;
+  g.members.forEach((m,i)=>{const s=st[m.path]||{state:'none'},el=$(`[data-pv="${i}"]`),btn=$(`[data-a="bounce"][data-i="${i}"]`);if(!el)return;
+    const run=s.state==='queued'||s.state==='rendering';if(run)busy=true;
+    if(btn){btn.disabled=run;btn.style.display=s.state==='done'?'none':''}
+    if(s.state==='rendering'){PVS[m.path]='r';el.innerHTML=`Renderizando con FL Studio… <b>${Math.round(s.elapsed||0)} s</b><div class="pbar"><div></div></div>`;return}
+    const sig=JSON.stringify([s.state,s.key,s.error,s.pos,s.warnings]);
+    if(PVS[m.path]===sig)return;PVS[m.path]=sig;
+    el.innerHTML=s.state==='queued'?`En cola${s.pos>1?` (#${s.pos})`:''}…<div class="pbar"><div></div></div>`
+     :s.state==='done'?`Vista previa${s.elapsed?` · renderizada en ${Math.round(s.elapsed)} s`:''}${s.warnings&&s.warnings.length?` · ${s.warnings.length} aviso(s) de FL omitidos`:''}<audio controls preload="metadata" src="/preview/${s.key}.mp3?t=${TOKEN}"></audio>`
+     :s.state==='error'?`<div class="perr">${esc(s.error)}</div>`:''});
+  if(busy)PVT=setTimeout(()=>pollPreviews(g),1000)}
+function closeDrawer(){clearTimeout(PVT);$$('#drawer audio').forEach(a=>a.pause());for(const k in PVS)delete PVS[k];ACTIVE=null;$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');$$('.card.dark').forEach(c=>c.classList.remove('dark'));$$('.prow.act').forEach(r=>r.classList.remove('act'))}
 $('#scrim').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();$('#modal').classList.remove('on')}});
 
 /* ---------- unidades ---------- */
