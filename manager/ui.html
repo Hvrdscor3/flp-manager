@@ -315,12 +315,19 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--hover)}
 /* drawer */
 .scrim{position:fixed;inset:0;background:#1f1f1f33;opacity:0;pointer-events:none;transition:.2s;z-index:19}
 .scrim.on{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;right:0;width:min(580px,100vw);height:100vh;background:var(--card);transform:translateX(102%);transition:.28s cubic-bezier(.2,.8,.2,1);z-index:20;display:flex;flex-direction:column;visibility:hidden}
-.drawer.on{transform:none;visibility:visible;box-shadow:-24px 0 60px #00000014}
-.dh{background:var(--cream);padding:22px 24px 18px;position:relative}
+.drawer{position:fixed;top:50%;left:50%;width:min(1080px,calc(100vw - 48px));height:min(90vh,1000px);background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  transform:translate(-50%,-47%) scale(.98);opacity:0;transition:transform .24s cubic-bezier(.2,.8,.2,1),opacity .18s,visibility 0s .24s;z-index:20;display:flex;flex-direction:column;visibility:hidden}
+.drawer.on{transform:translate(-50%,-50%);opacity:1;visibility:visible;transition:transform .24s cubic-bezier(.2,.8,.2,1),opacity .18s;box-shadow:0 30px 90px #00000040}
+#scrim.on{backdrop-filter:blur(2px)}
+.dh{background:var(--cream);padding:24px;position:relative}
 .dh h2{margin:0 0 4px;font-size:22px;font-weight:600;letter-spacing:-.01em;padding-right:36px}
-.x{position:absolute;right:16px;top:16px;width:32px;height:32px;border-radius:9px;display:grid;place-items:center}.x:hover{background:var(--cream2)}
-.db{padding:18px 24px 30px;overflow:auto;flex:1}
+.x{position:absolute;right:20px;top:20px;width:32px;height:32px;border-radius:9px;display:grid;place-items:center}.x:hover{background:var(--cream2)}
+.db{padding:8px 24px 24px;overflow:auto;flex:1}
+.dtop{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:0 20px}.dtop textarea{min-height:44px}
+.flist{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:14px;align-items:stretch}
+.flist .file{margin:0;padding:18px;display:flex;flex-direction:column}
+.flist .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto;padding-top:14px}
+.flist .acts>button{justify-content:center;width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lab{font-size:12px;color:var(--muted2);margin:18px 0 8px;font-weight:500}
 textarea{width:100%;min-height:70px;border:1px solid var(--line2);border-radius:11px;padding:10px 12px;font:inherit;resize:vertical;outline:none}
 textarea:focus{border-color:var(--ink)}
@@ -710,9 +717,9 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
    <button class="${g.mark==='descartar'?'pri':'sec'}" data-a="mark" data-s="descartar">${ico('i-x',15)}Descartar</button>
    <button class="${g.mark==='pendiente'?'pri':'sec'}" data-a="mark" data-s="pendiente">${ico('i-clock',15)}Por revisar</button>
    <button class="sec danger" data-a="delall" style="margin-left:auto">${ico('i-trash',15)}Borrar</button></div>`;
-  $('#db').innerHTML=`<div class="lab" style="margin-top:4px">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea>
-   <div class="lab">Plugins del proyecto</div><div id="pPlug"><button class="sec" id="pPlugBtn">${ico('i-plug',15)}Ver plugins y versiones</button></div>
-   <div class="lab">Archivos (${g.count})</div>`+g.members.map((m,i)=>`<div class="file ${m.latest?'latest':''}">
+  $('#db').innerHTML=`<div class="dtop"><div><div class="lab">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea></div>
+   <div><div class="lab">Plugins del proyecto</div><div id="pPlug"><button class="sec" id="pPlugBtn">${ico('i-plug',15)}Ver plugins y versiones</button></div></div></div>
+   <div class="lab">Archivos (${g.count})</div><div class="flist">`+g.members.map((m,i)=>`<div class="file ${m.latest?'latest':''}">
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><b style="font-weight:600;word-break:break-word">${esc(m.name)}</b>
      <span style="white-space:nowrap">${m.latest?'<span class="tag dark">Más reciente</span>':''}${m.primary&&!m.latest?'<span class="tag cream">Principal</span>':''}${m.backup?'<span class="tag">Backup</span>':''}${m.error?'<span class="tag b">Error</span>':m.missing.length?`<span class="tag w">${m.missing.length} faltan</span>`:'<span class="tag g">OK</span>'}</span></div>
     <div class="pp" style="max-width:none;white-space:normal;word-break:break-all;margin-top:4px">${esc(m.path)}</div>
@@ -720,7 +727,7 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
      <div>${ico('i-cal',12)}Modificado<b>${fmtD(m.mtime)}</b></div><div>${ico('i-cal',12)}Creado<b>${fmtD(m.created)}</b></div><div>${ico('i-clock',12)}Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
      <div>${ico('i-list',12)}Canales<b>${m.channels}</b></div><div>${ico('i-grid',12)}Patterns<b>${m.patterns}</b></div><div>${ico('i-wave',12)}Samples<b>${m.samples}</b></div></div>
     ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
-    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec" data-a="ordenar" data-i="${i}" title="Junta automatizaciones, nombra y colorea pistas. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button>${m.missing.length?`<button class="sec" data-a="relink" data-i="${i}">${ico('i-unlink',15)}Reparar samples (${m.missing.length})</button>`:''}<button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('');
+    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec" data-a="ordenar" data-i="${i}" title="Junta automatizaciones, nombra y colorea pistas. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button>${m.missing.length?`<button class="sec" data-a="relink" data-i="${i}">${ico('i-unlink',15)}Reparar samples (${m.missing.length})</button>`:''}<button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('')+'</div>';
   $('#drawer').classList.add('on');$('#scrim').classList.add('on');$('#dx').onclick=closeDrawer;
   for(const k in PVS)delete PVS[k];pollPreviews(g);
   $('#pPlugBtn').onclick=()=>projPlugins(p.path,$('#pPlug'));
