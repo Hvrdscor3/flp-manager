@@ -177,6 +177,10 @@ class SampleManager:
         self.ids = {}
         self.rev = 1
         self._cache = (0, None)
+        self._catc = {}             # categoria automatica por ruta (regex: se calcula una vez)
+        self._use = (None, None)    # (firma de refs, uso)
+        self._save_cost = 0.0
+        self._idx_t = self._idx_cost = 0.0
         self._stop = {}
         self._last_save = 0
         try:
@@ -195,15 +199,20 @@ class SampleManager:
         self.ids = {sid(p): p for p in self.files}
 
     def save(self):
-        with self.lock:
-            txt = json.dumps({"files": self.files, "cats": self.cats, "refs": self.refs,
-                              "undo": self.undo, "jobs": self.jobs}, ensure_ascii=False,
-                             separators=(",", ":"))
+        t = time.time()
+        with self.lock:             # copia rapida; serializar fuera del candado
+            snap = {"files": dict(self.files), "cats": dict(self.cats), "refs": dict(self.refs),
+                    "undo": list(self.undo), "jobs": {k: dict(v) for k, v in self.jobs.items()}}
         tmp = FILE + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
-            f.write(txt)
+            json.dump(snap, f, ensure_ascii=False, separators=(",", ":"))
         os.replace(tmp, FILE)
         self._last_save = time.time()
+        self._save_cost = self._last_save - t
+
+    def _save_due(self):
+        # guardar cuesta CPU: con librerias grandes se guarda menos seguido (max ~5% del tiempo)
+        return time.time() - self._last_save > max(15, self._save_cost * 20)
 
     # ---------------------------------------------------------------- escaneo
     def status(self):
@@ -287,7 +296,7 @@ class SampleManager:
                     j["analyzed"] += 1
                 self.rev += 1
                 j["elapsed"] = time.time() - t0
-                if time.time() - self._last_save > 15:
+                if self._save_due():
                     self.save()
             if stop.is_set():
                 j["state"] = "paused"
@@ -378,29 +387,40 @@ class SampleManager:
 
     # ---------------------------------------------------------------- consultas
     def _usage(self):
+        sig = (len(self.refs), sum(v[0] for v in self.refs.values()))
+        if self._use[0] == sig:
+            return self._use[1]
         use = {}
-        for flp, (_, paths) in self.refs.items():
+        for flp, (_, paths) in list(self.refs.items()):
             for p in paths:
                 use.setdefault(p, []).append(flp)
+        self._use = (sig, use)
         return use
 
     def index(self):
         """Indice calculado una vez por revision: categorias, uso y grupos de duplicados."""
         if self._cache[0] == self.rev:
             return self._cache[1]
-        rev = self.rev
+        # mientras escanea, reutiliza el indice reciente (recalcularlo cuesta CPU con librerias grandes)
+        if self._cache[1] is not None and self.status()["running"] and \
+                time.time() - self._idx_t < max(5, self._idx_cost * 15):
+            return self._cache[1]
+        rev, t0 = self.rev, time.time()
         with self.lock:
             files = dict(self.files)
         use = self._usage()
-        cat, exact, names = {}, {}, {}
+        cat, exact, names, cc = {}, {}, {}, self._catc
         for p, d in files.items():
-            c = self.cats.get(p) or categorize(p)
+            k = cc.get(p)
+            if k is None:
+                k = cc[p] = (categorize(p), norm_name(p))
+            c = self.cats.get(p) or k[0]
             if c == "Sin clasificar" and ((d.get("dur") or 0) > 45 or (d.get("ext") == "mp3" and d["size"] > 1500000)):
                 c = "Canciones y renders"   # audios largos: temas, bounces, referencias
             cat[p] = c
             if d.get("fh"):
                 exact.setdefault((d["size"], d["fh"]), []).append(p)
-            names.setdefault(norm_name(p), []).append(p)
+            names.setdefault(k[1], []).append(p)
         dups = [sorted(ps, key=lambda x: (-len(use.get(os.path.normcase(x), [])), len(x)))
                 for ps in exact.values() if len(ps) > 1]
         dups.sort(key=lambda ps: -files[ps[0]]["size"] * (len(ps) - 1))
@@ -414,6 +434,7 @@ class SampleManager:
         similar.sort(key=lambda ps: -len(ps))
         idx = {"files": files, "cat": cat, "use": use, "dups": dups, "similar": similar}
         self._cache = (rev, idx)
+        self._idx_t, self._idx_cost = time.time(), time.time() - t0
         return idx
 
     def item(self, p, idx):
@@ -426,6 +447,16 @@ class SampleManager:
                 "usedBy": [os.path.splitext(os.path.basename(x))[0] for x in u[:5]]}
 
     def summary(self):
+        # Escaneando: solo totales (baratos). Duplicados/categorias se recalculan al terminar.
+        last = getattr(self, "_sum", None)
+        if last and self.status()["running"]:
+            with self.lock:
+                vals = list(self.files.values())
+            return dict(last, rev=self.rev, total=len(vals), size=sum(d["size"] for d in vals))
+        self._sum = s = self._summary()
+        return s
+
+    def _summary(self):
         idx = self.index()
         cats = {}
         for p, c in idx["cat"].items():
@@ -483,6 +514,7 @@ class SampleManager:
                     else:
                         self.cats.pop(p, None)
         self.rev += 1
+        self._idx_t = 0          # accion del usuario: refrescar ya
         self.save()
 
     def recycle(self, paths):
@@ -496,6 +528,7 @@ class SampleManager:
             else:
                 err.append(p)
         self.rev += 1
+        self._idx_t = 0          # accion del usuario: refrescar ya
         self.save()
         return {"deleted": ok, "errors": err}
 
@@ -543,6 +576,7 @@ class SampleManager:
         done, errors = fastfs.transfer_many(pairs, copy, moved)
         self.undo = [] if copy else done
         self.rev += 1
+        self._idx_t = 0          # accion del usuario: refrescar ya
         self.save()
         return {"moved": len(done), "errors": errors}
 
@@ -566,6 +600,7 @@ class SampleManager:
                 errors.append("%s: %s" % (dst, e))
         self.undo = []
         self.rev += 1
+        self._idx_t = 0          # accion del usuario: refrescar ya
         self.save()
         return {"restored": n, "errors": errors}
 
