@@ -73,8 +73,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(403, {"error": "token"})
         if self.path == "/api/drives":
             return self._send(200, {"drives": core.list_drives(), "fl": core.FL})
-        if self.path == "/api/version":
-            return self._send(200, updater.check())
+        if self.path.startswith("/api/version"):
+            return self._send(200, updater.check(force="force=1" in self.path))
         if self.path == "/api/status":
             return self._send(200, MGR.status)
         if self.path.startswith("/api/projects"):
@@ -224,7 +224,10 @@ class Handler(BaseHTTPRequestHandler):
             if p == "/api/pickfolder":
                 return self._send(200, {"path": HOOKS["pick_folder"]() or ""})
             if p == "/api/update":
-                ok = updater.download_and_restart()
+                try:
+                    ok = updater.download_and_restart()
+                except Exception as e:  # noqa: BLE001 - sin internet, descarga cortada
+                    return self._send(200, {"restarting": False, "error": str(e)[:120]})
                 if ok:
                     threading.Timer(0.8, HOOKS["quit"]).start()
                 return self._send(200, {"restarting": ok})

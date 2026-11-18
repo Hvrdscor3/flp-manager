@@ -393,7 +393,8 @@ textarea:focus{border-color:var(--ink)}
     <div class="nav" id="filters"></div>
     <div class="side-foot">
       <button class="sec" id="themeBtn" style="width:100%;justify-content:center;margin-bottom:14px"></button>
-      <div><b>Versión <span id="ver">—</span></b></div>
+      <div style="display:flex;align-items:center;gap:6px"><b>Versión <span id="ver">—</span></b>
+        <button class="sec" id="chkUpd" style="margin-left:auto;padding:4px 9px;font-size:11.5px" title="Buscar actualizaciones"><svg width="13" height="13"><use href="#i-hist"/></svg>Buscar</button></div>
       <div id="flinfo" style="margin-top:4px;word-break:break-all"></div>
       <div class="updcard" id="upd"><b id="updT"></b><p id="updN"></p><button class="sec" style="width:100%;justify-content:center" id="updBtn"><svg width="16" height="16"><use href="#i-dl"/></svg>Actualizar ahora</button></div>
     </div>
@@ -1115,10 +1116,18 @@ async function projPlugins(path,el){el.innerHTML='Leyendo plugins…';let r;try{
   const b=el.querySelector('[data-pexp]');if(b)b.onclick=async()=>{const r=await api('/api/plugins/export',{paths:[path]});toast(`${r.exported} preset(s) exportados${r.duplicates?` · ${r.duplicates} ya existían`:''}`)}}
 
 /* ---------- versión / arranque ---------- */
-api('/api/version').then(v=>{$('#ver').textContent=v.current;if(!v.available)return;$('#upd').style.display='block';
-  $('#updT').textContent='Versión '+v.latest+' disponible';$('#updN').textContent=(v.notes||'').replace(/\*\*/g,'').slice(0,140);
-  $('#updBtn').onclick=async()=>{$('#updBtn').disabled=true;$('#updBtn').textContent='Descargando…';
-    try{const r=await api('/api/update',{});$('#updBtn').textContent=r.restarting?'Reiniciando…':'No se pudo actualizar'}catch(e){$('#updBtn').textContent='Error: '+e.message}}}).catch(()=>{});
+function showVer(v){$('#ver').textContent=v.current;if(!v.available)return false;$('#upd').style.display='block';
+  $('#updT').textContent='Versión '+v.latest+' disponible';$('#updN').textContent=(v.notes||'').replace(/\*\*/g,'').slice(0,140);return true}
+$('#updBtn').onclick=async()=>{const b=$('#updBtn');b.disabled=true;b.textContent='Descargando…';
+  try{const r=await api('/api/update',{});if(r.restarting)b.textContent='Reiniciando…';else{b.disabled=false;b.textContent=r.error?'Error: '+r.error:'Reintentar'}}
+  catch(e){b.disabled=false;b.textContent='Error: '+e.message}};
+$('#chkUpd').onclick=async()=>{const b=$('#chkUpd');b.disabled=true;b.lastChild.textContent='Buscando…';
+  try{const v=await api('/api/version?force=1');if(v.error)toast('No se pudo buscar: sin conexión');
+    else if(showVer(v)){if(v.frozen)$('#updBtn').click();else toast('Hay una versión nueva ('+v.latest+'), pero esto no es el .exe')}
+    else toast('Ya tienes la última versión ('+v.current+')')}
+  catch(e){toast('No se pudo buscar')}b.disabled=false;b.lastChild.textContent='Buscar'};
+api('/api/version').then(showVer).catch(()=>{});
+setInterval(()=>api('/api/version?force=1').then(showVer).catch(()=>{}),3*3600e3);   // revisa sola cada 3 h
 api('/api/drives').then(d=>{$('#flinfo').textContent=d.fl.exe||'FL Studio no detectado';DRIVES=d.drives;refreshJobs();const h=location.hash.slice(1);if(['drives','organize','samples','plugins'].includes(h))show(h)}).catch(()=>{});
 loadProjects();
 </script>

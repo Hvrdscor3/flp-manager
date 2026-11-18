@@ -56,16 +56,20 @@ def download_and_restart():
     _cache["started"] = True
     exe = sys.executable
     new = exe + ".new"
-    req = urllib.request.Request(info["url"], headers={"User-Agent": UA["User-Agent"]})
-    with urllib.request.urlopen(req, timeout=120) as r, open(new, "wb") as f:
-        while True:
-            chunk = r.read(1 << 16)
-            if not chunk:
-                break
-            f.write(chunk)
-    if os.path.getsize(new) < 1_000_000:  # descarga incompleta
-        os.remove(new)
-        raise IOError("Descarga incompleta")
+    try:
+        req = urllib.request.Request(info["url"], headers={"User-Agent": UA["User-Agent"]})
+        with urllib.request.urlopen(req, timeout=120) as r, open(new, "wb") as f:
+            while True:
+                chunk = r.read(1 << 16)
+                if not chunk:
+                    break
+                f.write(chunk)
+        if os.path.getsize(new) < 1_000_000:  # descarga incompleta
+            os.remove(new)
+            raise IOError("Descarga incompleta")
+    except Exception:
+        _cache.pop("started", None)       # permite reintentar con el boton
+        raise
     # El .exe de PyInstaller son 2 procesos (lanzador + app): se espera a ambos y se
     # reintenta el reemplazo hasta que Windows suelte el archivo.
     pids = {os.getpid(), os.getppid()}
