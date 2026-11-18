@@ -4,286 +4,443 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FLP Manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0f0d14;--panel:#17141f;--panel2:#1e1a29;--line:#2a2538;--text:#ece8f5;--muted:#9a93ad;
-  --accent:#ff8a3d;--accent2:#b06bff;--ok:#3ecf8e;--warn:#f5b942;--bad:#ff5d6c;--info:#4fb0ff;
-  --r:14px;--mono:'JetBrains Mono',ui-monospace,monospace;
+  --ink:#1f1f1f;--cream:#f6f7ed;--soft:#f4f4f4;--white:#fff;
+  --line:#e8e8e3;--line2:#dcdcd5;--muted:#7a7a74;--muted2:#a3a39c;
+  --ok:#2f8f5b;--warn:#b7791f;--bad:#c2410c;
+  --r:14px;--font:'General Sans',ui-sans-serif,system-ui,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,sans-serif}
-button{font:inherit;color:inherit;cursor:pointer}
-.app{display:grid;grid-template-columns:232px 1fr;height:100vh}
-aside{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:20px 14px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;padding:0 8px 22px}
-.logo i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-style:normal;font-size:15px;color:#160f1f}
-nav button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:10px 12px;border-radius:10px;color:var(--muted);text-align:left;font-weight:500}
-nav button:hover{background:var(--panel2);color:var(--text)}
-nav button.on{background:var(--panel2);color:var(--text);box-shadow:inset 3px 0 0 var(--accent)}
-nav svg{width:18px;height:18px}
-.side-foot{margin-top:auto;font-size:12px;color:var(--muted);padding:8px;word-break:break-all}
-main{overflow:auto;padding:28px 34px}
-h1{font-size:22px;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 22px}
+html,body{margin:0;height:100%;background:var(--white);color:var(--ink);font:14px/1.45 var(--font);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+svg{flex:none}
+.app{display:grid;grid-template-columns:248px 1fr;height:100vh}
+
+/* sidebar */
+aside{border-right:1px solid var(--line);display:flex;flex-direction:column;padding:22px 16px;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;padding:0 8px 28px;letter-spacing:-.01em}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:11px;width:100%;padding:9px 10px;border-radius:10px;color:#3b3b38;font-weight:500;text-align:left}
+.nav button:hover{background:var(--soft)}
+.nav button.on{background:var(--soft);color:var(--ink);font-weight:600}
+.nav .n{margin-left:auto;font-size:11.5px;font-weight:600;background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:1px 7px;color:#555}
+.nav button.on .n{background:#fff}
+.grp{font-size:12px;color:var(--muted2);margin:26px 10px 8px;font-weight:500}
+.side-foot{margin-top:auto;padding:16px 10px 0;font-size:12px;color:var(--muted)}
+.side-foot b{color:var(--ink);font-weight:600}
+.updcard{margin:14px 0 0;background:var(--ink);color:var(--cream);border-radius:12px;padding:12px;display:none}
+.updcard p{margin:2px 0 10px;color:#bdbdb4;font-size:12px}
+
+/* main */
+main{overflow:auto;position:relative}
+.hero{background:var(--cream);padding:22px 30px 26px}
+.topbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.search{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;color:var(--muted)}
+.search input{flex:1;border:0;background:none;outline:none;font:inherit;color:var(--ink);padding:8px 0}
+.search input::placeholder{color:#8f8f88}
+.tbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:10px;color:#3b3b38;font-weight:500;white-space:nowrap}
+.tbtn:hover{background:#ecede2}
+.tbtn select{appearance:none;border:0;background:none;font:inherit;color:inherit;outline:none;cursor:pointer;padding-right:2px}
+.pri{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:11px;padding:10px 16px;font-weight:500;white-space:nowrap;transition:.15s}
+.pri:hover{background:#000}.pri:disabled{opacity:.4;cursor:not-allowed}
+.sec{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line2);border-radius:11px;padding:9px 14px;font-weight:500;white-space:nowrap}
+.sec:hover{border-color:#bdbdb4}.sec:disabled{opacity:.45;cursor:not-allowed}
+.sec.danger{color:var(--bad)}
+.seg{display:inline-flex;background:#ecede2;border-radius:10px;padding:3px}
+.seg button{padding:5px 9px;border-radius:8px;color:var(--muted);display:flex}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px #0000000f}
+
+.kpis{display:grid;grid-template-columns:1.25fr 1fr .8fr .8fr;gap:28px;margin-top:30px;align-items:end}
+.kpi h4{margin:0 0 12px;font-weight:500;font-size:15px}
+.kpi .big{font-size:40px;font-weight:500;letter-spacing:-.02em;line-height:1}
+.kpi .lbl{display:flex;justify-content:space-between;align-items:flex-end;color:#55554f;font-size:12.5px;margin-top:28px;gap:10px}
+.kpi .lbl button{display:flex;padding:4px;border-radius:8px}.kpi .lbl button:hover{background:#ecede2}
+.chart{display:flex;align-items:flex-end;gap:12px;height:96px;padding-left:20px;position:relative;border-left:0}
+.chart .ax{position:absolute;left:0;top:0;bottom:16px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--muted)}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.col .bars{display:flex;gap:3px;align-items:flex-end;height:calc(100% - 18px)}
+.col .b{width:12px;border-radius:3px;background:var(--ink);min-height:2px;transition:height .5s}
+.col .b.h{background:repeating-linear-gradient(135deg,#9a9b92 0 2px,transparent 2px 5px);border:1px solid #c9c9c0}
+.col span{font-size:10.5px;color:#55554f;font-weight:500}
+.gauge{position:relative;display:flex;justify-content:center}
+.gauge .v{position:absolute;bottom:4px;text-align:center}
+.gauge .v b{font-size:26px;font-weight:500;display:block;letter-spacing:-.02em}
+.gauge .v span{font-size:12px;color:#55554f}
+
+/* content */
+.content{padding:26px 30px 40px}
 .view{display:none}.view.on{display:block}
-.grid{display:grid;gap:14px}
-.drives{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
-.drive{cursor:pointer;transition:.15s;position:relative}
-.drive:hover{border-color:#3d3552}.drive.sel{border-color:var(--accent);background:linear-gradient(180deg,#22192a,var(--panel))}
-.drive h3{margin:0;font-size:16px;display:flex;justify-content:space-between}
-.drive small{color:var(--muted)}
-.bar{height:6px;border-radius:9px;background:var(--line);overflow:hidden;margin:12px 0 6px}
-.bar>div{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:9px;transition:width .3s}
-.chk{width:20px;height:20px;border-radius:6px;border:1.5px solid #4a4260;display:grid;place-items:center;font-size:12px}
-.sel .chk{background:var(--accent);border-color:var(--accent);color:#1a1020}
-.btn{background:var(--panel2);border:1px solid var(--line);padding:9px 14px;border-radius:10px;font-weight:500;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
-.btn:hover{border-color:#4a4260}.btn.pri{background:var(--accent);border-color:var(--accent);color:#1b1022;font-weight:600}
-.btn.pri:hover{filter:brightness(1.08)}.btn.danger{color:var(--bad)}.btn.danger:hover{border-color:var(--bad)}
-.btn:disabled{opacity:.45;cursor:not-allowed}.btn.sm{padding:6px 10px;font-size:12.5px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.scanbox{margin-top:18px}.scanbox .cur{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:18px}
-.stat b{display:block;font-size:24px;font-weight:700}.stat span{color:var(--muted);font-size:12.5px}
-.stat.c1 b{color:var(--accent)}.stat.c2 b{color:var(--info)}.stat.c3 b{color:var(--warn)}.stat.c4 b{color:var(--bad)}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-input[type=text],select{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font:inherit;outline:none}
-input[type=text]:focus,select:focus{border-color:var(--accent2)}
-.search{flex:1;min-width:200px}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:12.5px;color:var(--muted)}
-.chip.on{color:var(--text);border-color:var(--accent2);background:#231a33}
-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-th{position:sticky;top:0;text-align:left;font-size:12px;font-weight:600;color:var(--muted);background:var(--panel2);padding:10px 12px;text-transform:uppercase;letter-spacing:.04em}
-td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
-tbody tr{cursor:pointer}tbody tr:hover td{background:#1c1826}tbody tr.act td{background:#241c30}
-.pname{font-weight:600}.ppath{font-family:var(--mono);font-size:11.5px;color:var(--muted);max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px;margin-right:4px;white-space:nowrap}
-.t-ok{background:#163327;color:var(--ok)}.t-bad{background:#3a1820;color:var(--bad)}.t-warn{background:#372a12;color:var(--warn)}
-.t-info{background:#142c42;color:var(--info)}.t-mut{background:var(--panel2);color:var(--muted)}.t-acc{background:#3a2216;color:var(--accent)}
-.drawer{position:fixed;top:0;right:0;width:min(560px,100vw);height:100vh;background:var(--panel);border-left:1px solid var(--line);transform:translateX(100%);transition:.25s;z-index:20;display:flex;flex-direction:column;box-shadow:-20px 0 60px #0008}
-.drawer.on{transform:none}.drawer header{padding:20px 22px;border-bottom:1px solid var(--line)}
-.drawer .body{padding:18px 22px;overflow:auto;flex:1}
-.drawer h2{margin:0 0 4px;font-size:19px}
-.x{position:absolute;right:16px;top:16px;background:none;border:0;color:var(--muted);font-size:22px}
-.member{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--panel2)}
-.member.latest{border-color:#5a3a22}
-.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
-.kv div{font-size:12px;color:var(--muted)}.kv b{display:block;color:var(--text);font-size:13px;font-weight:600}
-.miss{font-family:var(--mono);font-size:11.5px;color:var(--bad);background:#22141a;border-radius:8px;padding:8px 10px;max-height:150px;overflow:auto;white-space:pre-wrap;word-break:break-all}
-.sec{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:18px 0 8px;font-weight:600}
-textarea{width:100%;min-height:60px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;font:inherit;resize:vertical}
-.opts label{display:flex;gap:8px;align-items:center;color:var(--muted);margin:6px 0;cursor:pointer}
-.opts input{accent-color:var(--accent)}
-.tree{font-family:var(--mono);font-size:12px;max-height:55vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px}
-.tree .y{color:var(--accent);font-weight:600;margin-top:8px}.tree .m{color:var(--accent2);padding-left:16px}
-.tree .f{padding-left:32px;color:var(--muted)}.tree .f b{color:var(--text);font-weight:500}
-.modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;z-index:40;backdrop-filter:blur(3px)}
-.modal.on{display:grid}.modal .card{width:min(460px,92vw);padding:22px}
-.modal h3{margin:0 0 8px}.modal p{color:var(--muted);margin:0 0 18px;white-space:pre-wrap}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(30px);opacity:0;background:var(--panel2);border:1px solid var(--line);padding:11px 18px;border-radius:12px;transition:.25s;z-index:50;box-shadow:0 10px 30px #0008}
+h1{font-size:24px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 22px}
+
+/* board */
+.board{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:18px;align-items:start}
+.colh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.colh h3{margin:0;font-size:18px;font-weight:500}
+.cnt{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:8px;padding:3px 8px;font-size:12.5px;font-weight:600}
+.lane{display:flex;flex-direction:column;gap:12px;min-height:120px;border-radius:var(--r);transition:.15s;padding:2px}
+.lane.over{background:var(--cream);outline:2px dashed #cfd0c2}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 12px;cursor:pointer;transition:.15s;box-shadow:0 1px 0 #0000000a}
+.card:hover{border-color:#cfcfc8;box-shadow:0 6px 18px #0000000d;transform:translateY(-1px)}
+.card.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+.card.dark .desc,.card.dark .meta{color:#b7b7b0}.card.dark .chip{border-color:#3a3a38;color:#ddd}
+.card.ghost{background:var(--soft);border-color:var(--soft)}
+.card .t{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:14.5px}
+.card .t span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.desc{color:var(--muted);font-size:12.5px;margin:4px 0 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl;text-align:left}
+.meta{display:flex;align-items:center;gap:10px;color:#55554f;font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line2);border-radius:7px;padding:2px 7px;font-size:11.5px;font-weight:500}
+.ic{display:inline-flex;align-items:center;gap:3px}
+.warn{color:var(--warn)}.bad{color:var(--bad)}.okc{color:var(--ok)}
+.more{color:var(--muted);font-size:12.5px;padding:8px;text-align:center;border-radius:10px}.more:hover{background:var(--soft)}
+.empty{color:var(--muted);text-align:center;padding:60px 20px;border:1px dashed var(--line2);border-radius:var(--r)}
+
+/* list */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:11px 14px;background:var(--soft)}
+td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}tbody tr:hover td{background:#fafaf6}
+.pn{font-weight:600}.pp{font-size:12px;color:var(--muted);max-width:480px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;border-radius:7px;padding:2px 8px;margin-right:4px;white-space:nowrap;background:var(--soft);color:#55554f}
+.tag.dark{background:var(--ink);color:#fff}.tag.cream{background:var(--cream);color:#55554f;border:1px solid #e2e3d3}
+.tag.w{background:#fbf3e4;color:var(--warn)}.tag.b{background:#fbeae4;color:var(--bad)}.tag.g{background:#e7f3ec;color:var(--ok)}
+
+/* drives / organize */
+.drives{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.drive{border:1px solid var(--line);border-radius:var(--r);padding:16px;cursor:pointer;transition:.15s;background:#fff}
+.drive:hover{border-color:#cfcfc8}.drive.sel{background:var(--ink);color:#fff;border-color:var(--ink)}
+.drive h3{margin:0;font-size:22px;font-weight:500;display:flex;justify-content:space-between;align-items:center}
+.drive small{color:var(--muted)}.drive.sel small{color:#b7b7b0}
+.meter{height:5px;border-radius:9px;background:var(--soft);overflow:hidden;margin:14px 0 7px}
+.drive.sel .meter{background:#3a3a38}
+.meter>div{height:100%;background:var(--ink);border-radius:9px;transition:width .4s}
+.drive.sel .meter>div{background:var(--cream)}
+.chk{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line2);display:grid;place-items:center}
+.drive.sel .chk{background:var(--cream);border-color:var(--cream);color:var(--ink)}
+.panel{background:var(--cream);border-radius:var(--r);padding:18px 20px;margin-top:18px}
+.scanbar{height:6px;border-radius:9px;background:#e4e5d8;overflow:hidden;margin:14px 0 8px}
+.scanbar>div{height:100%;background:var(--ink);transition:width .4s}
+.mono{font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.field{display:flex;gap:10px;flex-wrap:wrap}
+.field input{flex:1;min-width:260px;border:1px solid var(--line2);border-radius:11px;padding:10px 13px;font:inherit;outline:none;background:#fff}
+.field input:focus{border-color:var(--ink)}
+.opts{display:flex;flex-direction:column;gap:8px;margin:14px 0 16px}
+.opts label{display:flex;gap:10px;align-items:center;cursor:pointer;color:#3b3b38}
+.opts input{width:16px;height:16px;accent-color:var(--ink)}
+.tree{margin-top:16px;border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;max-height:52vh;overflow:auto;font-size:13px}
+.tree .y{font-weight:600;font-size:15px;margin:10px 0 2px}.tree .m{padding-left:14px;font-weight:500;color:#3b3b38;margin-top:6px}
+.tree .f{padding-left:30px;color:var(--muted);font-size:12.5px;padding-top:2px}.tree .f b{color:var(--ink);font-weight:500}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:#1f1f1f33;opacity:0;pointer-events:none;transition:.2s;z-index:19}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;width:min(580px,100vw);height:100vh;background:#fff;transform:translateX(102%);transition:.28s cubic-bezier(.2,.8,.2,1);z-index:20;display:flex;flex-direction:column;visibility:hidden}
+.drawer.on{transform:none;visibility:visible;box-shadow:-24px 0 60px #00000014}
+.dh{background:var(--cream);padding:22px 24px 18px;position:relative}
+.dh h2{margin:0 0 4px;font-size:22px;font-weight:600;letter-spacing:-.01em;padding-right:36px}
+.x{position:absolute;right:16px;top:16px;width:32px;height:32px;border-radius:9px;display:grid;place-items:center}.x:hover{background:#ecede2}
+.db{padding:18px 24px 30px;overflow:auto;flex:1}
+.lab{font-size:12px;color:var(--muted2);margin:18px 0 8px;font-weight:500}
+textarea{width:100%;min-height:70px;border:1px solid var(--line2);border-radius:11px;padding:10px 12px;font:inherit;resize:vertical;outline:none}
+textarea:focus{border-color:var(--ink)}
+.file{border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.file.latest{border-color:var(--ink)}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 12px;margin:12px 0}
+.kv div{font-size:11.5px;color:var(--muted)}.kv b{display:block;color:var(--ink);font-size:13.5px;font-weight:500}
+.miss{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--bad);background:#fdf3ef;border-radius:10px;padding:9px 11px;max-height:150px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-top:8px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.acts .pri,.acts .sec{padding:7px 12px;font-size:13px;border-radius:9px}
+
+/* modal / toast */
+.modal{position:fixed;inset:0;background:#1f1f1f40;display:none;place-items:center;z-index:40;backdrop-filter:blur(2px)}
+.modal.on{display:grid}
+.modal .box{background:#fff;border-radius:18px;width:min(440px,92vw);padding:24px;box-shadow:0 30px 80px #0003}
+.modal h3{margin:0 0 8px;font-size:18px;font-weight:600}.modal p{color:var(--muted);margin:0 0 20px;white-space:pre-wrap;word-break:break-word}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;transition:.25s;z-index:50;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
-.empty{text-align:center;color:var(--muted);padding:50px}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
-@media (max-width:820px){.app{grid-template-columns:1fr}aside{flex-direction:row;padding:10px;overflow:auto}.logo,.side-foot{display:none}nav{display:flex}main{padding:18px 16px}.hide-sm{display:none}}
+
+@media (max-width:1180px){.board{grid-template-columns:repeat(2,minmax(220px,1fr))}.kpis{grid-template-columns:1fr 1fr}}
+@media (max-width:760px){.app{grid-template-columns:1fr}aside{display:none}.hero,.content{padding-left:16px;padding-right:16px}.board,.kpis{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="7.5" fill="#1f1f1f"/><rect x="6.4" y="16" width="3.7" height="9" rx="1.85" fill="#f6f7ed"/><rect x="11.5" y="9.6" width="3.7" height="15.4" rx="1.85" fill="#f6f7ed"/><rect x="16.6" y="13.4" width="3.7" height="11.6" rx="1.85" fill="#9a9b92"/><rect x="21.8" y="7" width="3.7" height="18" rx="1.85" fill="#f6f7ed"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+  <symbol id="i-drive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12H2M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11zM6 16h.01M10 16h.01"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+  <symbol id="i-hist" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.87l12-7.5a1 1 0 0 0 0-1.74l-12-7.5A1 1 0 0 0 7 4.5z"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+</svg>
+
 <div class="app">
   <aside>
-    <div class="logo"><i>&#9835;</i>FLP Manager</div>
-    <nav>
-      <button data-v="drives" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M5 13 7 4h10l2 9M17 17h.01"/></svg>Unidades</button>
-      <button data-v="projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Proyectos</button>
-      <button data-v="organize"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Organizar</button>
-    </nav>
-    <div class="side-foot"><div id="ver" style="margin-bottom:6px"></div><div id="flinfo"></div></div>
+    <div class="brand"><svg width="30" height="30"><use href="#logo"/></svg>FLP Manager</div>
+    <div class="nav" id="mainnav">
+      <button data-v="projects" class="on"><svg width="18" height="18"><use href="#i-grid"/></svg>Proyectos<span class="n" id="nProj">0</span></button>
+      <button data-v="drives"><svg width="18" height="18"><use href="#i-drive"/></svg>Unidades</button>
+      <button data-v="organize"><svg width="18" height="18"><use href="#i-cal"/></svg>Organizar</button>
+    </div>
+    <div class="grp">Filtros</div>
+    <div class="nav" id="filters"></div>
+    <div class="side-foot">
+      <div><b>Versión <span id="ver">—</span></b></div>
+      <div id="flinfo" style="margin-top:4px;word-break:break-all"></div>
+      <div class="updcard" id="upd"><b id="updT"></b><p id="updN"></p><button class="sec" style="width:100%;justify-content:center" id="updBtn"><svg width="16" height="16"><use href="#i-dl"/></svg>Actualizar ahora</button></div>
+    </div>
   </aside>
 
-  <main>
-    <div class="card" id="upd" style="display:none;margin-bottom:18px;border-color:var(--accent);background:linear-gradient(90deg,#2a1a14,var(--panel))">
-      <div class="row" style="justify-content:space-between"><div><b id="updT"></b><div id="updN" style="color:var(--muted);font-size:12.5px;white-space:pre-wrap"></div></div>
-      <button class="btn pri" id="updBtn">Actualizar ahora</button></div></div>
-    <!-- UNIDADES -->
-    <section class="view on" id="v-drives">
-      <h1>Unidades</h1>
-      <p class="sub">Elige dónde buscar proyectos. Los .flp de muestra que trae FL Studio se excluyen solos.</p>
-      <div class="grid drives" id="drives"></div>
-      <div class="card scanbox">
-        <div class="row" style="justify-content:space-between">
-          <div class="row"><button class="btn pri" id="scanBtn">Escanear seleccionadas</button>
-          <span id="scanPhase" style="color:var(--muted)"></span></div>
-          <span id="scanCount" style="font-weight:600"></span>
+  <main id="main">
+    <!-- PROYECTOS -->
+    <section class="view on" id="v-projects">
+      <div class="hero">
+        <div class="topbar">
+          <label class="search"><svg width="18" height="18"><use href="#i-search"/></svg><input id="q" placeholder="Buscar proyecto o ruta…"></label>
+          <label class="tbtn"><svg width="17" height="17"><use href="#i-sort"/></svg>
+            <select id="sort"><option value="date">Más recientes</option><option value="name">Nombre</option><option value="count">Más versiones</option><option value="missing">Samples faltantes</option><option value="hours">Horas trabajadas</option></select></label>
+          <div class="seg" id="viewseg"><button data-m="board" class="on" title="Tablero"><svg width="17" height="17"><use href="#i-grid"/></svg></button><button data-m="list" title="Lista"><svg width="17" height="17"><use href="#i-list"/></svg></button></div>
+          <button class="pri" data-go="drives"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear</button>
         </div>
-        <div class="bar"><div id="scanBar" style="width:0"></div></div>
-        <div class="cur" id="scanCur"></div>
+        <div class="kpis">
+          <div class="kpi"><h4>Proyectos por mes</h4><div class="chart" id="chart"></div></div>
+          <div class="kpi"><div class="gauge"><svg id="gauge" width="220" height="118" viewBox="0 0 220 118"></svg><div class="v"><b id="gv">0%</b><span>Proyectos sanos</span></div></div></div>
+          <div class="kpi"><div class="big" id="kFiles">0</div><div class="lbl"><span>Archivos .flp<br>encontrados</span><button data-filter="backups" title="Ver con backups"><svg width="18" height="18"><use href="#i-arrow"/></svg></button></div></div>
+          <div class="kpi"><div class="big" id="kHours">0 h</div><div class="lbl"><span>Horas trabajadas<br>en total</span><button data-sort="hours" title="Ordenar por horas"><svg width="18" height="18"><use href="#i-arrow"/></svg></button></div></div>
+        </div>
+      </div>
+      <div class="content">
+        <div id="boardWrap"><div class="board" id="board"></div></div>
+        <div id="listWrap" style="display:none"><div class="tablewrap"><table><thead><tr><th>Proyecto</th><th>Versiones</th><th>Modificado</th><th>FL</th><th>Estado</th></tr></thead><tbody id="rows"></tbody></table></div></div>
       </div>
     </section>
 
-    <!-- PROYECTOS -->
-    <section class="view" id="v-projects">
-      <h1>Proyectos</h1>
-      <p class="sub">Agrupados por nombre: cada grupo junta versiones y backups y marca cuál es el más reciente.</p>
-      <div class="grid stats" id="stats"></div>
-      <div class="toolbar">
-        <input type="text" class="search" id="q" placeholder="Buscar por nombre o ruta…">
-        <select id="sort">
-          <option value="date">Más recientes</option><option value="name">Nombre</option>
-          <option value="count">Más versiones</option><option value="missing">Más samples faltantes</option>
-        </select>
-        <button class="btn danger" id="delDiscarded">Borrar descartados</button>
+    <!-- UNIDADES -->
+    <section class="view" id="v-drives"><div class="content">
+      <h1>Unidades</h1><p class="sub">Elige dónde buscar. Los .flp de muestra que trae FL Studio se excluyen solos.</p>
+      <div class="drives" id="drives"></div>
+      <div class="panel">
+        <div class="topbar" style="justify-content:space-between">
+          <div class="topbar"><button class="pri" id="scanBtn"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear seleccionadas</button><span id="scanPhase" style="color:var(--muted)"></span></div>
+          <b id="scanCount" style="font-weight:600"></b>
+        </div>
+        <div class="scanbar"><div id="scanBar" style="width:0"></div></div>
+        <div class="mono" id="scanCur"></div>
       </div>
-      <div class="chips" id="chips" style="margin-bottom:14px"></div>
-      <div style="overflow-x:auto;border-radius:var(--r)"><table><thead><tr><th>Proyecto</th><th>Versiones</th><th class="hide-sm">Última modificación</th><th class="hide-sm">FL</th><th>Estado</th></tr></thead>
-      <tbody id="rows"></tbody></table></div>
-    </section>
+    </div></section>
 
     <!-- ORGANIZAR -->
-    <section class="view" id="v-organize">
-      <h1>Organizar</h1>
-      <p class="sub">Mueve cada proyecto a <span style="font-family:var(--mono)">Destino / Año / Mes / Proyecto</span>. La versión más reciente queda arriba; las demás van a <i>Versiones</i> y <i>Backups</i>.</p>
-      <div class="card">
-        <div class="row">
-          <input type="text" id="dest" placeholder="Carpeta destino, p. ej. D:\Proyectos FL" style="flex:1;min-width:260px">
-          <button class="btn" id="pick">Elegir…</button>
+    <section class="view" id="v-organize"><div class="content">
+      <h1>Organizar</h1><p class="sub">Mueve cada proyecto a <b>Destino / Año / Mes / Proyecto</b>. El archivo principal queda arriba; autoguardados en <i>Backups</i> y otras versiones en <i>Versiones</i>.</p>
+      <div class="panel" style="margin-top:0">
+        <div class="field"><input id="dest" placeholder="Carpeta destino, p. ej. D:\Proyectos FL"><button class="sec" id="pick"><svg width="16" height="16"><use href="#i-folder"/></svg>Elegir…</button></div>
+        <div class="opts">
+          <label><input type="checkbox" id="oUseful">Solo proyectos marcados como útiles</label>
+          <label><input type="checkbox" id="oDiscard">Incluir los marcados para descartar</label>
+          <label><input type="checkbox" id="oCopy">Copiar en vez de mover (deja los originales)</label>
         </div>
-        <div class="opts" style="margin-top:10px">
-          <label><input type="checkbox" id="oUseful"> Solo proyectos marcados como útiles</label>
-          <label><input type="checkbox" id="oDiscard"> Incluir los marcados para descartar</label>
-          <label><input type="checkbox" id="oCopy"> Copiar en vez de mover (deja los originales)</label>
-        </div>
-        <div class="row" style="margin-top:12px">
-          <button class="btn" id="preview">Vista previa</button>
-          <button class="btn pri" id="apply" disabled>Aplicar</button>
-          <button class="btn" id="undo" disabled>Deshacer última organización</button>
+        <div class="topbar">
+          <button class="sec" id="preview">Vista previa</button>
+          <button class="pri" id="apply" disabled><svg width="16" height="16"><use href="#i-check"/></svg>Aplicar</button>
+          <button class="sec" id="undo" disabled><svg width="16" height="16"><use href="#i-hist"/></svg>Deshacer última</button>
           <span id="planInfo" style="color:var(--muted)"></span>
         </div>
       </div>
-      <div class="tree" id="tree" style="margin-top:14px;display:none"></div>
-    </section>
+      <div class="tree" id="tree" style="display:none"></div>
+    </div></section>
   </main>
 </div>
 
-<div class="drawer" id="drawer"><button class="x" id="dx">&times;</button><header id="dh"></header><div class="body" id="db"></div></div>
-<div class="modal" id="modal"><div class="card"><h3 id="mt"></h3><p id="mp"></p>
-  <div class="row" style="justify-content:flex-end"><button class="btn" id="mno">Cancelar</button><button class="btn pri" id="myes">Confirmar</button></div></div></div>
+<div class="scrim" id="scrim"></div>
+<div class="drawer" id="drawer"><div class="dh" id="dh"></div><div class="db" id="db"></div></div>
+<div class="modal" id="modal"><div class="box"><h3 id="mt"></h3><p id="mp"></p>
+  <div class="topbar" style="justify-content:flex-end"><button class="sec" id="mno">Cancelar</button><button class="pri" id="myes">Confirmar</button></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
 const TOKEN="__TOKEN__";
-const $=s=>document.querySelector(s);
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const ico=(id,s=14)=>`<svg width="${s}" height="${s}"><use href="#${id}"/></svg>`;
 const api=async(p,b)=>{const r=await fetch(p,{method:b?'POST':'GET',headers:{'X-Token':TOKEN,'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);return j};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtB=n=>{const u=['B','KB','MB','GB','TB'];let i=0;while(n>=1024&&i<4){n/=1024;i++}return n.toFixed(i?1:0)+' '+u[i]};
 const fmtD=t=>t?new Date(t*1000).toLocaleString('es',{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
-const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2800)};
-const confirmBox=(title,text,yes='Confirmar')=>new Promise(res=>{$('#mt').textContent=title;$('#mp').textContent=text;$('#myes').textContent=yes;$('#modal').classList.add('on');
+const fmtS=t=>t?new Date(t*1000).toLocaleDateString('es',{day:'2-digit',month:'short'}):'—';
+const store={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)};
+const ask=(title,text,yes='Confirmar')=>new Promise(res=>{$('#mt').textContent=title;$('#mp').textContent=text;$('#myes').textContent=yes;$('#modal').classList.add('on');
   const done=v=>{$('#modal').classList.remove('on');res(v)};$('#myes').onclick=()=>done(true);$('#mno').onclick=()=>done(false)});
 
-/* navegación */
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
-function show(v){if(v!=='projects')closeDrawer();document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
-  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));if(v==='projects')loadProjects()}
+/* ---------- navegación ---------- */
+function show(v){closeDrawer();$$('#mainnav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  $$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));$('#main').scrollTop=0;if(v==='projects')loadProjects();if(v==='drives')loadDrives()}
+$$('#mainnav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+$$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 
-/* unidades */
-const selDrives=new Set(JSON.parse(localStorageGet('flpm.drives')||'[]'));
-function localStorageGet(k){try{return localStorage.getItem(k)}catch{return null}}
-function localStorageSet(k,v){try{localStorage.setItem(k,v)}catch{}}
-async function loadDrives(){const {drives,fl}=await api('/api/drives');
-  $('#flinfo').textContent=fl.exe?'FL Studio: '+fl.exe:'FL Studio no detectado';
-  $('#drives').innerHTML=drives.map(d=>{const used=d.total?(1-d.free/d.total)*100:0;return `<div class="card drive ${selDrives.has(d.root)?'sel':''}" data-r="${esc(d.root)}">
-   <h3>${esc(d.root.slice(0,2))} <span class="chk">${selDrives.has(d.root)?'✓':''}</span></h3><small>${esc(d.label)} · ${esc(d.type)}</small>
-   <div class="bar"><div style="width:${used.toFixed(0)}%"></div></div><small>${fmtB(d.free)} libres de ${fmtB(d.total)}</small></div>`}).join('');
-  document.querySelectorAll('.drive').forEach(c=>c.onclick=()=>{const r=c.dataset.r;selDrives.has(r)?selDrives.delete(r):selDrives.add(r);localStorageSet('flpm.drives',JSON.stringify([...selDrives]));loadDrives()})}
-$('#scanBtn').onclick=async()=>{if(!selDrives.size)return toast('Selecciona al menos una unidad');
-  await api('/api/scan',{roots:[...selDrives]});poll()};
-async function poll(){const s=await api('/api/status');
-  $('#scanPhase').textContent=s.running?s.phase+'…':(s.phase||'');$('#scanCur').textContent=s.current||'';
-  $('#scanCount').textContent=s.found?`${s.done}/${s.found} analizados · ${s.excluded} de FL excluidos`:'';
-  $('#scanBar').style.width=(s.found?s.done/s.found*100:(s.running?8:0))+'%';$('#scanBtn').disabled=s.running;
-  if(s.running)setTimeout(poll,700);else if(s.phase==='Listo'){toast('Escaneo terminado');show('projects')}}
+/* ---------- proyectos ---------- */
+let GROUPS=[],FILTER=store.get('flpm.filter')||'all',MODE=store.get('flpm.mode')||'board',ACTIVE=null,LIMIT={};
+const LANES=[['pendiente','Por revisar'],['util','Útiles'],['descartar','Descartar'],['problemas','Con problemas']];
+const FILTERS=[['all','Todos',g=>true],['missing','Samples faltantes',g=>g.missing>0],['error','No se pueden leer',g=>g.error],['backups','Con backups',g=>g.backups>0],['recent','Últimos 30 días',g=>Date.now()/1000-g.mtime<2592000]];
+const hours=g=>Math.max(0,...g.members.map(m=>m.worked_h||0));
+const laneOf=g=>(g.error||g.missing)&&g.mark==='pendiente'?'problemas':g.mark;
 
-/* proyectos */
-let GROUPS=[],FILTER='all',ACTIVE=null;
-const FILTERS=[['all','Todos'],['pendiente','Pendientes'],['util','Útiles'],['descartar','Descartar'],['missing','Samples faltantes'],['error','Con errores'],['backups','Con backups']];
-const markTag=m=>m==='util'?'<span class="tag t-ok">Útil</span>':m==='descartar'?'<span class="tag t-bad">Descartar</span>':'<span class="tag t-mut">Pendiente</span>';
-async function loadProjects(){const d=await api('/api/projects');GROUPS=d.groups;$('#undo').disabled=!d.canUndo;
-  const files=GROUPS.reduce((a,g)=>a+g.count,0),bk=GROUPS.reduce((a,g)=>a+g.backups,0);
-  $('#stats').innerHTML=[['c1',GROUPS.length,'Proyectos únicos'],['',files,'Archivos .flp'],['c2',bk,'Backups / autoguardados'],
-   ['c3',GROUPS.filter(g=>g.missing).length,'Con samples faltantes'],['c4',GROUPS.filter(g=>g.error).length,'No se pueden leer'],['',d.excluded,'Muestras de FL excluidas']]
-   .map(([c,n,l])=>`<div class="card stat ${c}"><b>${n}</b><span>${l}</span></div>`).join('');
-  $('#chips').innerHTML=FILTERS.map(([k,l])=>`<button class="chip ${FILTER===k?'on':''}" data-f="${k}">${l}</button>`).join('');
-  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{FILTER=c.dataset.f;loadProjects()});
-  renderRows();if(ACTIVE){const g=GROUPS.find(x=>x.key===ACTIVE);g?openDrawer(g):closeDrawer()}}
-function renderRows(){const q=$('#q').value.toLowerCase(),s=$('#sort').value;
-  let list=GROUPS.filter(g=>{if(q&&!g.members.some(m=>m.path.toLowerCase().includes(q)))return false;
-    if(['pendiente','util','descartar'].includes(FILTER))return g.mark===FILTER;if(FILTER==='missing')return g.missing>0;
-    if(FILTER==='error')return g.error;if(FILTER==='backups')return g.backups>0;return true});
-  const by={date:(a,b)=>b.mtime-a.mtime,name:(a,b)=>a.name.localeCompare(b.name),count:(a,b)=>b.count-a.count,missing:(a,b)=>b.missing-a.missing}[s];list.sort(by);
-  $('#rows').innerHTML=list.length?list.map(g=>`<tr data-k="${esc(g.key)}" class="${g.key===ACTIVE?'act':''}"><td><div class="pname">${esc(g.name)}</div><div class="ppath">${esc(g.latest)}</div></td>
-   <td>${g.count}${g.backups?` <span class="tag t-info">${g.backups} backup</span>`:''}</td><td class="hide-sm">${fmtD(g.mtime)}</td>
-   <td class="hide-sm">${esc((g.version||'').split('.').slice(0,2).join('.'))||'—'}</td>
-   <td>${markTag(g.mark)}${g.missing?`<span class="tag t-warn">${g.missing} faltan</span>`:''}${g.error?'<span class="tag t-bad">Error</span>':''}</td></tr>`).join('')
-   :`<tr><td colspan="5" class="empty">${GROUPS.length?'Nada coincide con el filtro.':'Aún no hay proyectos. Ve a Unidades y escanea.'}</td></tr>`;
-  document.querySelectorAll('#rows tr[data-k]').forEach(r=>r.onclick=()=>openDrawer(GROUPS.find(g=>g.key===r.dataset.k)))}
-$('#q').oninput=renderRows;$('#sort').onchange=renderRows;
+async function loadProjects(){let d;try{d=await api('/api/projects')}catch{return}
+  GROUPS=d.groups;$('#undo').disabled=!d.canUndo;$('#nProj').textContent=GROUPS.length;renderFilters();renderKpis();render();
+  if(ACTIVE){const g=GROUPS.find(x=>x.key===ACTIVE);g?openDrawer(g):closeDrawer()}}
 
-function openDrawer(g){ACTIVE=g.key;document.querySelectorAll('#rows tr').forEach(r=>r.classList.toggle('act',r.dataset.k===g.key));
-  const all=g.members.map(m=>m.path);
-  $('#dh').innerHTML=`<h2>${esc(g.name)}</h2><div style="color:var(--muted);margin-bottom:12px">${g.count} archivo(s) · último: ${fmtD(g.mtime)}</div>
-   <div class="row"><button class="btn sm" data-a="mark" data-s="util" style="color:var(--ok)">✓ Útil</button><button class="btn sm" data-a="mark" data-s="descartar" style="color:var(--bad)">✕ Descartar</button>
-   <button class="btn sm" data-a="mark" data-s="pendiente">Pendiente</button><button class="btn sm danger" data-a="delall">Borrar grupo</button></div>`;
-  const p=g.members.find(m=>m.primary)||g.members[0];
-  $('#db').innerHTML=`<div class="sec">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea>
-   <div class="sec">Archivos (${g.count})</div>`+g.members.map((m,i)=>`<div class="member ${m.latest?'latest':''}">
-    <div class="row" style="justify-content:space-between"><b>${esc(m.name)}</b><span>${m.latest?'<span class="tag t-acc">Más reciente</span>':''}${m.backup?'<span class="tag t-info">Backup</span>':''}${m.error?'<span class="tag t-bad">Error</span>':m.missing.length?`<span class="tag t-warn">${m.missing.length} samples faltan</span>`:'<span class="tag t-ok">OK</span>'}</span></div>
-    <div class="ppath" style="max-width:none;white-space:normal;word-break:break-all;margin-top:4px">${esc(m.path)}</div>
+function renderFilters(){$('#filters').innerHTML=FILTERS.map(([k,l,f])=>`<button data-f="${k}" class="${FILTER===k?'on':''}">${ico(k==='all'?'i-grid':k==='missing'?'i-alert':k==='error'?'i-x':k==='backups'?'i-copy':'i-hist',17)}${l}<span class="n">${GROUPS.filter(f).length}</span></button>`).join('');
+  $$('#filters button').forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;store.set('flpm.filter',FILTER);show('projects')})}
+$$('[data-filter]').forEach(b=>b.onclick=()=>{FILTER=b.dataset.filter;store.set('flpm.filter',FILTER);renderFilters();render()});
+$$('[data-sort]').forEach(b=>b.onclick=()=>{$('#sort').value=b.dataset.sort;render()});
+
+function renderKpis(){
+  const now=new Date(),months=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({y:d.getFullYear(),m:d.getMonth(),p:0,b:0,l:d.toLocaleDateString('es',{month:'short'}).replace('.','')})}
+  GROUPS.forEach(g=>g.members.forEach(m=>{const d=new Date(m.mtime*1000),x=months.find(o=>o.y===d.getFullYear()&&o.m===d.getMonth());if(x){m.backup?x.b++:x.p++}}));
+  const max=Math.max(1,...months.flatMap(o=>[o.p,o.b])),step=Math.ceil(max/2);
+  $('#chart').innerHTML=`<div class="ax"><span>${step*2}</span><span>${step}</span><span>0</span></div>`+months.map(o=>`<div class="col" title="${o.p} proyecto(s), ${o.b} backup(s)"><div class="bars"><div class="b h" style="height:${o.b/(step*2)*100}%"></div><div class="b" style="height:${o.p/(step*2)*100}%"></div></div><span>${o.l}</span></div>`).join('');
+  const healthy=GROUPS.length?GROUPS.filter(g=>!g.missing&&!g.error).length/GROUPS.length:0;
+  const N=46,cx=110,cy=110,R1=78,R2=100;let s='';
+  for(let i=0;i<=N;i++){const a=Math.PI*(1-i/N),on=i/N<=healthy&&GROUPS.length,len=i%5===0?0:6;
+    s+=`<line x1="${(cx+(R1+len)*Math.cos(a)).toFixed(1)}" y1="${(cy-(R1+len)*Math.sin(a)).toFixed(1)}" x2="${(cx+R2*Math.cos(a)).toFixed(1)}" y2="${(cy-R2*Math.sin(a)).toFixed(1)}" stroke="${on?'#1f1f1f':'#cfd0c4'}" stroke-width="2" stroke-linecap="round"/>`}
+  $('#gauge').innerHTML=s;$('#gv').textContent=Math.round(healthy*100)+'%';
+  $('#kFiles').textContent=GROUPS.reduce((a,g)=>a+g.count,0).toLocaleString('es');
+  $('#kHours').textContent=Math.round(GROUPS.reduce((a,g)=>a+hours(g),0)).toLocaleString('es')+' h'}
+
+function visible(){const q=$('#q').value.toLowerCase().trim(),f=FILTERS.find(x=>x[0]===FILTER)[2],s=$('#sort').value;
+  const by={date:(a,b)=>b.mtime-a.mtime,name:(a,b)=>a.name.localeCompare(b.name),count:(a,b)=>b.count-a.count,missing:(a,b)=>b.missing-a.missing,hours:(a,b)=>hours(b)-hours(a)}[s];
+  return GROUPS.filter(g=>f(g)&&(!q||g.name.toLowerCase().includes(q)||g.members.some(m=>m.path.toLowerCase().includes(q)))).sort(by)}
+
+function render(){$$('#viewseg button').forEach(b=>b.classList.toggle('on',b.dataset.m===MODE));
+  $('#boardWrap').style.display=MODE==='board'?'':'none';$('#listWrap').style.display=MODE==='list'?'':'none';
+  const list=visible();if(MODE==='board')renderBoard(list);else renderList(list)}
+$$('#viewseg button').forEach(b=>b.onclick=()=>{MODE=b.dataset.m;store.set('flpm.mode',MODE);render()});
+$('#q').oninput=render;$('#sort').onchange=render;
+
+function card(g){const dark=g.key===ACTIVE,ghost=g.mark==='descartar';
+  const folder=(g.latest.split(/[\\/]/).slice(0,-1).join('\\'));
+  return `<div class="card ${dark?'dark':ghost?'ghost':''}" draggable="true" data-k="${esc(g.key)}">
+   <div class="t"><span>${esc(g.name)}</span>${ico('i-dots',16)}</div><div class="desc" title="${esc(g.latest)}">&lrm;${esc(folder)}</div>
+   <div class="meta"><span class="chip">${ico('i-cal',12)}${fmtS(g.mtime)}</span>
+    <span class="ic" title="Versiones">${ico('i-copy',13)}${g.count}</span>
+    ${g.backups?`<span class="ic" title="Backups">${ico('i-hist',13)}${g.backups}</span>`:''}
+    ${g.missing?`<span class="ic warn" title="Samples faltantes">${ico('i-alert',13)}${g.missing}</span>`:''}
+    ${g.error?`<span class="ic bad" title="No se puede leer">${ico('i-x',13)}</span>`:''}
+    <span style="margin-left:auto">${esc((g.version||'').split('.').slice(0,2).join('.'))}</span></div></div>`}
+
+function renderBoard(list){
+  if(!GROUPS.length){$('#board').innerHTML=`<div class="empty" style="grid-column:1/-1">Aún no hay proyectos.<br><br><button class="pri" onclick="show('drives')">${ico('i-scan',16)}Escanear unidades</button></div>`;return}
+  $('#board').innerHTML=LANES.map(([k,l])=>{const items=list.filter(g=>laneOf(g)===k),lim=LIMIT[k]||40;
+    return `<div><div class="colh"><h3>${l}</h3><span class="cnt">${items.length}</span></div>
+     <div class="lane" data-lane="${k}">${items.slice(0,lim).map(card).join('')||`<div class="empty" style="padding:30px 10px">${k==='problemas'?'Sin problemas 🎉':'Arrastra proyectos aquí'}</div>`}
+     ${items.length>lim?`<button class="more" data-more="${k}">Ver ${Math.min(40,items.length-lim)} más (${items.length-lim} restantes)</button>`:''}</div></div>`}).join('');
+  $$('.card').forEach(c=>{c.onclick=()=>openDrawer(GROUPS.find(g=>g.key===c.dataset.k));
+    c.ondragstart=e=>{e.dataTransfer.setData('text/plain',c.dataset.k);c.style.opacity=.4};c.ondragend=()=>c.style.opacity=''});
+  $$('.lane').forEach(l=>{l.ondragover=e=>{e.preventDefault();l.classList.add('over')};l.ondragleave=()=>l.classList.remove('over');
+    l.ondrop=async e=>{e.preventDefault();l.classList.remove('over');const g=GROUPS.find(x=>x.key===e.dataTransfer.getData('text/plain'));if(!g)return;
+      const st=l.dataset.lane==='problemas'?'pendiente':l.dataset.lane;await api('/api/mark',{paths:g.members.map(m=>m.path),status:st});toast(`"${g.name}" → ${LANES.find(x=>x[0]===l.dataset.lane)[1]}`);loadProjects()}});
+  $$('[data-more]').forEach(b=>b.onclick=()=>{LIMIT[b.dataset.more]=(LIMIT[b.dataset.more]||40)+40;render()})}
+
+const markTag=m=>m==='util'?'<span class="tag dark">Útil</span>':m==='descartar'?'<span class="tag">Descartar</span>':'<span class="tag cream">Por revisar</span>';
+function renderList(list){
+  $('#rows').innerHTML=list.length?list.slice(0,400).map(g=>`<tr data-k="${esc(g.key)}"><td><div class="pn">${esc(g.name)}</div><div class="pp">${esc(g.latest)}</div></td>
+   <td>${g.count}${g.backups?` <span class="tag">${g.backups} backup</span>`:''}</td><td>${fmtD(g.mtime)}</td><td>${esc((g.version||'').split('.').slice(0,2).join('.'))||'—'}</td>
+   <td>${markTag(g.mark)}${g.missing?`<span class="tag w">${g.missing} faltan</span>`:''}${g.error?'<span class="tag b">Error</span>':''}</td></tr>`).join('')
+   :`<tr><td colspan="5" class="empty" style="border:0">${GROUPS.length?'Nada coincide con el filtro.':'Aún no hay proyectos. Ve a Unidades y escanea.'}</td></tr>`;
+  $$('#rows tr[data-k]').forEach(r=>r.onclick=()=>openDrawer(GROUPS.find(g=>g.key===r.dataset.k)))}
+
+/* ---------- detalle ---------- */
+function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.classList.toggle('dark',c.dataset.k===g.key)});
+  const all=g.members.map(m=>m.path),p=g.members.find(m=>m.primary)||g.members[0];
+  $('#dh').innerHTML=`<button class="x" id="dx">${ico('i-x',18)}</button><h2>${esc(g.name)}</h2>
+   <div style="color:#55554f;margin-bottom:16px">${g.count} archivo(s) · modificado ${fmtD(g.mtime)}${hours(g)?` · ${hours(g)} h trabajadas`:''}</div>
+   <div class="topbar"><button class="${g.mark==='util'?'pri':'sec'}" data-a="mark" data-s="util">${ico('i-check',15)}Útil</button>
+   <button class="${g.mark==='descartar'?'pri':'sec'}" data-a="mark" data-s="descartar">${ico('i-x',15)}Descartar</button>
+   <button class="${g.mark==='pendiente'?'pri':'sec'}" data-a="mark" data-s="pendiente">Por revisar</button>
+   <button class="sec danger" data-a="delall" style="margin-left:auto">${ico('i-trash',15)}Borrar</button></div>`;
+  $('#db').innerHTML=`<div class="lab" style="margin-top:4px">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea>
+   <div class="lab">Archivos (${g.count})</div>`+g.members.map((m,i)=>`<div class="file ${m.latest?'latest':''}">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><b style="font-weight:600;word-break:break-word">${esc(m.name)}</b>
+     <span style="white-space:nowrap">${m.latest?'<span class="tag dark">Más reciente</span>':''}${m.primary&&!m.latest?'<span class="tag cream">Principal</span>':''}${m.backup?'<span class="tag">Backup</span>':''}${m.error?'<span class="tag b">Error</span>':m.missing.length?`<span class="tag w">${m.missing.length} faltan</span>`:'<span class="tag g">OK</span>'}</span></div>
+    <div class="pp" style="max-width:none;white-space:normal;word-break:break-all;margin-top:4px">${esc(m.path)}</div>
     <div class="kv"><div>FL Studio<b>${esc(m.version||'—')}</b></div><div>Tempo<b>${m.tempo?m.tempo+' BPM':'—'}</b></div><div>Tamaño<b>${fmtB(m.size)}</b></div>
-     <div>Modificado<b>${fmtD(m.mtime)}</b></div><div>Creado<b>${fmtD(m.created)}</b></div><div>Tiempo trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
+     <div>Modificado<b>${fmtD(m.mtime)}</b></div><div>Creado<b>${fmtD(m.created)}</b></div><div>Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
      <div>Canales<b>${m.channels}</b></div><div>Patterns<b>${m.patterns}</b></div><div>Samples<b>${m.samples}</b></div></div>
     ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
-    <div class="row" style="margin-top:10px"><button class="btn sm pri" data-a="open" data-i="${i}">▶ Abrir en FL</button><button class="btn sm" data-a="reveal" data-i="${i}">Mostrar en carpeta</button><button class="btn sm danger" data-a="del" data-i="${i}">Papelera</button></div></div>`).join('');
-  $('#drawer').classList.add('on');
+    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div></div>`).join('');
+  $('#drawer').classList.add('on');$('#scrim').classList.add('on');$('#dx').onclick=closeDrawer;
   $('#note').onchange=async e=>{await api('/api/mark',{paths:all,note:e.target.value});toast('Nota guardada')};
-  document.querySelectorAll('#drawer [data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a,m=g.members[b.dataset.i];
+  $$('#drawer [data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a,m=g.members[b.dataset.i];
     if(a==='open'){await api('/api/open',{paths:[m.path]});toast('Abriendo en FL Studio…')}
     if(a==='reveal')await api('/api/reveal',{paths:[m.path]});
     if(a==='mark'){await api('/api/mark',{paths:all,status:b.dataset.s});toast('Marcado');loadProjects()}
-    if(a==='del'&&await confirmBox('Enviar a la Papelera',m.path+'\n\nPodrás recuperarlo desde la Papelera de reciclaje.','Enviar a Papelera')){const r=await api('/api/delete',{paths:[m.path]});toast(r.deleted?'Enviado a la Papelera':'No se pudo borrar');loadProjects()}
-    if(a==='delall'&&await confirmBox('Borrar todo el grupo',`${g.count} archivo(s) de "${g.name}" irán a la Papelera de reciclaje.`,'Enviar a Papelera')){const r=await api('/api/delete',{paths:all});toast(r.deleted+' archivo(s) a la Papelera');ACTIVE=null;closeDrawer();loadProjects()}})}
-function closeDrawer(){ACTIVE=null;$('#drawer').classList.remove('on');document.querySelectorAll('#rows tr').forEach(r=>r.classList.remove('act'))}
-$('#dx').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
-$('#delDiscarded').onclick=async()=>{const paths=GROUPS.filter(g=>g.mark==='descartar').flatMap(g=>g.members.map(m=>m.path));
-  if(!paths.length)return toast('No hay proyectos marcados para descartar');
-  if(await confirmBox('Borrar descartados',`${paths.length} archivo(s) marcados como "Descartar" irán a la Papelera de reciclaje.`,'Enviar a Papelera')){const r=await api('/api/delete',{paths});toast(r.deleted+' archivo(s) a la Papelera');loadProjects()}};
+    if(a==='del'&&await ask('Enviar a la Papelera',m.path+'\n\nPodrás recuperarlo desde la Papelera de reciclaje.','Enviar a Papelera')){const r=await api('/api/delete',{paths:[m.path]});toast(r.deleted?'Enviado a la Papelera':'No se pudo borrar');loadProjects()}
+    if(a==='delall'&&await ask('Borrar proyecto completo',`Los ${g.count} archivo(s) de "${g.name}" irán a la Papelera de reciclaje.`,'Enviar a Papelera')){const r=await api('/api/delete',{paths:all});toast(r.deleted+' archivo(s) a la Papelera');closeDrawer();loadProjects()}})}
+function closeDrawer(){ACTIVE=null;$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');$$('.card.dark').forEach(c=>c.classList.remove('dark'))}
+$('#scrim').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();$('#modal').classList.remove('on')}});
 
-/* organizar */
-$('#dest').value=localStorageGet('flpm.dest')||'';
-$('#dest').onchange=()=>{localStorageSet('flpm.dest',$('#dest').value);$('#apply').disabled=true};
-$('#pick').onclick=async()=>{toast('Abriendo selector de carpeta…');const {path}=await api('/api/pickfolder',{});if(path){$('#dest').value=path;$('#dest').onchange()}};
+/* ---------- unidades ---------- */
+const selDrives=new Set(JSON.parse(store.get('flpm.drives')||'[]'));
+async function loadDrives(){const {drives,fl}=await api('/api/drives');
+  $('#flinfo').textContent=fl.exe?fl.exe:'FL Studio no detectado';
+  $('#drives').innerHTML=drives.map(d=>{const used=d.total?(1-d.free/d.total)*100:0,on=selDrives.has(d.root);
+   return `<div class="drive ${on?'sel':''}" data-r="${esc(d.root)}"><h3>${esc(d.root.slice(0,2))}<span class="chk">${on?ico('i-check',13):''}</span></h3>
+   <small>${esc(d.label)} · ${esc(d.type)}</small><div class="meter"><div style="width:${used.toFixed(0)}%"></div></div><small>${fmtB(d.free)} libres de ${fmtB(d.total)}</small></div>`}).join('');
+  $$('.drive').forEach(c=>c.onclick=()=>{const r=c.dataset.r;selDrives.has(r)?selDrives.delete(r):selDrives.add(r);store.set('flpm.drives',JSON.stringify([...selDrives]));loadDrives()})}
+$('#scanBtn').onclick=async()=>{if(!selDrives.size)return toast('Selecciona al menos una unidad');await api('/api/scan',{roots:[...selDrives]});poll()};
+async function poll(){const s=await api('/api/status');
+  $('#scanPhase').textContent=s.running?s.phase+'…':(s.phase||'');$('#scanCur').textContent=s.current||'';
+  $('#scanCount').textContent=s.found?`${s.done.toLocaleString('es')} / ${s.found.toLocaleString('es')} analizados · ${s.excluded} de FL excluidos`:'';
+  $('#scanBar').style.width=(s.found?s.done/s.found*100:(s.running?6:0))+'%';$('#scanBtn').disabled=s.running;
+  if(s.running)setTimeout(poll,600);else if(s.phase==='Listo'){toast('Escaneo terminado');show('projects')}}
+
+/* ---------- organizar ---------- */
+$('#dest').value=store.get('flpm.dest')||'';
+const invalidate=()=>{$('#apply').disabled=true;$('#planInfo').textContent=''};
+$('#dest').onchange=()=>{store.set('flpm.dest',$('#dest').value);invalidate()};
+['#oUseful','#oDiscard','#oCopy'].forEach(s=>$(s).onchange=invalidate);
+$('#pick').onclick=async()=>{const {path}=await api('/api/pickfolder',{});if(path){$('#dest').value=path;$('#dest').onchange()}};
 const opts=()=>({dest:$('#dest').value.trim(),onlyUseful:$('#oUseful').checked,includeDiscarded:$('#oDiscard').checked,copy:$('#oCopy').checked});
-['#oUseful','#oDiscard','#oCopy'].forEach(s=>$(s).onchange=()=>$('#apply').disabled=true);
 let PLAN=[];
 $('#preview').onclick=async()=>{const o=opts();if(!o.dest)return toast('Elige una carpeta destino');
   PLAN=(await api('/api/plan',o)).plan;$('#planInfo').textContent=PLAN.length?`${PLAN.length} archivo(s) a ${o.copy?'copiar':'mover'}`:'Todo ya está en su sitio';
   $('#apply').disabled=!PLAN.length;const t=$('#tree');t.style.display=PLAN.length?'block':'none';
-  const sep=o.dest.replace(/[\\/]+$/,'');let last=['',''],html='';
-  PLAN.slice().sort((a,b)=>a.dst.localeCompare(b.dst)).forEach(s=>{const rel=s.dst.slice(sep.length+1).split(/[\\/]/);
-    if(rel[0]!==last[0])html+=`<div class="y">📁 ${esc(rel[0])}</div>`;if(rel[0]!==last[0]||rel[1]!==last[1])html+=`<div class="m">📁 ${esc(rel[1])}</div>`;last=rel;
+  const base=o.dest.replace(/[\\/]+$/,'');let last=['',''],html='';
+  PLAN.slice().sort((a,b)=>a.dst.localeCompare(b.dst)).forEach(s=>{const rel=s.dst.slice(base.length+1).split(/[\\/]/);
+    if(rel[0]!==last[0])html+=`<div class="y">${esc(rel[0])}</div>`;if(rel[0]!==last[0]||rel[1]!==last[1])html+=`<div class="m">${ico('i-folder',14)} ${esc(rel[1])}</div>`;last=rel;
     html+=`<div class="f">${esc(rel.slice(2,-1).join(' / '))} / <b>${esc(rel.at(-1))}</b></div>`});t.innerHTML=html};
 $('#apply').onclick=async()=>{const o=opts();
-  if(!await confirmBox(o.copy?'Copiar proyectos':'Mover proyectos',`${PLAN.length} archivo(s) se ${o.copy?'copiarán':'moverán'} a:\n${o.dest}\n\n${o.copy?'':'Podrás deshacerlo con "Deshacer última organización".'}`,o.copy?'Copiar':'Mover'))return;
+  if(!await ask(o.copy?'Copiar proyectos':'Mover proyectos',`${PLAN.length} archivo(s) se ${o.copy?'copiarán':'moverán'} a:\n${o.dest}${o.copy?'':'\n\nPodrás deshacerlo con "Deshacer última".'}`,o.copy?'Copiar':'Mover'))return;
   const r=await api('/api/apply',o);toast(`${r.moved} archivo(s) listos`+(r.errors.length?` · ${r.errors.length} errores`:''));
-  if(r.errors.length)console.warn(r.errors);$('#apply').disabled=true;$('#tree').style.display='none';$('#planInfo').textContent='';loadProjects()};
-$('#undo').onclick=async()=>{if(!await confirmBox('Deshacer','Los archivos de la última organización volverán a su ubicación original.','Deshacer'))return;
+  invalidate();$('#tree').style.display='none';loadProjects()};
+$('#undo').onclick=async()=>{if(!await ask('Deshacer','Los archivos de la última organización volverán a su ubicación original.','Deshacer'))return;
   const r=await api('/api/undo',{});toast(r.restored+' archivo(s) restaurados');loadProjects()};
 
-api('/api/version').then(v=>{$('#ver').textContent='Versión '+v.current;
-  if(!v.available)return;$('#upd').style.display='block';$('#updT').textContent=`Nueva versión ${v.latest} disponible`;$('#updN').textContent=(v.notes||'').slice(0,300);
+/* ---------- versión / arranque ---------- */
+api('/api/version').then(v=>{$('#ver').textContent=v.current;if(!v.available)return;$('#upd').style.display='block';
+  $('#updT').textContent='Versión '+v.latest+' disponible';$('#updN').textContent=(v.notes||'').replace(/\*\*/g,'').slice(0,140);
   $('#updBtn').onclick=async()=>{$('#updBtn').disabled=true;$('#updBtn').textContent='Descargando…';
     try{const r=await api('/api/update',{});$('#updBtn').textContent=r.restarting?'Reiniciando…':'No se pudo actualizar'}catch(e){$('#updBtn').textContent='Error: '+e.message}}}).catch(()=>{});
-loadDrives();api('/api/status').then(s=>{if(s.running)poll()});loadProjects();
+api('/api/drives').then(d=>$('#flinfo').textContent=d.fl.exe||'FL Studio no detectado').catch(()=>{});
+api('/api/status').then(s=>{if(s.running){show('drives');poll()}}).catch(()=>{});
+loadProjects();
 </script>
 </body>
 </html>
