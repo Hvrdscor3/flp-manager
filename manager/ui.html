@@ -183,6 +183,13 @@ kbd{border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padd
 /* main */
 main{overflow:auto;position:relative}
 .hero{background:var(--cream);padding:22px 30px 26px}
+.dfil{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:14px;font-size:12.5px;color:var(--muted)}
+.dfil button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.dfil button span{font-weight:400;color:var(--muted)}
+.dfil button.on{background:var(--mint);border-color:var(--mint);color:#00203F}.dfil button.on span{color:#00203Fb0}
+.dfil .hint{margin-left:4px}
+#dHid:empty{display:none}#dHid{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:var(--warn-bg);color:var(--warn);border-radius:999px;padding:4px 6px 4px 12px;font-weight:500}
+#dHid button{background:var(--card);border-color:transparent;padding:3px 10px}
 .topbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;color:var(--muted)}
 .search input{flex:1;border:0;background:none;outline:none;font:inherit;color:var(--ink);padding:8px 0}
@@ -444,6 +451,7 @@ textarea:focus{border-color:var(--ink)}
           <button class="sec" id="cleanBk" title="Enviar a la Papelera los autoguardados más antiguos que su proyecto"><svg width="17" height="17"><use href="#i-broom"/></svg>Limpiar backups</button>
           <button class="pri" data-go="drives"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear</button>
         </div>
+        <div class="dfil" id="dfil"></div>
         <div class="kpis">
           <div class="kpi"><h4><svg width="17" height="17"><use href="#i-chart"/></svg>Proyectos por mes</h4><div class="chart" id="chart"></div></div>
           <div class="kpi"><div class="gauge"><svg id="gauge" width="220" height="118" viewBox="0 0 220 118"></svg><div class="v"><b id="gv">0%</b><span>Proyectos sanos</span></div></div></div>
@@ -568,6 +576,20 @@ $$('#mainnav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
 $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 
 /* ---------- proyectos ---------- */
+/* discos visibles en Proyectos (vacio = todos). Samples y Reparar siguen buscando en todos. */
+let ALLG=[],SHOWD=new Set((()=>{try{return JSON.parse(store.get('flpm.showdrives')||'[]')}catch{return []}})());
+const drv=p=>/^[a-z]:/i.test(p)?p.slice(0,2).toUpperCase():'Red';
+const gDrv=g=>drv((g.members.find(m=>m.primary)||g.members[0]).path);
+function applyDrives(){const have=new Set(ALLG.map(gDrv));[...SHOWD].forEach(d=>{if(!have.has(d))SHOWD.delete(d)});
+  GROUPS=SHOWD.size?ALLG.filter(g=>SHOWD.has(gDrv(g))):ALLG;renderDfil()}
+function paintNProj(){$('#nProj').textContent=SHOWD.size?GROUPS.length.toLocaleString('es')+' / '+ALLG.length.toLocaleString('es'):GROUPS.length;$('#nProj').title=SHOWD.size?'Mostrando solo '+[...SHOWD].join(', ')+' · '+(ALLG.length-GROUPS.length)+' proyecto(s) ocultos':''}
+function setShowDrives(list){SHOWD=new Set(list);store.set('flpm.showdrives',JSON.stringify([...SHOWD]));applyDrives();paintNProj();renderFilters();renderKpis();render()}
+function renderDfil(){const n={};ALLG.forEach(g=>{const d=gDrv(g);n[d]=(n[d]||0)+1});const ds=Object.keys(n).sort();
+  if(ds.length<2&&!SHOWD.size){$('#dfil').innerHTML='';return}
+  $('#dfil').innerHTML=`<span>${ico('i-hdd',14)} Mostrar:</span><button data-d="" class="${SHOWD.size?'':'on'}">Todos <span>${ALLG.length.toLocaleString('es')}</span></button>`
+    +ds.map(d=>`<button data-d="${esc(d)}" class="${SHOWD.has(d)?'on':''}" title="Clic: mostrar u ocultar ${esc(d)}">${esc(d)} <span>${n[d].toLocaleString('es')}</span></button>`).join('')
+    +`<span class="hint">${SHOWD.size?`Ocultos: ${(ALLG.length-GROUPS.length).toLocaleString('es')} proyecto(s) de otros discos`:'Toca un disco para ver solo ese'}</span><span id="dHid"></span>`;
+  $$('#dfil button').forEach(b=>b.onclick=()=>{const d=b.dataset.d;if(!d)return setShowDrives([]);const x=new Set(SHOWD);x.has(d)?x.delete(d):x.add(d);setShowDrives([...x])})}
 let GROUPS=[],FILTER=store.get('flpm.filter')||'all',MODE=store.get('flpm.mode2')||'folders',ACTIVE=null,LIMIT={};
 const LANES=[['pendiente','Por revisar'],['util','Útiles'],['descartar','Descartar'],['problemas','Con problemas']];
 const FILTERS=[['all','Todos',g=>true],['missing','Samples faltantes',g=>g.missing>0],['error','No se pueden leer',g=>g.error],['backups','Con backups',g=>g.backups>0],['recent','Últimos 30 días',g=>Date.now()/1000-g.mtime<2592000]];
@@ -580,7 +602,7 @@ const laneOf=g=>(g.error||g.missing)&&g.mark==='pendiente'?'problemas':g.mark;
 
 let REV=0;
 async function loadProjects(){let d;try{d=await api('/api/projects'+(REV?'?rev='+REV:''))}catch{return}
-  if(d.same)return;REV=d.rev;GROUPS=d.groups;$('#undo').disabled=!d.canUndo;$('#nProj').textContent=GROUPS.length;renderFilters();renderKpis();render();
+  if(d.same)return;REV=d.rev;ALLG=d.groups;applyDrives();$('#undo').disabled=!d.canUndo;paintNProj();renderFilters();renderKpis();render();
   if(ACTIVE){const g=GROUPS.find(x=>x.key===ACTIVE);g?openDrawer(g):closeDrawer()}}
 
 function renderFilters(){$('#filters').innerHTML=FILTERS.map(([k,l,f])=>`<button data-f="${k}" class="${FILTER===k?'on':''}">${ico(k==='all'?'i-grid':k==='missing'?'i-alert':k==='error'?'i-x':k==='backups'?'i-copy':'i-hist',17)}${l}<span class="n">${GROUPS.filter(f).length}</span></button>`).join('');
@@ -605,7 +627,13 @@ function visible(){const q=$('#q').value.toLowerCase().trim(),f=FILTERS.find(x=>
   const by={date:(a,b)=>b.mtime-a.mtime,name:(a,b)=>a.name.localeCompare(b.name),count:(a,b)=>b.count-a.count,missing:(a,b)=>b.missing-a.missing,hours:(a,b)=>hours(b)-hours(a)}[s];
   return GROUPS.filter(g=>f(g)&&(!q||g.name.toLowerCase().includes(q)||g.members.some(m=>m.path.toLowerCase().includes(q)))).sort(by)}
 
-function render(){$$('#viewseg button').forEach(b=>b.classList.toggle('on',b.dataset.m===MODE));
+function paintHidden(){const el=$('#dHid');if(!el)return;const q=$('#q').value.toLowerCase().trim();
+  if(!q||!SHOWD.size){el.innerHTML='';return}const f=FILTERS.find(x=>x[0]===FILTER)[2];
+  const hid=ALLG.filter(g=>!SHOWD.has(gDrv(g))&&f(g)&&(g.name.toLowerCase().includes(q)||g.members.some(m=>m.path.toLowerCase().includes(q))));
+  if(!hid.length){el.innerHTML='';return}const ds=[...new Set(hid.map(gDrv))].sort();
+  el.innerHTML=`${ico('i-search',13)}${hid.length} resultado(s) en discos ocultos (${esc(ds.join(', '))})<button id="dHidAll">Mostrar</button>`;
+  $('#dHidAll').onclick=()=>setShowDrives([...SHOWD,...ds])}
+function render(){paintHidden();$$('#viewseg button').forEach(b=>b.classList.toggle('on',b.dataset.m===MODE));
   $('#boardWrap').style.display=MODE==='board'?'':'none';$('#listWrap').style.display=MODE==='list'?'':'none';$('#foldWrap').style.display=MODE==='folders'?'':'none';
   const list=visible();if(MODE==='board')renderBoard(list);else if(MODE==='folders')renderFolders(list);else renderList(list)}
 
@@ -786,7 +814,7 @@ function renderDrives(){
   const list=Object.values(JOBS).sort((a,b)=>(a.state==='running'?0:1)-(b.state==='running'?0:1));
   $('#jobs').innerHTML=list.map(j=>{const total=j.found+j.dirs,pct=j.state==='done'?100:total?Math.min(99,((j.analyzed+j.cached)/Math.max(1,j.found))*100*(j.dirs?0.85:1)):3;
    return `<div class="panel"><div class="topbar" style="justify-content:space-between"><div class="topbar"><b style="font-size:17px;font-weight:600">${esc(j.root)}</b>${jobLine(j)}</div>
-    <div class="topbar">${jobBtns(j,j.root)}</div></div>
+    <div class="topbar">${j.state==='done'||j.found?`<button class="sec" data-only="${esc(drv(j.root))}" title="Mostrar en Proyectos solo este disco">${ico('i-eye',15)}Ver solo este</button>`:''}${jobBtns(j,j.root)}</div></div>
     <div class="scanbar"><div style="width:${pct.toFixed(1)}%"></div></div>
     <div class="topbar" style="gap:18px;color:var(--text2);font-size:12.5px">
      <span><b>${j.dirs_done.toLocaleString('es')}</b> carpetas${j.dirs?` (+${j.dirs.toLocaleString('es')} pendientes)`:''}</span>
@@ -794,6 +822,7 @@ function renderDrives(){
      <span><b>${j.cached.toLocaleString('es')}</b> omitidos (ya analizados)</span><span><b>${j.excluded}</b> de FL excluidos</span>
      <span style="margin-left:auto">${fmtT(j.elapsed||0)}</span></div>
     ${j.state==='running'&&j.current?`<div class="mono" style="margin-top:8px">${esc(j.current)}</div>`:''}${j.error?`<div class="miss">${esc(j.error)}</div>`:''}</div>`}).join('');
+  $$('[data-only]').forEach(b=>b.onclick=e=>{e.stopPropagation();if(ALLG.length)setShowDrives([b.dataset.only]);else{SHOWD=new Set([b.dataset.only]);store.set('flpm.showdrives',JSON.stringify([...SHOWD]))}show('projects')});
   $$('[data-job]').forEach(b=>b.onclick=async e=>{e.stopPropagation();const r=b.dataset.r,a=b.dataset.job;
     if(a==='pause'){await api('/api/scan/pause',{roots:[r]});toast('Pausando '+r+'…')}
     if(a==='resume'){await api('/api/scan',{roots:[r]})}
@@ -813,9 +842,12 @@ const poll=refreshJobs;
 $('#scanBtn').onclick=async()=>{if(!selDrives.size)return toast('Selecciona al menos una unidad');await api('/api/scan',{roots:[...selDrives]});toast('Escaneo iniciado');refreshJobs()};
 
 /* ---------- limpiar backups ---------- */
-$('#cleanBk').onclick=async()=>{const r=await api('/api/backups');if(!r.items.length)return toast('No hay backups innecesarios');
+$('#cleanBk').onclick=async()=>{const r=await api('/api/backups');
+  if(SHOWD.size){r.items=r.items.filter(x=>SHOWD.has(drv(x.path)));r.size=r.items.reduce((a,x)=>a+x.size,0)}
+  const where=SHOWD.size?`\n\nSolo en: ${[...SHOWD].join(', ')} (los discos ocultos no se tocan).`:'';
+  if(!r.items.length)return toast('No hay backups innecesarios'+(SHOWD.size?' en '+[...SHOWD].join(', '):''));
   const ex=r.items.slice(0,6).map(x=>'• '+x.path.split('\\').slice(-3).join('\\')).join('\n');
-  if(!await ask('Limpiar backups innecesarios',`${r.items.length} backup(s) · ${fmtB(r.size)}\n\nSolo autoguardados más antiguos que el archivo principal del mismo proyecto y en su misma carpeta. Irán a la Papelera de reciclaje.\n\n${ex}${r.items.length>6?'\n…':''}`,'Enviar a Papelera'))return;
+  if(!await ask('Limpiar backups innecesarios',`${r.items.length} backup(s) · ${fmtB(r.size)}\n\nSolo autoguardados más antiguos que el archivo principal del mismo proyecto y en su misma carpeta. Irán a la Papelera de reciclaje.${where}\n\n${ex}${r.items.length>6?'\n…':''}`,'Enviar a Papelera'))return;
   const d=await api('/api/backups/clean',{paths:r.items.map(x=>x.path)});toast(d.deleted+' backup(s) a la Papelera');loadProjects()};
 
 /* ---------- organizar ---------- */
