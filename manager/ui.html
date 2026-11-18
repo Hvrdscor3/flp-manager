@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLP Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0d14;--panel:#17141f;--panel2:#1e1a29;--line:#2a2538;--text:#ece8f5;--muted:#9a93ad;
+  --accent:#ff8a3d;--accent2:#b06bff;--ok:#3ecf8e;--warn:#f5b942;--bad:#ff5d6c;--info:#4fb0ff;
+  --r:14px;--mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{display:grid;grid-template-columns:232px 1fr;height:100vh}
+aside{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:20px 14px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;padding:0 8px 22px}
+.logo i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-style:normal;font-size:15px;color:#160f1f}
+nav button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:10px 12px;border-radius:10px;color:var(--muted);text-align:left;font-weight:500}
+nav button:hover{background:var(--panel2);color:var(--text)}
+nav button.on{background:var(--panel2);color:var(--text);box-shadow:inset 3px 0 0 var(--accent)}
+nav svg{width:18px;height:18px}
+.side-foot{margin-top:auto;font-size:12px;color:var(--muted);padding:8px;word-break:break-all}
+main{overflow:auto;padding:28px 34px}
+h1{font-size:22px;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 22px}
+.view{display:none}.view.on{display:block}
+.grid{display:grid;gap:14px}
+.drives{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.drive{cursor:pointer;transition:.15s;position:relative}
+.drive:hover{border-color:#3d3552}.drive.sel{border-color:var(--accent);background:linear-gradient(180deg,#22192a,var(--panel))}
+.drive h3{margin:0;font-size:16px;display:flex;justify-content:space-between}
+.drive small{color:var(--muted)}
+.bar{height:6px;border-radius:9px;background:var(--line);overflow:hidden;margin:12px 0 6px}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:9px;transition:width .3s}
+.chk{width:20px;height:20px;border-radius:6px;border:1.5px solid #4a4260;display:grid;place-items:center;font-size:12px}
+.sel .chk{background:var(--accent);border-color:var(--accent);color:#1a1020}
+.btn{background:var(--panel2);border:1px solid var(--line);padding:9px 14px;border-radius:10px;font-weight:500;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn:hover{border-color:#4a4260}.btn.pri{background:var(--accent);border-color:var(--accent);color:#1b1022;font-weight:600}
+.btn.pri:hover{filter:brightness(1.08)}.btn.danger{color:var(--bad)}.btn.danger:hover{border-color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed}.btn.sm{padding:6px 10px;font-size:12.5px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.scanbox{margin-top:18px}.scanbox .cur{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:18px}
+.stat b{display:block;font-size:24px;font-weight:700}.stat span{color:var(--muted);font-size:12.5px}
+.stat.c1 b{color:var(--accent)}.stat.c2 b{color:var(--info)}.stat.c3 b{color:var(--warn)}.stat.c4 b{color:var(--bad)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+input[type=text],select{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font:inherit;outline:none}
+input[type=text]:focus,select:focus{border-color:var(--accent2)}
+.search{flex:1;min-width:200px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:12.5px;color:var(--muted)}
+.chip.on{color:var(--text);border-color:var(--accent2);background:#231a33}
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+th{position:sticky;top:0;text-align:left;font-size:12px;font-weight:600;color:var(--muted);background:var(--panel2);padding:10px 12px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}tbody tr:hover td{background:#1c1826}tbody tr.act td{background:#241c30}
+.pname{font-weight:600}.ppath{font-family:var(--mono);font-size:11.5px;color:var(--muted);max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px;margin-right:4px;white-space:nowrap}
+.t-ok{background:#163327;color:var(--ok)}.t-bad{background:#3a1820;color:var(--bad)}.t-warn{background:#372a12;color:var(--warn)}
+.t-info{background:#142c42;color:var(--info)}.t-mut{background:var(--panel2);color:var(--muted)}.t-acc{background:#3a2216;color:var(--accent)}
+.drawer{position:fixed;top:0;right:0;width:min(560px,100vw);height:100vh;background:var(--panel);border-left:1px solid var(--line);transform:translateX(100%);transition:.25s;z-index:20;display:flex;flex-direction:column;box-shadow:-20px 0 60px #0008}
+.drawer.on{transform:none}.drawer header{padding:20px 22px;border-bottom:1px solid var(--line)}
+.drawer .body{padding:18px 22px;overflow:auto;flex:1}
+.drawer h2{margin:0 0 4px;font-size:19px}
+.x{position:absolute;right:16px;top:16px;background:none;border:0;color:var(--muted);font-size:22px}
+.member{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--panel2)}
+.member.latest{border-color:#5a3a22}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.kv div{font-size:12px;color:var(--muted)}.kv b{display:block;color:var(--text);font-size:13px;font-weight:600}
+.miss{font-family:var(--mono);font-size:11.5px;color:var(--bad);background:#22141a;border-radius:8px;padding:8px 10px;max-height:150px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.sec{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:18px 0 8px;font-weight:600}
+textarea{width:100%;min-height:60px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;font:inherit;resize:vertical}
+.opts label{display:flex;gap:8px;align-items:center;color:var(--muted);margin:6px 0;cursor:pointer}
+.opts input{accent-color:var(--accent)}
+.tree{font-family:var(--mono);font-size:12px;max-height:55vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px}
+.tree .y{color:var(--accent);font-weight:600;margin-top:8px}.tree .m{color:var(--accent2);padding-left:16px}
+.tree .f{padding-left:32px;color:var(--muted)}.tree .f b{color:var(--text);font-weight:500}
+.modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;z-index:40;backdrop-filter:blur(3px)}
+.modal.on{display:grid}.modal .card{width:min(460px,92vw);padding:22px}
+.modal h3{margin:0 0 8px}.modal p{color:var(--muted);margin:0 0 18px;white-space:pre-wrap}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(30px);opacity:0;background:var(--panel2);border:1px solid var(--line);padding:11px 18px;border-radius:12px;transition:.25s;z-index:50;box-shadow:0 10px 30px #0008}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.empty{text-align:center;color:var(--muted);padding:50px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+@media (max-width:820px){.app{grid-template-columns:1fr}aside{flex-direction:row;padding:10px;overflow:auto}.logo,.side-foot{display:none}nav{display:flex}main{padding:18px 16px}.hide-sm{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo"><i>&#9835;</i>FLP Manager</div>
+    <nav>
+      <button data-v="drives" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M5 13 7 4h10l2 9M17 17h.01"/></svg>Unidades</button>
+      <button data-v="projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Proyectos</button>
+      <button data-v="organize"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Organizar</button>
+    </nav>
+    <div class="side-foot"><div id="ver" style="margin-bottom:6px"></div><div id="flinfo"></div></div>
+  </aside>
+
+  <main>
+    <div class="card" id="upd" style="display:none;margin-bottom:18px;border-color:var(--accent);background:linear-gradient(90deg,#2a1a14,var(--panel))">
+      <div class="row" style="justify-content:space-between"><div><b id="updT"></b><div id="updN" style="color:var(--muted);font-size:12.5px;white-space:pre-wrap"></div></div>
+      <button class="btn pri" id="updBtn">Actualizar ahora</button></div></div>
+    <!-- UNIDADES -->
+    <section class="view on" id="v-drives">
+      <h1>Unidades</h1>
+      <p class="sub">Elige dónde buscar proyectos. Los .flp de muestra que trae FL Studio se excluyen solos.</p>
+      <div class="grid drives" id="drives"></div>
+      <div class="card scanbox">
+        <div class="row" style="justify-content:space-between">
+          <div class="row"><button class="btn pri" id="scanBtn">Escanear seleccionadas</button>
+          <span id="scanPhase" style="color:var(--muted)"></span></div>
+          <span id="scanCount" style="font-weight:600"></span>
+        </div>
+        <div class="bar"><div id="scanBar" style="width:0"></div></div>
+        <div class="cur" id="scanCur"></div>
+      </div>
+    </section>
+
+    <!-- PROYECTOS -->
+    <section class="view" id="v-projects">
+      <h1>Proyectos</h1>
+      <p class="sub">Agrupados por nombre: cada grupo junta versiones y backups y marca cuál es el más reciente.</p>
+      <div class="grid stats" id="stats"></div>
+      <div class="toolbar">
+        <input type="text" class="search" id="q" placeholder="Buscar por nombre o ruta…">
+        <select id="sort">
+          <option value="date">Más recientes</option><option value="name">Nombre</option>
+          <option value="count">Más versiones</option><option value="missing">Más samples faltantes</option>
+        </select>
+        <button class="btn danger" id="delDiscarded">Borrar descartados</button>
+      </div>
+      <div class="chips" id="chips" style="margin-bottom:14px"></div>
+      <div style="overflow-x:auto;border-radius:var(--r)"><table><thead><tr><th>Proyecto</th><th>Versiones</th><th class="hide-sm">Última modificación</th><th class="hide-sm">FL</th><th>Estado</th></tr></thead>
+      <tbody id="rows"></tbody></table></div>
+    </section>
+
+    <!-- ORGANIZAR -->
+    <section class="view" id="v-organize">
+      <h1>Organizar</h1>
+      <p class="sub">Mueve cada proyecto a <span style="font-family:var(--mono)">Destino / Año / Mes / Proyecto</span>. La versión más reciente queda arriba; las demás van a <i>Versiones</i> y <i>Backups</i>.</p>
+      <div class="card">
+        <div class="row">
+          <input type="text" id="dest" placeholder="Carpeta destino, p. ej. D:\Proyectos FL" style="flex:1;min-width:260px">
+          <button class="btn" id="pick">Elegir…</button>
+        </div>
+        <div class="opts" style="margin-top:10px">
+          <label><input type="checkbox" id="oUseful"> Solo proyectos marcados como útiles</label>
+          <label><input type="checkbox" id="oDiscard"> Incluir los marcados para descartar</label>
+          <label><input type="checkbox" id="oCopy"> Copiar en vez de mover (deja los originales)</label>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="preview">Vista previa</button>
+          <button class="btn pri" id="apply" disabled>Aplicar</button>
+          <button class="btn" id="undo" disabled>Deshacer última organización</button>
+          <span id="planInfo" style="color:var(--muted)"></span>
+        </div>
+      </div>
+      <div class="tree" id="tree" style="margin-top:14px;display:none"></div>
+    </section>
+  </main>
+</div>
+
+<div class="drawer" id="drawer"><button class="x" id="dx">&times;</button><header id="dh"></header><div class="body" id="db"></div></div>
+<div class="modal" id="modal"><div class="card"><h3 id="mt"></h3><p id="mp"></p>
+  <div class="row" style="justify-content:flex-end"><button class="btn" id="mno">Cancelar</button><button class="btn pri" id="myes">Confirmar</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TOKEN="__TOKEN__";
+const $=s=>document.querySelector(s);
+const api=async(p,b)=>{const r=await fetch(p,{method:b?'POST':'GET',headers:{'X-Token':TOKEN,'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);return j};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtB=n=>{const u=['B','KB','MB','GB','TB'];let i=0;while(n>=1024&&i<4){n/=1024;i++}return n.toFixed(i?1:0)+' '+u[i]};
+const fmtD=t=>t?new Date(t*1000).toLocaleString('es',{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2800)};
+const confirmBox=(title,text,yes='Confirmar')=>new Promise(res=>{$('#mt').textContent=title;$('#mp').textContent=text;$('#myes').textContent=yes;$('#modal').classList.add('on');
+  const done=v=>{$('#modal').classList.remove('on');res(v)};$('#myes').onclick=()=>done(true);$('#mno').onclick=()=>done(false)});
+
+/* navegación */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+function show(v){if(v!=='projects')closeDrawer();document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));if(v==='projects')loadProjects()}
+
+/* unidades */
+const selDrives=new Set(JSON.parse(localStorageGet('flpm.drives')||'[]'));
+function localStorageGet(k){try{return localStorage.getItem(k)}catch{return null}}
+function localStorageSet(k,v){try{localStorage.setItem(k,v)}catch{}}
+async function loadDrives(){const {drives,fl}=await api('/api/drives');
+  $('#flinfo').textContent=fl.exe?'FL Studio: '+fl.exe:'FL Studio no detectado';
+  $('#drives').innerHTML=drives.map(d=>{const used=d.total?(1-d.free/d.total)*100:0;return `<div class="card drive ${selDrives.has(d.root)?'sel':''}" data-r="${esc(d.root)}">
+   <h3>${esc(d.root.slice(0,2))} <span class="chk">${selDrives.has(d.root)?'✓':''}</span></h3><small>${esc(d.label)} · ${esc(d.type)}</small>
+   <div class="bar"><div style="width:${used.toFixed(0)}%"></div></div><small>${fmtB(d.free)} libres de ${fmtB(d.total)}</small></div>`}).join('');
+  document.querySelectorAll('.drive').forEach(c=>c.onclick=()=>{const r=c.dataset.r;selDrives.has(r)?selDrives.delete(r):selDrives.add(r);localStorageSet('flpm.drives',JSON.stringify([...selDrives]));loadDrives()})}
+$('#scanBtn').onclick=async()=>{if(!selDrives.size)return toast('Selecciona al menos una unidad');
+  await api('/api/scan',{roots:[...selDrives]});poll()};
+async function poll(){const s=await api('/api/status');
+  $('#scanPhase').textContent=s.running?s.phase+'…':(s.phase||'');$('#scanCur').textContent=s.current||'';
+  $('#scanCount').textContent=s.found?`${s.done}/${s.found} analizados · ${s.excluded} de FL excluidos`:'';
+  $('#scanBar').style.width=(s.found?s.done/s.found*100:(s.running?8:0))+'%';$('#scanBtn').disabled=s.running;
+  if(s.running)setTimeout(poll,700);else if(s.phase==='Listo'){toast('Escaneo terminado');show('projects')}}
+
+/* proyectos */
+let GROUPS=[],FILTER='all',ACTIVE=null;
+const FILTERS=[['all','Todos'],['pendiente','Pendientes'],['util','Útiles'],['descartar','Descartar'],['missing','Samples faltantes'],['error','Con errores'],['backups','Con backups']];
+const markTag=m=>m==='util'?'<span class="tag t-ok">Útil</span>':m==='descartar'?'<span class="tag t-bad">Descartar</span>':'<span class="tag t-mut">Pendiente</span>';
+async function loadProjects(){const d=await api('/api/projects');GROUPS=d.groups;$('#undo').disabled=!d.canUndo;
+  const files=GROUPS.reduce((a,g)=>a+g.count,0),bk=GROUPS.reduce((a,g)=>a+g.backups,0);
+  $('#stats').innerHTML=[['c1',GROUPS.length,'Proyectos únicos'],['',files,'Archivos .flp'],['c2',bk,'Backups / autoguardados'],
+   ['c3',GROUPS.filter(g=>g.missing).length,'Con samples faltantes'],['c4',GROUPS.filter(g=>g.error).length,'No se pueden leer'],['',d.excluded,'Muestras de FL excluidas']]
+   .map(([c,n,l])=>`<div class="card stat ${c}"><b>${n}</b><span>${l}</span></div>`).join('');
+  $('#chips').innerHTML=FILTERS.map(([k,l])=>`<button class="chip ${FILTER===k?'on':''}" data-f="${k}">${l}</button>`).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{FILTER=c.dataset.f;loadProjects()});
+  renderRows();if(ACTIVE){const g=GROUPS.find(x=>x.key===ACTIVE);g?openDrawer(g):closeDrawer()}}
+function renderRows(){const q=$('#q').value.toLowerCase(),s=$('#sort').value;
+  let list=GROUPS.filter(g=>{if(q&&!g.members.some(m=>m.path.toLowerCase().includes(q)))return false;
+    if(['pendiente','util','descartar'].includes(FILTER))return g.mark===FILTER;if(FILTER==='missing')return g.missing>0;
+    if(FILTER==='error')return g.error;if(FILTER==='backups')return g.backups>0;return true});
+  const by={date:(a,b)=>b.mtime-a.mtime,name:(a,b)=>a.name.localeCompare(b.name),count:(a,b)=>b.count-a.count,missing:(a,b)=>b.missing-a.missing}[s];list.sort(by);
+  $('#rows').innerHTML=list.length?list.map(g=>`<tr data-k="${esc(g.key)}" class="${g.key===ACTIVE?'act':''}"><td><div class="pname">${esc(g.name)}</div><div class="ppath">${esc(g.latest)}</div></td>
+   <td>${g.count}${g.backups?` <span class="tag t-info">${g.backups} backup</span>`:''}</td><td class="hide-sm">${fmtD(g.mtime)}</td>
+   <td class="hide-sm">${esc((g.version||'').split('.').slice(0,2).join('.'))||'—'}</td>
+   <td>${markTag(g.mark)}${g.missing?`<span class="tag t-warn">${g.missing} faltan</span>`:''}${g.error?'<span class="tag t-bad">Error</span>':''}</td></tr>`).join('')
+   :`<tr><td colspan="5" class="empty">${GROUPS.length?'Nada coincide con el filtro.':'Aún no hay proyectos. Ve a Unidades y escanea.'}</td></tr>`;
+  document.querySelectorAll('#rows tr[data-k]').forEach(r=>r.onclick=()=>openDrawer(GROUPS.find(g=>g.key===r.dataset.k)))}
+$('#q').oninput=renderRows;$('#sort').onchange=renderRows;
+
+function openDrawer(g){ACTIVE=g.key;document.querySelectorAll('#rows tr').forEach(r=>r.classList.toggle('act',r.dataset.k===g.key));
+  const all=g.members.map(m=>m.path);
+  $('#dh').innerHTML=`<h2>${esc(g.name)}</h2><div style="color:var(--muted);margin-bottom:12px">${g.count} archivo(s) · último: ${fmtD(g.mtime)}</div>
+   <div class="row"><button class="btn sm" data-a="mark" data-s="util" style="color:var(--ok)">✓ Útil</button><button class="btn sm" data-a="mark" data-s="descartar" style="color:var(--bad)">✕ Descartar</button>
+   <button class="btn sm" data-a="mark" data-s="pendiente">Pendiente</button><button class="btn sm danger" data-a="delall">Borrar grupo</button></div>`;
+  const p=g.members.find(m=>m.primary)||g.members[0];
+  $('#db').innerHTML=`<div class="sec">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea>
+   <div class="sec">Archivos (${g.count})</div>`+g.members.map((m,i)=>`<div class="member ${m.latest?'latest':''}">
+    <div class="row" style="justify-content:space-between"><b>${esc(m.name)}</b><span>${m.latest?'<span class="tag t-acc">Más reciente</span>':''}${m.backup?'<span class="tag t-info">Backup</span>':''}${m.error?'<span class="tag t-bad">Error</span>':m.missing.length?`<span class="tag t-warn">${m.missing.length} samples faltan</span>`:'<span class="tag t-ok">OK</span>'}</span></div>
+    <div class="ppath" style="max-width:none;white-space:normal;word-break:break-all;margin-top:4px">${esc(m.path)}</div>
+    <div class="kv"><div>FL Studio<b>${esc(m.version||'—')}</b></div><div>Tempo<b>${m.tempo?m.tempo+' BPM':'—'}</b></div><div>Tamaño<b>${fmtB(m.size)}</b></div>
+     <div>Modificado<b>${fmtD(m.mtime)}</b></div><div>Creado<b>${fmtD(m.created)}</b></div><div>Tiempo trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
+     <div>Canales<b>${m.channels}</b></div><div>Patterns<b>${m.patterns}</b></div><div>Samples<b>${m.samples}</b></div></div>
+    ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
+    <div class="row" style="margin-top:10px"><button class="btn sm pri" data-a="open" data-i="${i}">▶ Abrir en FL</button><button class="btn sm" data-a="reveal" data-i="${i}">Mostrar en carpeta</button><button class="btn sm danger" data-a="del" data-i="${i}">Papelera</button></div></div>`).join('');
+  $('#drawer').classList.add('on');
+  $('#note').onchange=async e=>{await api('/api/mark',{paths:all,note:e.target.value});toast('Nota guardada')};
+  document.querySelectorAll('#drawer [data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a,m=g.members[b.dataset.i];
+    if(a==='open'){await api('/api/open',{paths:[m.path]});toast('Abriendo en FL Studio…')}
+    if(a==='reveal')await api('/api/reveal',{paths:[m.path]});
+    if(a==='mark'){await api('/api/mark',{paths:all,status:b.dataset.s});toast('Marcado');loadProjects()}
+    if(a==='del'&&await confirmBox('Enviar a la Papelera',m.path+'\n\nPodrás recuperarlo desde la Papelera de reciclaje.','Enviar a Papelera')){const r=await api('/api/delete',{paths:[m.path]});toast(r.deleted?'Enviado a la Papelera':'No se pudo borrar');loadProjects()}
+    if(a==='delall'&&await confirmBox('Borrar todo el grupo',`${g.count} archivo(s) de "${g.name}" irán a la Papelera de reciclaje.`,'Enviar a Papelera')){const r=await api('/api/delete',{paths:all});toast(r.deleted+' archivo(s) a la Papelera');ACTIVE=null;closeDrawer();loadProjects()}})}
+function closeDrawer(){ACTIVE=null;$('#drawer').classList.remove('on');document.querySelectorAll('#rows tr').forEach(r=>r.classList.remove('act'))}
+$('#dx').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+$('#delDiscarded').onclick=async()=>{const paths=GROUPS.filter(g=>g.mark==='descartar').flatMap(g=>g.members.map(m=>m.path));
+  if(!paths.length)return toast('No hay proyectos marcados para descartar');
+  if(await confirmBox('Borrar descartados',`${paths.length} archivo(s) marcados como "Descartar" irán a la Papelera de reciclaje.`,'Enviar a Papelera')){const r=await api('/api/delete',{paths});toast(r.deleted+' archivo(s) a la Papelera');loadProjects()}};
+
+/* organizar */
+$('#dest').value=localStorageGet('flpm.dest')||'';
+$('#dest').onchange=()=>{localStorageSet('flpm.dest',$('#dest').value);$('#apply').disabled=true};
+$('#pick').onclick=async()=>{toast('Abriendo selector de carpeta…');const {path}=await api('/api/pickfolder',{});if(path){$('#dest').value=path;$('#dest').onchange()}};
+const opts=()=>({dest:$('#dest').value.trim(),onlyUseful:$('#oUseful').checked,includeDiscarded:$('#oDiscard').checked,copy:$('#oCopy').checked});
+['#oUseful','#oDiscard','#oCopy'].forEach(s=>$(s).onchange=()=>$('#apply').disabled=true);
+let PLAN=[];
+$('#preview').onclick=async()=>{const o=opts();if(!o.dest)return toast('Elige una carpeta destino');
+  PLAN=(await api('/api/plan',o)).plan;$('#planInfo').textContent=PLAN.length?`${PLAN.length} archivo(s) a ${o.copy?'copiar':'mover'}`:'Todo ya está en su sitio';
+  $('#apply').disabled=!PLAN.length;const t=$('#tree');t.style.display=PLAN.length?'block':'none';
+  const sep=o.dest.replace(/[\\/]+$/,'');let last=['',''],html='';
+  PLAN.slice().sort((a,b)=>a.dst.localeCompare(b.dst)).forEach(s=>{const rel=s.dst.slice(sep.length+1).split(/[\\/]/);
+    if(rel[0]!==last[0])html+=`<div class="y">📁 ${esc(rel[0])}</div>`;if(rel[0]!==last[0]||rel[1]!==last[1])html+=`<div class="m">📁 ${esc(rel[1])}</div>`;last=rel;
+    html+=`<div class="f">${esc(rel.slice(2,-1).join(' / '))} / <b>${esc(rel.at(-1))}</b></div>`});t.innerHTML=html};
+$('#apply').onclick=async()=>{const o=opts();
+  if(!await confirmBox(o.copy?'Copiar proyectos':'Mover proyectos',`${PLAN.length} archivo(s) se ${o.copy?'copiarán':'moverán'} a:\n${o.dest}\n\n${o.copy?'':'Podrás deshacerlo con "Deshacer última organización".'}`,o.copy?'Copiar':'Mover'))return;
+  const r=await api('/api/apply',o);toast(`${r.moved} archivo(s) listos`+(r.errors.length?` · ${r.errors.length} errores`:''));
+  if(r.errors.length)console.warn(r.errors);$('#apply').disabled=true;$('#tree').style.display='none';$('#planInfo').textContent='';loadProjects()};
+$('#undo').onclick=async()=>{if(!await confirmBox('Deshacer','Los archivos de la última organización volverán a su ubicación original.','Deshacer'))return;
+  const r=await api('/api/undo',{});toast(r.restored+' archivo(s) restaurados');loadProjects()};
+
+api('/api/version').then(v=>{$('#ver').textContent='Versión '+v.current;
+  if(!v.available)return;$('#upd').style.display='block';$('#updT').textContent=`Nueva versión ${v.latest} disponible`;$('#updN').textContent=(v.notes||'').slice(0,300);
+  $('#updBtn').onclick=async()=>{$('#updBtn').disabled=true;$('#updBtn').textContent='Descargando…';
+    try{const r=await api('/api/update',{});$('#updBtn').textContent=r.restarting?'Reiniciando…':'No se pudo actualizar'}catch(e){$('#updBtn').textContent='Error: '+e.message}}}).catch(()=>{});
+loadDrives();api('/api/status').then(s=>{if(s.running)poll()});loadProjects();
+</script>
+</body>
+</html>
