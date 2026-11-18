@@ -126,7 +126,7 @@ h1{display:flex;align-items:center;gap:10px}h1 svg{color:var(--mint-deep)}
 #player .pn{width:240px;min-width:0}#player .pn b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
 #player .pn small{color:#8199b0;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 #player canvas{flex:1;height:44px;min-width:0;cursor:pointer}
-#player .tm{font-variant-numeric:tabular-nums;color:#a9bacb;font-size:12px;white-space:nowrap}
+#player .tm{font-variant-numeric:tabular-nums;color:#a9bacb;font-size:12px;white-space:nowrap;flex:0 0 120px;text-align:right}
 #player .ibtn{color:#8199b0}#player .ibtn:hover{background:#ffffff14;color:#fff}
 .view#v-samples{padding-bottom:80px}
 /* comparador A/B */
@@ -956,14 +956,29 @@ async function play(it,offset=0){const ac=AC();if(ac.state==='suspended')await a
   paintPlay();loop()}
 function toggle(it){if(PL.id===it.id&&PL.src)stopPlay();else play(it,0)}
 function loop(){PL.raf=requestAnimationFrame(()=>{frame();if(PL.src)loop()})}
-function peaksOf(id,b,w){const k=id+':'+w;if(PEAKS.has(k))return PEAKS.get(k);const n=b.numberOfChannels,ch=[...Array(Math.min(n,2))].map((_,i)=>b.getChannelData(i)),len=b.length,step=len/w,out=new Float32Array(w*2);
-  for(let x=0;x<w;x++){let mn=0,mx=0;const s=Math.floor(x*step),e=Math.min(len,Math.floor((x+1)*step)),st=Math.max(1,((e-s)/48)|0);
-    for(const d of ch)for(let i=s;i<e;i+=st){const v=d[i];if(v<mn)mn=v;if(v>mx)mx=v}out[x*2]=mn;out[x*2+1]=mx}
-  PEAKS.set(k,out);return out}
-function drawWave(cv,id,b,frac){const dpr=devicePixelRatio||1,w=Math.max(10,Math.round(cv.clientWidth*dpr)),h=Math.round(cv.clientHeight*dpr);if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
-  const g=cv.getContext('2d'),pk=peaksOf(id,b,w),mid=h/2,css=getComputedStyle(document.documentElement),dark=cv.closest('#player');
-  g.clearRect(0,0,w,h);const px=Math.floor(frac*w);
-  for(let x=0;x<w;x++){g.fillStyle=x<px?'#36ECDE':(dark?'#4d6b88':css.getPropertyValue('--line3'));const a=pk[x*2],c=pk[x*2+1];g.fillRect(x,mid-c*mid*.95,1,Math.max(1,(c-a)*mid*.95))}}
+/* Picos una sola vez a resolucion fija (lee todas las muestras: sin aliasing) */
+const NB=2048;
+function peaksOf(id,b){if(PEAKS.has(id))return PEAKS.get(id);const ch=[...Array(Math.min(b.numberOfChannels,2))].map((_,i)=>b.getChannelData(i)),len=b.length,
+    pk=new Float32Array(NB),rm=new Float32Array(NB);let top=1e-6;
+  for(let x=0;x<NB;x++){const s=Math.floor(x*len/NB),e=Math.max(s+1,Math.floor((x+1)*len/NB));let m=0,q=0;
+    for(const d of ch)for(let i=s;i<e&&i<len;i++){const v=d[i],a=v<0?-v:v;if(a>m)m=a;q+=v*v}
+    pk[x]=m;rm[x]=Math.sqrt(q/((e-s)*ch.length));if(m>top)top=m}
+  const r={pk,rm,top};PEAKS.set(id,r);return r}
+/* La forma se pinta una vez en bitmaps (normal + reproducido); cada frame solo copia y recorta */
+function waveImgs(cv,id,b,w,h){const dark=!!cv.closest('#player'),key=[id,w,h,dark,document.documentElement.dataset.theme].join('|');
+  if(cv._wk===key)return cv._wi;const {pk,rm,top}=peaksOf(id,b),mid=h/2,amp=mid*.92/Math.max(top,.05);
+  const base=dark?'#4d6b88':getComputedStyle(document.documentElement).getPropertyValue('--line3').trim()||'#9aa8b6';
+  const mk=(c1,c2)=>{const o=document.createElement('canvas');o.width=w;o.height=h;const g=o.getContext('2d');
+    const at=(arr,x)=>{const f=x/w*NB,i=Math.min(NB-1,Math.floor(f)),j=Math.min(NB-1,i+1),t=f-i;return arr[i]*(1-t)+arr[j]*t};
+    const span=NB/w,band=(arr,x)=>{if(span<=1)return at(arr,x);let m=0;const s=Math.floor(x*span),e=Math.min(NB,Math.ceil((x+1)*span));for(let i=s;i<e;i++)if(arr[i]>m)m=arr[i];return m};
+    const path=arr=>{g.beginPath();g.moveTo(0,mid);for(let x=0;x<=w;x++)g.lineTo(x,mid-Math.max(.5,band(arr,x)*amp));for(let x=w;x>=0;x--)g.lineTo(x,mid+Math.max(.5,band(arr,x)*amp));g.closePath();g.fill()};
+    g.fillStyle=c1;g.globalAlpha=.55;path(pk);g.globalAlpha=1;g.fillStyle=c2;path(rm);return o};
+  cv._wk=key;cv._wi=[mk(base,base),mk('#36ECDE','#36ECDE')];return cv._wi}
+function drawWave(cv,id,b,frac){const dpr=devicePixelRatio||1,w=Math.max(10,Math.round(cv.clientWidth*dpr)),h=Math.max(4,Math.round(cv.clientHeight*dpr));
+  if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;
+  const [a,p]=waveImgs(cv,id,b,w,h),g=cv.getContext('2d'),px=frac*w;
+  g.clearRect(0,0,w,h);g.drawImage(a,0,0);
+  if(px>0){g.drawImage(p,0,0,px,h,0,0,px,h);g.fillStyle='#E6E9EC';g.fillRect(Math.min(w-1,px),0,Math.max(1,dpr),h)}}
 function frame(){if(!PL.buf)return;const f=PL.src?pos()/PL.buf.duration:0;drawWave($('#plWave'),PL.id,PL.buf,f);
   $('#plTime').textContent=fmtDur(pos())+' / '+fmtDur(PL.buf.duration);
   $$('#cmpBox canvas[data-cv]').forEach(cv=>{const it=CMP.items[+cv.dataset.cv];const b=CMP.bufs[+cv.dataset.cv];if(b)drawWave(cv,it.id,b,it.id===PL.id&&PL.src?f:0)})}
