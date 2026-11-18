@@ -18,6 +18,19 @@ UI = os.path.join(getattr(sys, "_MEIPASS", core.HERE), "ui.html")
 HOOKS = {"pick_folder": core.pick_folder, "quit": lambda: os._exit(0)}
 
 
+_PJ = [0, b""]
+
+
+def _projects_json():
+    """Listado ya serializado; solo se rehace cuando cambia la revision de datos."""
+    rev = MGR.rev
+    if _PJ[0] != rev:
+        _PJ[1] = json.dumps({"groups": MGR.listing(), "canUndo": bool(MGR.undo), "rev": rev},
+                            ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        _PJ[0] = rev
+    return _PJ[1]
+
+
 def _paths(body):
     """Solo se permite actuar sobre proyectos conocidos (escaneados)."""
     with MGR.lock:
@@ -58,9 +71,15 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, updater.check())
         if self.path == "/api/status":
             return self._send(200, MGR.status)
-        if self.path == "/api/projects":
-            return self._send(200, {"groups": MGR.listing(), "excluded": MGR.status["excluded"],
-                                    "canUndo": bool(MGR.undo)})
+        if self.path.startswith("/api/projects"):
+            # ?rev=N -> si nada cambio responde corto y el navegador no re-dibuja nada
+            q = self.path.partition("rev=")[2]
+            if q and q == str(MGR.rev):
+                return self._send(200, {"same": True, "rev": MGR.rev})
+            return self._send(200, raw=_projects_json(), ctype="application/json")
+        if self.path == "/api/backups":
+            c = MGR.backup_candidates()
+            return self._send(200, {"items": c, "size": sum(x["size"] for x in c)})
         return self._send(404, {"error": "no encontrado"})
 
     def _audio(self):
@@ -139,7 +158,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"ok": True})
             if p == "/api/mark":
                 MGR.mark(_paths(body), body.get("status"), body.get("note"))
-                return self._send(200, {"ok": True})
+                return self._send(200, {"ok": True, "rev": MGR.rev})
+            if p == "/api/backups/clean":
+                ok = {x["path"] for x in MGR.backup_candidates()}
+                return self._send(200, MGR.recycle([x for x in body.get("paths", []) if x in ok]))
             if p == "/api/delete":
                 return self._send(200, MGR.recycle(_paths(body)))
             if p == "/api/pickfolder":

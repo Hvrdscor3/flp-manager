@@ -13,15 +13,17 @@ import updater  # noqa: E402
 from version import VERSION  # noqa: E402
 
 SPLASH = """<!doctype html><html><head><meta charset="utf-8"><style>
-html,body{margin:0;height:100%;background:#f6f7ed;font:15px 'Segoe UI',system-ui,sans-serif;color:#1f1f1f}
+html,body{margin:0;height:100%;background:#00203F;font:15px 'Segoe UI',system-ui,sans-serif;color:#E6E9EC}
 .w{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
-.bar{width:220px;height:5px;border-radius:9px;background:#e4e5d8;overflow:hidden}
-.bar div{width:40%;height:100%;background:#1f1f1f;border-radius:9px;animation:m 1.1s ease-in-out infinite}
+.bar{width:220px;height:5px;border-radius:9px;background:#ffffff22;overflow:hidden}
+.bar div{width:40%;height:100%;background:#36ECDE;border-radius:9px;animation:m 1.1s ease-in-out infinite}
 @keyframes m{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
-small{color:#7a7a74}</style></head><body><div class="w">
-<svg width="56" height="56" viewBox="0 0 32 32"><rect width="32" height="32" rx="7.5" fill="#1f1f1f"/>
-<rect x="6.4" y="16" width="3.7" height="9" rx="1.85" fill="#f6f7ed"/><rect x="11.5" y="9.6" width="3.7" height="15.4" rx="1.85" fill="#f6f7ed"/>
-<rect x="16.6" y="13.4" width="3.7" height="11.6" rx="1.85" fill="#9a9b92"/><rect x="21.8" y="7" width="3.7" height="18" rx="1.85" fill="#f6f7ed"/></svg>
+small{color:#8199b0}</style></head><body><div class="w">
+<svg width="56" height="56" viewBox="0 0 32 32"><rect width="32" height="32" rx="7.5" fill="#36ECDE"/>
+<rect x="4.5" y="5.4" width="5.8" height="21.2" rx="1.4" fill="#00203F"/><rect x="4.5" y="10.3" width="3.5" height="3" fill="#36ECDE"/><rect x="4.5" y="18.2" width="3.5" height="3" fill="#36ECDE"/>
+<rect x="12.8" y="6.4" width="7" height="3" rx="1" fill="#00203F"/><rect x="17.9" y="10.3" width="9.6" height="3" rx="1" fill="#00203F"/>
+<rect x="12.8" y="14.3" width="3.8" height="3" rx="1" fill="#fff"/><rect x="19.2" y="18.2" width="5.8" height="3" rx="1" fill="#00203F"/>
+<rect x="14.1" y="22.1" width="13.4" height="3" rx="1" fill="#00203F"/></svg>
 <b>Actualizando a la versi&oacute;n {V}&hellip;</b><div class="bar"><div></div></div>
 <small>La app se reiniciar&aacute; sola en unos segundos</small></div></body></html>"""
 
@@ -54,11 +56,11 @@ def main():
 
     if updating:
         win = webview.create_window("FLP Manager", html=SPLASH.replace("{V}", info["latest"]), width=460,
-                                    height=300, resizable=False, background_color="#f6f7ed")
+                                    height=300, resizable=False, background_color="#00203F")
     else:
         win = webview.create_window("FLP Manager %s" % VERSION, url, width=1320, height=860,
                                     min_size=(900, 600),
-                                    background_color="#131312" if windows_dark() else "#ffffff")
+                                    background_color="#232323" if windows_dark() else "#f7f8f9")
 
     def pick_folder():
         r = win.create_file_dialog(webview.FOLDER_DIALOG)

@@ -12,19 +12,21 @@
 <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#1f1f1f;--on-ink:#fff;--on-ink-muted:#b7b7b0;--ink-line:#3a3a38;--ink-hover:#000;
-  --cream:#f6f7ed;--cream2:#ecede2;--soft:#f4f4f4;--white:#fff;--card:#fff;--hover:#fafaf6;
-  --line:#e8e8e3;--line2:#dcdcd5;--line3:#cfcfc8;--muted:#7a7a74;--muted2:#a3a39c;--text2:#55554f;--hatch:#9a9b92;
-  --ok:#2f8f5b;--warn:#b7791f;--bad:#c2410c;--ok-bg:#e7f3ec;--warn-bg:#fbf3e4;--bad-bg:#fbeae4;
-  --shadow:#0000000d;--r:14px;--font:'General Sans',ui-sans-serif,system-ui,'Segoe UI',sans-serif;
+  --ink:#00203F;--on-ink:#fff;--on-ink-muted:#9fb3c6;--ink-line:#1b3d5e;--ink-hover:#00172e;
+  --cream:#E6E9EC;--cream2:#d8dde2;--soft:#eef1f3;--white:#f7f8f9;--card:#fff;--hover:#f3f6f8;
+  --line:#e3e7eb;--line2:#d3d9df;--line3:#b8c1ca;--muted:#6a7888;--muted2:#97a3af;--text2:#384a5c;--hatch:#7f93a6;
+  --mint:#36ECDE;--mint-ink:#00203F;--mint-soft:#36ecde2e;--mint-deep:#0aa99c;--navy:#00203F;
+  --ok:#0e9a73;--warn:#b7791f;--bad:#d1432b;--ok-bg:#e2f6ef;--warn-bg:#fbf3e4;--bad-bg:#fceae6;
+  --shadow:#00203f12;--r:14px;--font:'General Sans',ui-sans-serif,system-ui,'Segoe UI',sans-serif;
   color-scheme:light;
 }
 :root[data-theme="dark"]{
-  --ink:#ecebe4;--on-ink:#151514;--on-ink-muted:#5f5f59;--ink-line:#cfcfc8;--ink-hover:#fff;
-  --cream:#1c1c1a;--cream2:#2a2a27;--soft:#232321;--white:#131312;--card:#1a1a19;--hover:#20201e;
-  --line:#2a2a28;--line2:#383835;--line3:#4b4b47;--muted:#8f8f88;--muted2:#6d6d67;--text2:#b8b8b0;--hatch:#76776e;
-  --ok:#52c28d;--warn:#e3a94e;--bad:#f0805a;--ok-bg:#183326;--warn-bg:#352814;--bad-bg:#3a1d15;
-  --shadow:#00000059;color-scheme:dark;
+  --ink:#E6E9EC;--on-ink:#00203F;--on-ink-muted:#3d5a76;--ink-line:#b8c1ca;--ink-hover:#fff;
+  --cream:#2F2F2F;--cream2:#3b3b3b;--soft:#2a2a2a;--white:#232323;--card:#2b2b2b;--hover:#333;
+  --line:#373737;--line2:#444;--line3:#5a5a5a;--muted:#9aa1a8;--muted2:#767c83;--text2:#c5cad0;--hatch:#7b8a96;
+  --mint-soft:#36ecde24;--mint-deep:#36ECDE;--navy:#001a33;
+  --ok:#3fd6a6;--warn:#e9b25c;--bad:#ff7a63;--ok-bg:#16352d;--warn-bg:#382c16;--bad-bg:#3d1f1a;
+  --shadow:#0000005c;color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--white);transition:background .2s;color:var(--ink);font:14px/1.45 var(--font);-webkit-font-smoothing:antialiased}
@@ -46,6 +48,40 @@ aside{border-right:1px solid var(--line);display:flex;flex-direction:column;padd
 .side-foot b{color:var(--ink);font-weight:600}
 .updcard{margin:14px 0 0;background:var(--ink);color:var(--cream);border-radius:12px;padding:12px;display:none}
 .updcard p{margin:2px 0 10px;color:var(--line3);font-size:12px}
+
+
+/* ---- paleta Clustr: barra lateral navy, acentos mint ---- */
+aside{background:var(--navy);border-right:0;color:#E6E9EC;
+  --ink:#E6E9EC;--text2:#a9bacb;--soft:#ffffff12;--card:#ffffff0f;--line:#ffffff1a;--line2:#ffffff26;--line3:#ffffff45;--muted:#8199b0;--muted2:#6d88a2;--on-ink:#00203F}
+.nav button svg{color:#7f97ae;transition:color .15s}.nav button:hover svg{color:#E6E9EC}
+.nav button.on{background:#36ecde1c;color:var(--mint);box-shadow:inset 3px 0 0 var(--mint)}.nav button.on svg{color:var(--mint)}
+.nav button.on .n{background:var(--mint);color:#00203F;border-color:transparent}
+.grp{color:#6d88a2;text-transform:uppercase;letter-spacing:.08em;font-size:10.5px;font-weight:600}
+.updcard{background:var(--mint);color:#00203F}.updcard p{color:#00203Fb3}
+.updcard .sec{background:#00203F;color:#fff;border-color:#00203F}
+:root[data-theme="dark"] .pri{background:var(--mint);color:#00203F}
+:root[data-theme="dark"] .pri:hover{background:#6af3e8}
+.pri:focus-visible,.sec:focus-visible,.seg button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.search{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.search:focus-within{border-color:var(--mint-deep);box-shadow:0 0 0 3px var(--mint-soft)}
+.col:last-child .b:not(.h){background:var(--mint-deep)}
+.scanbar>div,.pv .pbar div{background:var(--mint)!important}
+.fold.open>.fh{box-shadow:inset 3px 0 0 var(--mint)}
+.tag.dark{background:var(--mint);color:#00203F}
+.tag svg{opacity:.85}
+.field input:focus{border-color:var(--mint-deep);box-shadow:0 0 0 3px var(--mint-soft)}
+.opts input{accent-color:var(--mint-deep)}
+.drive.sel .chk{background:var(--mint);border-color:var(--mint);color:#00203F}
+.drive.sel .meter>div{background:var(--mint)}
+.kv div svg{vertical-align:-2px;margin-right:4px;color:var(--muted2)}
+h1{display:flex;align-items:center;gap:10px}h1 svg{color:var(--mint-deep)}
+.kpi h4{display:flex;align-items:center;gap:8px}.kpi h4 svg{color:var(--mint-deep)}
+.colh h3{display:flex;align-items:center;gap:9px}
+.lico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--soft);color:var(--text2)}
+.lico.util{background:var(--mint);color:#00203F}.lico.descartar{background:var(--cream2);color:var(--muted)}
+.lico.problemas{background:var(--warn-bg);color:var(--warn)}.lico.pendiente{background:var(--mint-soft);color:var(--mint-deep)}
+.seg.txt button{gap:6px;align-items:center}
+.scrim{background:#00203f55!important}.modal{background:#00203f66!important}
 
 /* main */
 main{overflow:auto;position:relative}
@@ -126,6 +162,18 @@ h1{font-size:24px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
 .prow{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;cursor:pointer}
 .prow:hover{background:var(--soft)}.prow.act{background:var(--ink);color:var(--on-ink)}.prow.act .meta,.prow.act .pp{color:var(--line3)}
 .prow .pn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg.txt button{font-size:12.5px;padding:5px 11px;font-weight:500}
+#folders.grid,#folders.grid .fold.open>.fb{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;align-items:start}
+#folders.grid .fold{margin:0}#folders.grid .fold.open{grid-column:1/-1}
+#folders.grid .fold.open>.fb{padding:12px 14px 14px}
+#folders.grid .fold:not(.open)>.fh{flex-wrap:wrap;row-gap:8px;min-height:86px;align-content:flex-start}
+#folders.grid .fold:not(.open)>.fh .fstats{flex-basis:100%;margin-left:31px}
+#folders.grid .fold:not(.open)>.fh .facts,#folders.grid .fold:not(.open)>.fh .minibar{display:none}
+#folders.grid .fold:not(.open)>.fh .fstats{flex-wrap:wrap;gap:6px 12px}
+:root[data-theme="dark"] .acts .bounce{background:transparent;color:var(--mint);border:1px solid var(--mint)}
+:root[data-theme="dark"] .acts .bounce:hover{background:var(--mint-soft)}
+#folders.grid .prow{border:1px solid var(--line);background:var(--card);flex-wrap:wrap;min-height:86px;align-content:space-between;padding:12px 14px}
+#folders.grid .prow .pn{flex-basis:100%}#folders.grid .prow .meta{flex:1;white-space:nowrap}#folders.grid .prow .chip{white-space:nowrap}
 .minibar{display:flex;height:6px;width:90px;border-radius:9px;overflow:hidden;background:var(--soft)}
 .minibar i{display:block;height:100%}
 .more{color:var(--muted);font-size:12.5px;padding:8px;text-align:center;border-radius:10px}.more:hover{background:var(--soft)}
@@ -187,12 +235,12 @@ textarea:focus{border-color:var(--ink)}
 .miss{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--bad);background:var(--bad-bg);border-radius:10px;padding:9px 11px;max-height:150px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-top:8px}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .acts .pri,.acts .sec{padding:7px 12px;font-size:13px;border-radius:9px}
-.acts .bounce{background:#ff8a3d;color:#1f1f1f;border:0;font-weight:700;letter-spacing:.06em;font-size:12px!important;text-transform:uppercase}
-.acts .bounce:hover{background:#ff7a22}.acts .bounce:disabled{opacity:.55;cursor:default}
+.acts .bounce{background:var(--mint);color:#00203F;border:0;font-weight:700;letter-spacing:.06em;font-size:12px!important;text-transform:uppercase}
+.acts .bounce:hover{background:#6af3e8}.acts .bounce:disabled{opacity:.55;cursor:default}
 .pv:empty{display:none}.pv{margin-top:10px;font-size:12.5px;color:var(--text2)}
 .pv audio{width:100%;height:38px;margin-top:6px;display:block}
 .pv .pbar{height:4px;border-radius:9px;background:var(--cream2);overflow:hidden;margin-top:7px}
-.pv .pbar div{width:35%;height:100%;background:#ff8a3d;border-radius:9px;animation:pm 1.2s ease-in-out infinite}
+.pv .pbar div{width:35%;height:100%;background:var(--mint);border-radius:9px;animation:pm 1.2s ease-in-out infinite}
 @keyframes pm{0%{transform:translateX(-100%)}100%{transform:translateX(290%)}}
 .pv .perr{color:var(--bad);background:var(--bad-bg);border-radius:9px;padding:7px 10px;margin-top:6px}
 
@@ -210,11 +258,11 @@ textarea:focus{border-color:var(--ink)}
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute">
-  <symbol id="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="7.5" fill="#1f1f1f" stroke="#ffffff1a" stroke-width=".6"/>
-    <rect x="4.5" y="5.4" width="5.8" height="21.2" rx="1.4" fill="#f6f7ed"/><rect x="4.5" y="10.3" width="3.5" height="3" fill="#2b2b29"/><rect x="4.5" y="18.2" width="3.5" height="3" fill="#2b2b29"/>
-    <rect x="12.8" y="6.4" width="7" height="3" rx="1" fill="#f6f7ed"/><rect x="17.9" y="10.3" width="9.6" height="3" rx="1" fill="#f6f7ed"/>
-    <rect x="12.8" y="14.3" width="3.8" height="3" rx="1" fill="#ff8a3d"/><rect x="19.2" y="18.2" width="5.8" height="3" rx="1" fill="#f6f7ed"/>
-    <rect x="14.1" y="22.1" width="13.4" height="3" rx="1" fill="#f6f7ed"/></symbol>
+  <symbol id="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="7.5" fill="#36ECDE"/>
+    <rect x="4.5" y="5.4" width="5.8" height="21.2" rx="1.4" fill="#00203F"/><rect x="4.5" y="10.3" width="3.5" height="3" fill="#36ECDE"/><rect x="4.5" y="18.2" width="3.5" height="3" fill="#36ECDE"/>
+    <rect x="12.8" y="6.4" width="7" height="3" rx="1" fill="#00203F"/><rect x="17.9" y="10.3" width="9.6" height="3" rx="1" fill="#00203F"/>
+    <rect x="12.8" y="14.3" width="3.8" height="3" rx="1" fill="#fff"/><rect x="19.2" y="18.2" width="5.8" height="3" rx="1" fill="#00203F"/>
+    <rect x="14.1" y="22.1" width="13.4" height="3" rx="1" fill="#00203F"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
   <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
@@ -237,6 +285,16 @@ textarea:focus{border-color:var(--ink)}
   <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></symbol>
   <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m7 20 5-5 5 5M7 4l5 5 5-5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 10v4M7 6v12M11 3v18M15 8v8M19 5v14M23 10v4"/></symbol>
+  <symbol id="i-hdd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M5.5 13 8 4h8l2.5 9M6 17h.01M10 17h.01"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 21h18M7 17V11M12 17V6M17 17v-4"/></symbol>
+  <symbol id="i-broom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 3 11.5 10.5M8 11l5 5M3 21c1-4 2.5-7 5-10l5 5c-3 2.5-6 4-10 5zM7 17l-2 2"/></symbol>
 </svg>
 
 <div class="app">
@@ -266,17 +324,21 @@ textarea:focus{border-color:var(--ink)}
           <label class="tbtn"><svg width="17" height="17"><use href="#i-sort"/></svg>
             <select id="sort"><option value="date">Más recientes</option><option value="name">Nombre</option><option value="count">Más versiones</option><option value="missing">Samples faltantes</option><option value="hours">Horas trabajadas</option></select></label>
           <div class="seg" id="viewseg"><button data-m="folders" title="Carpetas"><svg width="17" height="17"><use href="#i-folder"/></svg></button><button data-m="board" class="on" title="Tablero"><svg width="17" height="17"><use href="#i-grid"/></svg></button><button data-m="list" title="Lista"><svg width="17" height="17"><use href="#i-list"/></svg></button></div>
+          <button class="sec" id="cleanBk" title="Enviar a la Papelera los autoguardados más antiguos que su proyecto"><svg width="17" height="17"><use href="#i-broom"/></svg>Limpiar backups</button>
           <button class="pri" data-go="drives"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear</button>
         </div>
         <div class="kpis">
-          <div class="kpi"><h4>Proyectos por mes</h4><div class="chart" id="chart"></div></div>
+          <div class="kpi"><h4><svg width="17" height="17"><use href="#i-chart"/></svg>Proyectos por mes</h4><div class="chart" id="chart"></div></div>
           <div class="kpi"><div class="gauge"><svg id="gauge" width="220" height="118" viewBox="0 0 220 118"></svg><div class="v"><b id="gv">0%</b><span>Proyectos sanos</span></div></div></div>
           <div class="kpi"><div class="big" id="kFiles">0</div><div class="lbl"><span>Archivos .flp<br>encontrados</span><button data-filter="backups" title="Ver con backups"><svg width="18" height="18"><use href="#i-arrow"/></svg></button></div></div>
           <div class="kpi"><div class="big" id="kHours">0 h</div><div class="lbl"><span>Horas trabajadas<br>en total</span><button data-sort="hours" title="Ordenar por horas"><svg width="18" height="18"><use href="#i-arrow"/></svg></button></div></div>
         </div>
       </div>
       <div class="content">
-        <div id="foldWrap" style="display:none"><div class="topbar" style="margin-bottom:14px;color:var(--muted)"><span id="foldInfo"></span><span style="margin-left:auto"></span><button class="sec" id="foldExpand">Expandir todo</button><button class="sec" id="foldCollapse">Contraer todo</button></div><div id="folders"></div></div>
+        <div id="foldWrap" style="display:none"><div class="topbar" style="margin-bottom:14px;color:var(--muted)"><span id="foldInfo"></span><span style="margin-left:auto"></span>
+          <div class="seg txt" id="grpseg"><button data-g="folder"><svg width="15" height="15"><use href="#i-folder"/></svg>Carpetas</button><button data-g="date"><svg width="15" height="15"><use href="#i-cal"/></svg>Año / mes</button></div>
+          <div class="seg" id="layseg"><button data-l="list" title="Lista"><svg width="17" height="17"><use href="#i-list"/></svg></button><button data-l="grid" title="Cuadrícula"><svg width="17" height="17"><use href="#i-grid"/></svg></button></div>
+          <button class="sec" id="foldExpand"><svg width="16" height="16"><use href="#i-expand"/></svg>Expandir</button><button class="sec" id="foldCollapse"><svg width="16" height="16"><use href="#i-collapse"/></svg>Contraer</button></div><div id="folders"></div></div>
         <div id="boardWrap"><div class="board" id="board"></div></div>
         <div id="listWrap" style="display:none"><div class="tablewrap"><table><thead><tr><th>Proyecto</th><th>Versiones</th><th>Modificado</th><th>FL</th><th>Estado</th></tr></thead><tbody id="rows"></tbody></table></div></div>
       </div>
@@ -284,7 +346,7 @@ textarea:focus{border-color:var(--ink)}
 
     <!-- UNIDADES -->
     <section class="view" id="v-drives"><div class="content">
-      <h1>Unidades</h1><p class="sub">Elige dónde buscar. Cada disco se escanea por separado: puedes pausarlo, escanear otro y continuar después, incluso tras cerrar la app. Los proyectos ya analizados y sin cambios se omiten.</p>
+      <h1><svg width="24" height="24"><use href="#i-hdd"/></svg>Unidades</h1><p class="sub">Elige dónde buscar. Cada disco se escanea por separado: puedes pausarlo, escanear otro y continuar después, incluso tras cerrar la app. Los proyectos ya analizados y sin cambios se omiten.</p>
       <div class="drives" id="drives"></div>
       <div class="topbar" style="margin-top:16px"><button class="pri" id="scanBtn"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear seleccionadas</button><span style="color:var(--muted)" id="scanHint"></span></div>
       <div id="jobs"></div>
@@ -292,7 +354,7 @@ textarea:focus{border-color:var(--ink)}
 
     <!-- ORGANIZAR -->
     <section class="view" id="v-organize"><div class="content">
-      <h1>Organizar</h1><p class="sub">Mueve cada proyecto a <b>Destino / Año / Mes / Proyecto</b>. El archivo principal queda arriba; autoguardados en <i>Backups</i> y otras versiones en <i>Versiones</i>.</p>
+      <h1><svg width="24" height="24"><use href="#i-cal"/></svg>Organizar</h1><p class="sub">Mueve cada proyecto a <b>Destino / Año / Mes / Proyecto</b>. El archivo principal queda arriba; autoguardados en <i>Backups</i> y otras versiones en <i>Versiones</i>.</p>
       <div class="panel" style="margin-top:0">
         <div class="field"><input id="dest" placeholder="Carpeta destino, p. ej. D:\Proyectos FL"><button class="sec" id="pick"><svg width="16" height="16"><use href="#i-folder"/></svg>Elegir…</button></div>
         <div class="opts">
@@ -301,7 +363,7 @@ textarea:focus{border-color:var(--ink)}
           <label><input type="checkbox" id="oCopy">Copiar en vez de mover (deja los originales)</label>
         </div>
         <div class="topbar">
-          <button class="sec" id="preview">Vista previa</button>
+          <button class="sec" id="preview"><svg width="16" height="16"><use href="#i-eye"/></svg>Vista previa</button>
           <button class="pri" id="apply" disabled><svg width="16" height="16"><use href="#i-check"/></svg>Aplicar</button>
           <button class="sec" id="undo" disabled><svg width="16" height="16"><use href="#i-hist"/></svg>Deshacer última</button>
           <span id="planInfo" style="color:var(--muted)"></span>
@@ -350,10 +412,15 @@ let GROUPS=[],FILTER=store.get('flpm.filter')||'all',MODE=store.get('flpm.mode2'
 const LANES=[['pendiente','Por revisar'],['util','Útiles'],['descartar','Descartar'],['problemas','Con problemas']];
 const FILTERS=[['all','Todos',g=>true],['missing','Samples faltantes',g=>g.missing>0],['error','No se pueden leer',g=>g.error],['backups','Con backups',g=>g.backups>0],['recent','Últimos 30 días',g=>Date.now()/1000-g.mtime<2592000]];
 const hours=g=>Math.max(0,...g.members.map(m=>m.worked_h||0));
+// Marca en el servidor y actualiza la vista local sin volver a descargar todo.
+async function mark(paths,status){const r=await api('/api/mark',{paths,status});const S=new Set(paths);
+  GROUPS.forEach(g=>{let hit=0;g.members.forEach(m=>{if(S.has(m.path)){m.mark=status;hit=1}});if(hit)g.mark=(g.members.find(m=>m.primary)||g.members[0]).mark});
+  if(r.rev)REV=r.rev;render();if(ACTIVE){const g=GROUPS.find(x=>x.key===ACTIVE);if(g)openDrawer(g)}}
 const laneOf=g=>(g.error||g.missing)&&g.mark==='pendiente'?'problemas':g.mark;
 
-async function loadProjects(){let d;try{d=await api('/api/projects')}catch{return}
-  GROUPS=d.groups;$('#undo').disabled=!d.canUndo;$('#nProj').textContent=GROUPS.length;renderFilters();renderKpis();render();
+let REV=0;
+async function loadProjects(){let d;try{d=await api('/api/projects'+(REV?'?rev='+REV:''))}catch{return}
+  if(d.same)return;REV=d.rev;GROUPS=d.groups;$('#undo').disabled=!d.canUndo;$('#nProj').textContent=GROUPS.length;renderFilters();renderKpis();render();
   if(ACTIVE){const g=GROUPS.find(x=>x.key===ACTIVE);g?openDrawer(g):closeDrawer()}}
 
 function renderFilters(){$('#filters').innerHTML=FILTERS.map(([k,l,f])=>`<button data-f="${k}" class="${FILTER===k?'on':''}">${ico(k==='all'?'i-grid':k==='missing'?'i-alert':k==='error'?'i-x':k==='backups'?'i-copy':'i-hist',17)}${l}<span class="n">${GROUPS.filter(f).length}</span></button>`).join('');
@@ -369,7 +436,7 @@ function renderKpis(){
   const healthy=GROUPS.length?GROUPS.filter(g=>!g.missing&&!g.error).length/GROUPS.length:0;
   const N=46,cx=110,cy=110,R1=78,R2=100;let s='';
   for(let i=0;i<=N;i++){const a=Math.PI*(1-i/N),on=i/N<=healthy&&GROUPS.length,len=i%5===0?0:6;
-    s+=`<line x1="${(cx+(R1+len)*Math.cos(a)).toFixed(1)}" y1="${(cy-(R1+len)*Math.sin(a)).toFixed(1)}" x2="${(cx+R2*Math.cos(a)).toFixed(1)}" y2="${(cy-R2*Math.sin(a)).toFixed(1)}" style="stroke:${on?'var(--ink)':'var(--line3)'}" stroke-width="2" stroke-linecap="round"/>`}
+    s+=`<line x1="${(cx+(R1+len)*Math.cos(a)).toFixed(1)}" y1="${(cy-(R1+len)*Math.sin(a)).toFixed(1)}" x2="${(cx+R2*Math.cos(a)).toFixed(1)}" y2="${(cy-R2*Math.sin(a)).toFixed(1)}" style="stroke:${on?'var(--mint-deep)':'var(--line3)'}" stroke-width="2" stroke-linecap="round"/>`}
   $('#gauge').innerHTML=s;$('#gv').textContent=Math.round(healthy*100)+'%';
   $('#kFiles').textContent=GROUPS.reduce((a,g)=>a+g.count,0).toLocaleString('es');
   $('#kHours').textContent=Math.round(GROUPS.reduce((a,g)=>a+hours(g),0)).toLocaleString('es')+' h'}
@@ -396,27 +463,37 @@ function buildTree(list){const root={name:'',path:'',kids:new Map(),groups:[]};
   // compactar cadenas de carpetas con un solo hijo y sin proyectos (A:\ > Musica > FL -> "A:\Musica\FL")
   (function compact(n){for(const [k,c] of [...n.kids]){let x=c;while(!x.groups.length&&x.kids.size===1){const only=[...x.kids.values()][0];only.label=(x.label||x.name)+'\\'+(only.label||only.name);x=only}
     if(x!==c){n.kids.delete(k);n.kids.set(x.path.toLowerCase(),x)}compact(x)}})(root);
-  (function stats(n){const all=[...n.groups];n.kids.forEach(c=>{stats(c);all.push(...c.all)});n.all=all;
-    n.mtime=Math.max(0,...all.map(g=>g.mtime));n.miss=all.filter(g=>g.missing||g.error).length;
-    n.util=all.filter(g=>g.mark==='util').length;n.desc=all.filter(g=>g.mark==='descartar').length})(root);
-  return root}
+  treeStats(root);return root}
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let GRP=store.get('flpm.grp')||'folder',LAY=store.get('flpm.lay')||'list';
+function treeStats(n){const all=[...n.groups];n.kids.forEach(c=>{treeStats(c);all.push(...c.all)});n.all=all;
+  n.mtime=Math.max(0,...all.map(g=>g.mtime));n.miss=all.filter(g=>g.missing||g.error).length;
+  n.util=all.filter(g=>g.mark==='util').length;n.desc=all.filter(g=>g.mark==='descartar').length}
+function buildDateTree(list){const root={name:'',path:'',kids:new Map(),groups:[]};
+  list.forEach(g=>{const d=new Date(g.mtime*1000),y=String(d.getFullYear()),mk=y+'-'+String(d.getMonth()+1).padStart(2,'0');
+    if(!root.kids.has(y))root.kids.set(y,{name:y,path:'@'+y,kids:new Map(),groups:[]});const Y=root.kids.get(y);
+    if(!Y.kids.has(mk))Y.kids.set(mk,{name:MESES[d.getMonth()]+' '+y,path:'@'+mk,kids:new Map(),groups:[]});Y.kids.get(mk).groups.push(g)});
+  treeStats(root);return root}
+const kidSort=(a,b)=>GRP==='date'&&$('#sort').value!=='count'&&$('#sort').value!=='missing'?b.path.localeCompare(a.path):folderSort(a,b);
 function folderSort(a,b){const s=$('#sort').value;return s==='name'?(a.label||a.name).localeCompare(b.label||b.name):s==='count'?b.all.length-a.all.length:s==='missing'?b.miss-a.miss:b.mtime-a.mtime}
 function prow(g){return `<div class="prow ${g.key===ACTIVE?'act':''}" data-k="${esc(g.key)}"><span class="pn"><b style="font-weight:600">${esc(g.name)}</b></span>
   <span class="meta"><span class="chip">${ico('i-cal',12)}${fmtS(g.mtime)}</span><span class="ic" title="Versiones">${ico('i-copy',13)}${g.count}</span>
   ${g.missing?`<span class="ic warn">${ico('i-alert',13)}${g.missing}</span>`:''}${g.error?`<span class="ic bad">${ico('i-x',13)}</span>`:''}</span>${markTag(g.mark)}</div>`}
-function folderHtml(n,depth){const kids=[...n.kids.values()].sort(folderSort),open=OPEN.has(n.path.toLowerCase()),tot=n.all.length,rev=tot-n.util-n.desc-0;
+function folderHtml(n,depth){const kids=[...n.kids.values()].sort(kidSort),open=OPEN.has(n.path.toLowerCase()),tot=n.all.length,rev=tot-n.util-n.desc-0;
   const groups=n.groups.slice().sort((a,b)=>folderSort({name:a.name,all:[a],mtime:a.mtime,miss:a.missing},{name:b.name,all:[b],mtime:b.mtime,miss:b.missing}));
   return `<div class="fold ${open?'open':''}" data-p="${esc(n.path.toLowerCase())}">
    <div class="fh"><span class="chev">${ico('i-arrow',15)}</span>${ico('i-folder',19)}
-    <div style="min-width:0"><div class="fname">${esc(n.label||n.name)}</div>${depth===0&&(n.label||n.name)!==n.path?`<div class="fpath">${esc(n.path)}</div>`:''}</div>
-    <div class="fstats"><span class="facts"><button data-fa="util" title="Marcar todo como útil">${ico('i-check',12)}Útil</button><button data-fa="descartar" title="Marcar todo para descartar">${ico('i-x',12)}Descartar</button><button data-fa="reveal" title="Abrir carpeta">${ico('i-folder',12)}</button></span>
-     <span class="minibar" title="${n.util} útiles · ${n.desc} descartar · ${rev} por revisar"><i style="width:${n.util/tot*100}%;background:var(--ink)"></i><i style="width:${n.desc/tot*100}%;background:var(--line3)"></i></span>
+    <div style="min-width:0"><div class="fname">${esc(n.label||n.name)}</div>${depth===0&&GRP!=='date'&&(n.label||n.name)!==n.path?`<div class="fpath">${esc(n.path)}</div>`:''}</div>
+    <div class="fstats"><span class="facts"><button data-fa="util" title="Marcar todo como útil">${ico('i-check',12)}Útil</button><button data-fa="descartar" title="Marcar todo para descartar">${ico('i-x',12)}Descartar</button>${GRP==='date'?'':`<button data-fa="reveal" title="Abrir carpeta">${ico('i-folder',12)}</button>`}</span>
+     <span class="minibar" title="${n.util} útiles · ${n.desc} descartar · ${rev} por revisar"><i style="width:${n.util/tot*100}%;background:var(--mint-deep)"></i><i style="width:${n.desc/tot*100}%;background:var(--line3)"></i></span>
      <span><b>${tot}</b> proyecto${tot>1?'s':''}</span>${n.miss?`<span class="warn">${ico('i-alert',13)} ${n.miss}</span>`:''}<span>${fmtS(n.mtime)}</span></div></div>
    <div class="fb">${open?kids.map(c=>folderHtml(c,depth+1)).join('')+groups.map(prow).join(''):''}</div></div>`}
 let TREE=null;
 function renderFolders(list){if(!GROUPS.length){$('#folders').innerHTML=`<div class="empty">Aún no hay proyectos.<br><br><button class="pri" onclick="show('drives')">${ico('i-scan',16)}Escanear unidades</button></div>`;return}
-  TREE=buildTree(list);const tops=[...TREE.kids.values()].sort(folderSort);
-  $('#foldInfo').textContent=`${list.length} proyectos en ${countFolders(TREE)} carpetas`;
+  TREE=GRP==='date'?buildDateTree(list):buildTree(list);const tops=[...TREE.kids.values()].sort(kidSort);
+  $$('#grpseg button').forEach(b=>b.classList.toggle('on',b.dataset.g===GRP));$$('#layseg button').forEach(b=>b.classList.toggle('on',b.dataset.l===LAY));
+  $('#folders').classList.toggle('grid',LAY==='grid');
+  $('#foldInfo').textContent=GRP==='date'?`${list.length} proyectos en ${TREE.kids.size} año(s)`:`${list.length} proyectos en ${countFolders(TREE)} carpetas`;
   $('#folders').innerHTML=tops.map(n=>folderHtml(n,0)).join('')+TREE.groups.map(prow).join('')||'<div class="empty">Nada coincide con el filtro.</div>';
   bindFolders()}
 const countFolders=n=>[...n.kids.values()].reduce((a,c)=>a+1+countFolders(c),0);
@@ -424,19 +501,21 @@ function findNode(n,p){if(n.path.toLowerCase()===p)return n;for(const c of n.kid
 function bindFolders(){
   $$('#folders .fh').forEach(h=>h.onclick=e=>{if(e.target.closest('[data-fa]'))return;const f=h.parentElement,p=f.dataset.p;
     OPEN.has(p)?OPEN.delete(p):OPEN.add(p);saveOpen();
-    const n=findNode(TREE,p);if(!f.classList.contains('open')&&n){const kids=[...n.kids.values()].sort(folderSort);
+    const n=findNode(TREE,p);if(!f.classList.contains('open')&&n){const kids=[...n.kids.values()].sort(kidSort);
       f.querySelector(':scope>.fb').innerHTML=kids.map(c=>folderHtml(c,1)).join('')+n.groups.slice().sort((a,b)=>b.mtime-a.mtime).map(prow).join('');bindFolders()}
     f.classList.toggle('open')});
   $$('#folders [data-fa]').forEach(b=>b.onclick=async e=>{e.stopPropagation();const n=findNode(TREE,b.closest('.fold').dataset.p);if(!n)return;
     const paths=n.all.flatMap(g=>g.members.map(m=>m.path)),a=b.dataset.fa;
     if(a==='reveal'){await api('/api/reveal',{paths:[n.all[0].latest]});return}
     if(!await ask(a==='util'?'Marcar carpeta como útil':'Marcar carpeta para descartar',`${n.all.length} proyecto(s) de "${n.label||n.name}" se marcarán como ${a==='util'?'útiles':'para descartar'}.`,'Marcar'))return;
-    await api('/api/mark',{paths,status:a});toast(`${n.all.length} proyecto(s) marcados`);loadProjects()});
+    await mark(paths,a);toast(`${n.all.length} proyecto(s) marcados`)});
   $$('#folders .prow').forEach(r=>{if(r._b)return;r._b=1;r.onclick=e=>{e.stopPropagation();openDrawer(GROUPS.find(g=>g.key===r.dataset.k))}})}
 $('#foldExpand').onclick=()=>{(function add(n){n.kids.forEach(c=>{OPEN.add(c.path.toLowerCase());add(c)})})(TREE);saveOpen();render()};
+$$('#grpseg button').forEach(b=>b.onclick=()=>{GRP=b.dataset.g;store.set('flpm.grp',GRP);render()});
+$$('#layseg button').forEach(b=>b.onclick=()=>{LAY=b.dataset.l;store.set('flpm.lay',LAY);render()});
 $('#foldCollapse').onclick=()=>{OPEN.clear();saveOpen();render()};
 $$('#viewseg button').forEach(b=>b.onclick=()=>{MODE=b.dataset.m;store.set('flpm.mode2',MODE);render()});
-$('#q').oninput=render;$('#sort').onchange=render;
+let QT;$('#q').oninput=()=>{clearTimeout(QT);QT=setTimeout(render,180)};$('#sort').onchange=render;
 
 function card(g){const dark=g.key===ACTIVE,ghost=g.mark==='descartar';
   const folder=(g.latest.split(/[\\/]/).slice(0,-1).join('\\'));
@@ -452,17 +531,17 @@ function card(g){const dark=g.key===ACTIVE,ghost=g.mark==='descartar';
 function renderBoard(list){
   if(!GROUPS.length){$('#board').innerHTML=`<div class="empty" style="grid-column:1/-1">Aún no hay proyectos.<br><br><button class="pri" onclick="show('drives')">${ico('i-scan',16)}Escanear unidades</button></div>`;return}
   $('#board').innerHTML=LANES.map(([k,l])=>{const items=list.filter(g=>laneOf(g)===k),lim=LIMIT[k]||40;
-    return `<div><div class="colh"><h3>${l}</h3><span class="cnt">${items.length}</span></div>
+    return `<div><div class="colh"><h3><span class="lico ${k}">${ico({pendiente:'i-clock',util:'i-check',descartar:'i-x',problemas:'i-alert'}[k],15)}</span>${l}</h3><span class="cnt">${items.length}</span></div>
      <div class="lane" data-lane="${k}">${items.slice(0,lim).map(card).join('')||`<div class="empty" style="padding:30px 10px">${k==='problemas'?'Sin problemas 🎉':'Arrastra proyectos aquí'}</div>`}
      ${items.length>lim?`<button class="more" data-more="${k}">Ver ${Math.min(40,items.length-lim)} más (${items.length-lim} restantes)</button>`:''}</div></div>`}).join('');
   $$('.card').forEach(c=>{c.onclick=()=>openDrawer(GROUPS.find(g=>g.key===c.dataset.k));
     c.ondragstart=e=>{e.dataTransfer.setData('text/plain',c.dataset.k);c.style.opacity=.4};c.ondragend=()=>c.style.opacity=''});
   $$('.lane').forEach(l=>{l.ondragover=e=>{e.preventDefault();l.classList.add('over')};l.ondragleave=()=>l.classList.remove('over');
     l.ondrop=async e=>{e.preventDefault();l.classList.remove('over');const g=GROUPS.find(x=>x.key===e.dataTransfer.getData('text/plain'));if(!g)return;
-      const st=l.dataset.lane==='problemas'?'pendiente':l.dataset.lane;await api('/api/mark',{paths:g.members.map(m=>m.path),status:st});toast(`"${g.name}" → ${LANES.find(x=>x[0]===l.dataset.lane)[1]}`);loadProjects()}});
+      const st=l.dataset.lane==='problemas'?'pendiente':l.dataset.lane;await mark(g.members.map(m=>m.path),st);toast(`"${g.name}" → ${LANES.find(x=>x[0]===l.dataset.lane)[1]}`)}});
   $$('[data-more]').forEach(b=>b.onclick=()=>{LIMIT[b.dataset.more]=(LIMIT[b.dataset.more]||40)+40;render()})}
 
-const markTag=m=>m==='util'?'<span class="tag dark">Útil</span>':m==='descartar'?'<span class="tag">Descartar</span>':'<span class="tag cream">Por revisar</span>';
+const markTag=m=>m==='util'?`<span class="tag dark">${ico('i-check',11)}Útil</span>`:m==='descartar'?`<span class="tag">${ico('i-x',11)}Descartar</span>`:`<span class="tag cream">${ico('i-clock',11)}Por revisar</span>`;
 function renderList(list){
   $('#rows').innerHTML=list.length?list.slice(0,400).map(g=>`<tr data-k="${esc(g.key)}"><td><div class="pn">${esc(g.name)}</div><div class="pp">${esc(g.latest)}</div></td>
    <td>${g.count}${g.backups?` <span class="tag">${g.backups} backup</span>`:''}</td><td>${fmtD(g.mtime)}</td><td>${esc((g.version||'').split('.').slice(0,2).join('.'))||'—'}</td>
@@ -477,26 +556,26 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
    <div style="color:var(--text2);margin-bottom:16px">${g.count} archivo(s) · modificado ${fmtD(g.mtime)}${hours(g)?` · ${hours(g)} h trabajadas`:''}</div>
    <div class="topbar"><button class="${g.mark==='util'?'pri':'sec'}" data-a="mark" data-s="util">${ico('i-check',15)}Útil</button>
    <button class="${g.mark==='descartar'?'pri':'sec'}" data-a="mark" data-s="descartar">${ico('i-x',15)}Descartar</button>
-   <button class="${g.mark==='pendiente'?'pri':'sec'}" data-a="mark" data-s="pendiente">Por revisar</button>
+   <button class="${g.mark==='pendiente'?'pri':'sec'}" data-a="mark" data-s="pendiente">${ico('i-clock',15)}Por revisar</button>
    <button class="sec danger" data-a="delall" style="margin-left:auto">${ico('i-trash',15)}Borrar</button></div>`;
   $('#db').innerHTML=`<div class="lab" style="margin-top:4px">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea>
    <div class="lab">Archivos (${g.count})</div>`+g.members.map((m,i)=>`<div class="file ${m.latest?'latest':''}">
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><b style="font-weight:600;word-break:break-word">${esc(m.name)}</b>
      <span style="white-space:nowrap">${m.latest?'<span class="tag dark">Más reciente</span>':''}${m.primary&&!m.latest?'<span class="tag cream">Principal</span>':''}${m.backup?'<span class="tag">Backup</span>':''}${m.error?'<span class="tag b">Error</span>':m.missing.length?`<span class="tag w">${m.missing.length} faltan</span>`:'<span class="tag g">OK</span>'}</span></div>
     <div class="pp" style="max-width:none;white-space:normal;word-break:break-all;margin-top:4px">${esc(m.path)}</div>
-    <div class="kv"><div>FL Studio<b>${esc(m.version||'—')}</b></div><div>Tempo<b>${m.tempo?m.tempo+' BPM':'—'}</b></div><div>Tamaño<b>${fmtB(m.size)}</b></div>
-     <div>Modificado<b>${fmtD(m.mtime)}</b></div><div>Creado<b>${fmtD(m.created)}</b></div><div>Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
-     <div>Canales<b>${m.channels}</b></div><div>Patterns<b>${m.patterns}</b></div><div>Samples<b>${m.samples}</b></div></div>
+    <div class="kv"><div>${ico('i-hdd',12)}FL Studio<b>${esc(m.version||'—')}</b></div><div>${ico('i-music',12)}Tempo<b>${m.tempo?m.tempo+' BPM':'—'}</b></div><div>${ico('i-copy',12)}Tamaño<b>${fmtB(m.size)}</b></div>
+     <div>${ico('i-cal',12)}Modificado<b>${fmtD(m.mtime)}</b></div><div>${ico('i-cal',12)}Creado<b>${fmtD(m.created)}</b></div><div>${ico('i-clock',12)}Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
+     <div>${ico('i-list',12)}Canales<b>${m.channels}</b></div><div>${ico('i-grid',12)}Patterns<b>${m.patterns}</b></div><div>${ico('i-wave',12)}Samples<b>${m.samples}</b></div></div>
     ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
-    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-play',13)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('');
+    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('');
   $('#drawer').classList.add('on');$('#scrim').classList.add('on');$('#dx').onclick=closeDrawer;
-  pollPreviews(g);
+  for(const k in PVS)delete PVS[k];pollPreviews(g);
   $('#note').onchange=async e=>{await api('/api/mark',{paths:all,note:e.target.value});toast('Nota guardada')};
   $$('#drawer [data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a,m=g.members[b.dataset.i];
     if(a==='open'){await api('/api/open',{paths:[m.path]});toast('Abriendo en FL Studio…')}
     if(a==='reveal')await api('/api/reveal',{paths:[m.path]});
     if(a==='bounce'){b.disabled=true;await api('/api/preview',{paths:[m.path]});pollPreviews(g)}
-    if(a==='mark'){await api('/api/mark',{paths:all,status:b.dataset.s});toast('Marcado');loadProjects()}
+    if(a==='mark'){await mark(all,b.dataset.s);toast('Marcado')}
     if(a==='del'&&await ask('Enviar a la Papelera',m.path+'\n\nPodrás recuperarlo desde la Papelera de reciclaje.','Enviar a Papelera')){const r=await api('/api/delete',{paths:[m.path]});toast(r.deleted?'Enviado a la Papelera':'No se pudo borrar');loadProjects()}
     if(a==='delall'&&await ask('Borrar proyecto completo',`Los ${g.count} archivo(s) de "${g.name}" irán a la Papelera de reciclaje.`,'Enviar a Papelera')){const r=await api('/api/delete',{paths:all});toast(r.deleted+' archivo(s) a la Papelera');closeDrawer();loadProjects()}})}
 /* ---------- bounce preview ---------- */
@@ -515,7 +594,7 @@ async function pollPreviews(g){clearTimeout(PVT);if(ACTIVE!==g.key)return;let st
      :s.state==='error'?`<div class="perr">${esc(s.error)}</div>`:''});
   if(busy)PVT=setTimeout(()=>pollPreviews(g),1000)}
 function closeDrawer(){clearTimeout(PVT);$$('#drawer audio').forEach(a=>a.pause());for(const k in PVS)delete PVS[k];ACTIVE=null;$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');$$('.card.dark').forEach(c=>c.classList.remove('dark'));$$('.prow.act').forEach(r=>r.classList.remove('act'))}
-$('#scrim').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();$('#modal').classList.remove('on')}});
+$('#scrim').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#modal').classList.contains('on'))$('#mno').click();else closeDrawer()}});
 
 /* ---------- unidades ---------- */
 const selDrives=new Set(JSON.parse(store.get('flpm.drives')||'[]'));
@@ -559,10 +638,18 @@ async function refreshJobs(){let s;try{s=await api('/api/status')}catch{return}
   const finished=s.jobs.filter(j=>j.state==='done'&&prev[j.root]&&prev[j.root].state==='running');
   if(finished.length){toast('Escaneo terminado: '+finished.map(j=>j.root).join(', '));loadProjects()}
   if($('#v-drives').classList.contains('on'))renderDrives();
-  if(s.running&&!POLLING){POLLING=true;setTimeout(()=>{POLLING=false;refreshJobs()},700)}
-  if(s.running&&$('#v-projects').classList.contains('on')&&Date.now()-(refreshJobs._p||0)>4000){refreshJobs._p=Date.now();loadProjects()}}
+  const onDrives=$('#v-drives').classList.contains('on');
+  if(s.running&&!POLLING&&!document.hidden){POLLING=true;setTimeout(()=>{POLLING=false;refreshJobs()},onDrives?1000:3000)}
+  if(s.running&&$('#v-projects').classList.contains('on')&&Date.now()-(refreshJobs._p||0)>8000){refreshJobs._p=Date.now();loadProjects()}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshJobs()});
 const poll=refreshJobs;
 $('#scanBtn').onclick=async()=>{if(!selDrives.size)return toast('Selecciona al menos una unidad');await api('/api/scan',{roots:[...selDrives]});toast('Escaneo iniciado');refreshJobs()};
+
+/* ---------- limpiar backups ---------- */
+$('#cleanBk').onclick=async()=>{const r=await api('/api/backups');if(!r.items.length)return toast('No hay backups innecesarios');
+  const ex=r.items.slice(0,6).map(x=>'• '+x.path.split('\\').slice(-3).join('\\')).join('\n');
+  if(!await ask('Limpiar backups innecesarios',`${r.items.length} backup(s) · ${fmtB(r.size)}\n\nSolo autoguardados más antiguos que el archivo principal del mismo proyecto y en su misma carpeta. Irán a la Papelera de reciclaje.\n\n${ex}${r.items.length>6?'\n…':''}`,'Enviar a Papelera'))return;
+  const d=await api('/api/backups/clean',{paths:r.items.map(x=>x.path)});toast(d.deleted+' backup(s) a la Papelera');loadProjects()};
 
 /* ---------- organizar ---------- */
 $('#dest').value=store.get('flpm.dest')||'';
@@ -591,8 +678,7 @@ api('/api/version').then(v=>{$('#ver').textContent=v.current;if(!v.available)ret
   $('#updT').textContent='Versión '+v.latest+' disponible';$('#updN').textContent=(v.notes||'').replace(/\*\*/g,'').slice(0,140);
   $('#updBtn').onclick=async()=>{$('#updBtn').disabled=true;$('#updBtn').textContent='Descargando…';
     try{const r=await api('/api/update',{});$('#updBtn').textContent=r.restarting?'Reiniciando…':'No se pudo actualizar'}catch(e){$('#updBtn').textContent='Error: '+e.message}}}).catch(()=>{});
-api('/api/drives').then(d=>$('#flinfo').textContent=d.fl.exe||'FL Studio no detectado').catch(()=>{});
-api('/api/drives').then(d=>{DRIVES=d.drives;refreshJobs();const h=location.hash.slice(1);if(['drives','organize'].includes(h))show(h)}).catch(()=>{});
+api('/api/drives').then(d=>{$('#flinfo').textContent=d.fl.exe||'FL Studio no detectado';DRIVES=d.drives;refreshJobs();const h=location.hash.slice(1);if(['drives','organize'].includes(h))show(h)}).catch(()=>{});
 loadProjects();
 </script>
 </body>

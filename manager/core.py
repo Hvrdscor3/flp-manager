@@ -286,6 +286,8 @@ class Manager:
         self.jobs = {}         # root -> ScanJob
         self.fs = None         # cache de carpetas para samples (por sesion de escaneo)
         self._last_save = 0.0
+        self.rev = 1           # sube con cada cambio de proyectos/marcas
+        self._listing = (0, None)
         self._load()
 
     def _load(self):
@@ -307,6 +309,9 @@ class Manager:
                 self.jobs = {d["root"]: ScanJob.from_dict(d) for d in json.load(f)}
         except (OSError, ValueError, KeyError):
             pass
+
+    def touch(self):
+        self.rev += 1
 
     def save(self):
         with self.lock:
@@ -414,9 +419,10 @@ class Manager:
                     else:
                         with self.lock:
                             self.projects[path] = res
+                            self.rev += 1
                         j.analyzed += 1
                 j.elapsed = time.time() - t0
-                if time.time() - self._last_save > 5:
+                if time.time() - self._last_save > 15:
                     self.save()
             if j.pause.is_set():
                 j.state = "paused"
@@ -425,6 +431,7 @@ class Manager:
                 with self.lock:  # quitar proyectos que ya no existen bajo esta raiz
                     for p in [p for p in self.projects if p.lower().startswith(rootl) and p not in seen]:
                         del self.projects[p]
+                    self.rev += 1
                 j.state, j.dirs, j.files = "done", [], []
         except Exception as e:  # noqa: BLE001
             j.state, j.error = "error", str(e)
@@ -435,6 +442,14 @@ class Manager:
 
     # ---- vista
     def listing(self):
+        rev = self.rev
+        if self._listing[0] == rev:
+            return self._listing[1]
+        out = self._build_listing()
+        self._listing = (rev, out)
+        return out
+
+    def _build_listing(self):
         with self.lock:
             items = [dict(v) for v in self.projects.values()]
         groups = {}
@@ -469,6 +484,7 @@ class Manager:
                     m["status"] = status
                 if note is not None:
                     m["note"] = note
+            self.rev += 1
         self.save()
 
     # ---- organizar
@@ -510,6 +526,7 @@ class Manager:
             except OSError as e:
                 errors.append("%s: %s" % (src, e))
         self.undo = [] if copy else done
+        self.touch()
         self.save()
         return {"moved": len(done), "errors": errors}
 
@@ -534,6 +551,7 @@ class Manager:
             except OSError as e:
                 errors.append("%s: %s" % (dst, e))
         self.undo = []
+        self.touch()
         self.save()
         return {"restored": n, "errors": errors}
 
@@ -548,8 +566,32 @@ class Manager:
                     self.marks.pop(p, None)
             else:
                 errors.append(p)
+        self.touch()
         self.save()
         return {"deleted": len(ok), "errors": errors}
+
+    # ---- backups innecesarios
+    def backup_candidates(self):
+        """Backups que sobran: copia automatica (autosave/overwritten o carpeta Backup) MAS ANTIGUA
+        que el archivo principal del mismo proyecto, en su misma carpeta o en su subcarpeta Backup.
+        Nunca se proponen si el principal no se puede leer o si el backup es mas nuevo."""
+        out = []
+        for g in self.listing():
+            mains = [m for m in g["members"] if not m["backup"] and not m["error"]]
+            for b in g["members"]:
+                if not b["backup"]:
+                    continue
+                base = _AUTOSAVE.sub("", b["name"]).strip().lower()
+                bdir = b["dir"].lower()
+                for m in mains:
+                    mdir = m["dir"].lower()
+                    if m["name"].strip().lower() != base or bdir not in (mdir, mdir + "\\backup"):
+                        continue
+                    if b["mtime"] < m["mtime"]:
+                        out.append({"path": b["path"], "size": b["size"], "group": g["name"],
+                                    "main": m["path"]})
+                        break
+        return out
 
 
 def _safe(name):
