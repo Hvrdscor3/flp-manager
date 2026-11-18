@@ -74,6 +74,15 @@ class Handler(BaseHTTPRequestHandler):
                 roots = [d["root"] for d in core.list_drives()]
                 sel = [r for r in body.get("roots", []) if r in roots or os.path.isdir(r)]
                 return self._send(200, {"started": MGR.start_scan(sel)})
+            if p == "/api/scan/pause":
+                for r in body.get("roots", []):
+                    MGR.pause_scan(r)
+                return self._send(200, {"ok": True})
+            if p == "/api/scan/forget":
+                for r in body.get("roots", []):
+                    if r in MGR.jobs:
+                        MGR.forget_scan(r)
+                return self._send(200, {"ok": True})
             if p == "/api/open":
                 for x in _paths(body)[:1]:
                     core.open_in_fl(x)

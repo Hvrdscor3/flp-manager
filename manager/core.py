@@ -11,11 +11,13 @@ import subprocess
 import sys
 import threading
 import time
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from ctypes import wintypes
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 import flpraw as F  # noqa: E402
+import fastscan  # noqa: E402
 
 DATA_DIR = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "FLP Manager")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -173,14 +175,85 @@ def is_backup(path):
 
 
 # ------------------------------------------------------------------ estado
+SCANS_FILE = os.path.join(DATA_DIR, "scans.json")
+WALK_THREADS, ANALYZE_THREADS = 12, 8
+_WALK_POOL = ThreadPoolExecutor(WALK_THREADS, thread_name_prefix="walk")
+_AN_POOL = ThreadPoolExecutor(ANALYZE_THREADS, thread_name_prefix="analyze")
+
+
+def placeholders():
+    return {"%flstudiofactorydata%": os.path.dirname(FL["exe"]) if FL["exe"] else "",
+            "%flstudiouserdata%": FL["user"], "%userprofile%": os.path.expanduser("~")}
+
+
+def scan_dir(d):
+    """Lista una carpeta: (subcarpetas, [(ruta .flp, mtime, size)], excluidos)."""
+    subs, flps, excluded = [], [], 0
+    try:
+        with os.scandir(d) as it:
+            for e in it:
+                try:
+                    if e.is_dir(follow_symlinks=False):
+                        if e.name.lower() not in SKIP_DIRS:
+                            subs.append(e.path)
+                    elif e.name.lower().endswith(".flp"):
+                        if is_program_file(e.path):
+                            excluded += 1
+                        else:
+                            st = e.stat()  # en Windows viene gratis con scandir
+                            flps.append((e.path, st.st_mtime, st.st_size))
+                except OSError:
+                    pass
+    except OSError:
+        pass
+    return subs, flps, excluded
+
+
+class ScanJob:
+    """Escaneo de una unidad/carpeta: se puede pausar y continuar (incluso tras cerrar la app)."""
+    FIELDS = ("root", "state", "dirs", "files", "seen", "dirs_done", "found", "analyzed",
+              "cached", "excluded", "elapsed", "error")
+
+    def __init__(self, root):
+        self.root = root
+        self.state = "running"       # running | paused | done | error
+        self.dirs = [root]           # carpetas pendientes de listar
+        self.files = []              # .flp pendientes de analizar
+        self.seen = []               # .flp vistos en este escaneo
+        self.dirs_done = self.found = self.analyzed = self.cached = self.excluded = 0
+        self.elapsed = 0.0
+        self.error = ""
+        self.current = ""
+        self.pause = threading.Event()
+        self.thread = None
+
+    def to_dict(self, full=True):
+        d = {k: getattr(self, k) for k in self.FIELDS}
+        if not full:
+            d.update(dirs=len(self.dirs), files=len(self.files), seen=len(self.seen),
+                     current=self.current)
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        j = cls(d["root"])
+        for k in cls.FIELDS:
+            if k in d:
+                setattr(j, k, d[k])
+        if j.state == "running":   # la app se cerro a mitad: queda en pausa
+            j.state = "paused"
+        return j
+
+
 class Manager:
     def __init__(self):
         self.lock = threading.Lock()
         self.projects = {}     # path -> info
         self.marks = {}        # path -> {"status": util|descartar|pendiente, "note": ""}
         self.undo = []         # [[src, dst], ...] de la ultima organizacion
-        self.status = {"running": False, "phase": "", "found": 0, "done": 0,
-                       "current": "", "excluded": 0}
+        self.jobs = {}         # root -> ScanJob
+        self.fs = None         # cache de carpetas para samples (por sesion de escaneo)
+        self._last_save = 0.0
         self._load()
 
     def _load(self):
@@ -190,76 +263,138 @@ class Manager:
             self.projects = d.get("projects", {})
             self.marks = d.get("marks", {})
             self.undo = d.get("undo", [])
-            self.status["excluded"] = d.get("excluded", 0)
         except (OSError, ValueError):
+            pass
+        try:
+            with open(SCANS_FILE, encoding="utf-8") as f:
+                self.jobs = {d["root"]: ScanJob.from_dict(d) for d in json.load(f)}
+        except (OSError, ValueError, KeyError):
             pass
 
     def save(self):
         with self.lock:
-            d = {"projects": self.projects, "marks": self.marks, "undo": self.undo,
-                 "excluded": self.status["excluded"]}
-        tmp = DATA_FILE + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(d, f, ensure_ascii=False)
-        os.replace(tmp, DATA_FILE)
+            d = {"projects": self.projects, "marks": self.marks, "undo": self.undo}
+            data = json.dumps(d, ensure_ascii=False)
+            jobs = json.dumps([j.to_dict() for j in self.jobs.values()], ensure_ascii=False)
+        for path, txt in ((DATA_FILE, data), (SCANS_FILE, jobs)):
+            tmp = path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.write(txt)
+            os.replace(tmp, path)
+        self._last_save = time.time()
+
+    @property
+    def status(self):
+        jobs = [j.to_dict(full=False) for j in self.jobs.values()]
+        return {"running": any(j["state"] == "running" for j in jobs), "jobs": jobs,
+                "excluded": sum(j["excluded"] for j in jobs)}
 
     # ---- escaneo
     def start_scan(self, roots):
-        if self.status["running"]:
-            return False
-        threading.Thread(target=self._scan, args=(roots,), daemon=True).start()
+        """Inicia o continua el escaneo de cada raiz (las ya terminadas empiezan de nuevo)."""
+        for root in roots:
+            j = self.jobs.get(root)
+            if j and j.state == "running":
+                continue
+            if not j or j.state in ("done", "error"):
+                j = ScanJob(root)
+                self.jobs[root] = j
+            self._run(j)
         return True
 
-    def _scan(self, roots):
-        s = self.status
-        s.update(running=True, phase="Buscando .flp", found=0, done=0, current="", excluded=0)
-        files = []
+    def pause_scan(self, root):
+        j = self.jobs.get(root)
+        if j and j.state == "running":
+            j.pause.set()
+        return bool(j)
+
+    def forget_scan(self, root):
+        j = self.jobs.get(root)
+        if j and j.state == "running":
+            j.pause.set()
+            if j.thread:
+                j.thread.join(10)
+        self.jobs.pop(root, None)
+        self.save()
+
+    def _run(self, j):
+        if self.fs is None or not any(x.state == "running" for x in self.jobs.values()):
+            self.fs = fastscan.FsCache()   # cache fresca: refleja samples movidos/borrados
+        j.state, j.error = "running", ""
+        j.pause.clear()
+        j.thread = threading.Thread(target=self._worker, args=(j,), daemon=True)
+        j.thread.start()
+
+    def _worker(self, j):
+        ph, fs = placeholders(), self.fs
+        seen = set(j.seen)
+        inflight = {}            # future -> ("dir", ruta) | ("flp", ruta)
+        t0 = time.time() - j.elapsed
         try:
-            for root in roots:
-                stack = [root]
-                while stack:
-                    d = stack.pop()
-                    s["current"] = d
+            while True:
+                pausing = j.pause.is_set()
+                if not pausing:
+                    while j.files and sum(1 for k in inflight.values() if k[0] == "flp") < ANALYZE_THREADS * 2:
+                        path = j.files.pop()
+                        j.current = path
+                        inflight[_AN_POOL.submit(fastscan.analyze, path, fs, ph)] = ("flp", path)
+                    while j.dirs and sum(1 for k in inflight.values() if k[0] == "dir") < WALK_THREADS * 2:
+                        d = j.dirs.pop()
+                        j.current = d
+                        inflight[_WALK_POOL.submit(scan_dir, d)] = ("dir", d)
+                if not inflight:
+                    break
+                done, _ = wait(list(inflight), timeout=0.5, return_when=FIRST_COMPLETED)
+                for fut in done:
+                    kind, path = inflight.pop(fut)
                     try:
-                        with os.scandir(d) as it:
-                            for e in it:
-                                try:
-                                    if e.is_dir(follow_symlinks=False):
-                                        if e.name.lower() not in SKIP_DIRS:
-                                            stack.append(e.path)
-                                    elif e.name.lower().endswith(".flp"):
-                                        if is_program_file(e.path):
-                                            s["excluded"] += 1
-                                        else:
-                                            files.append(e.path)
-                                            s["found"] = len(files)
-                                except OSError:
-                                    pass
-                    except OSError:
-                        pass
-            s["phase"] = "Analizando proyectos"
-            scanned_roots = tuple(r.lower() for r in roots)
-            new = {}
-            for p in files:
-                s["current"] = p
-                old = self.projects.get(p)
-                try:
-                    st = os.stat(p)
-                except OSError:
-                    continue
-                if old and old["mtime"] == st.st_mtime and old["size"] == st.st_size:
-                    new[p] = old
-                else:
-                    new[p] = analyze(p)
-                s["done"] += 1
-            with self.lock:
-                for p in list(self.projects):
-                    if p.lower().startswith(scanned_roots):
+                        res = fut.result()
+                    except Exception as e:  # noqa: BLE001
+                        if kind == "flp":
+                            res = {"path": path, "name": os.path.splitext(os.path.basename(path))[0],
+                                   "dir": os.path.dirname(path), "size": 0, "mtime": 0,
+                                   "version": "", "tempo": None, "title": "", "created": None,
+                                   "worked_h": None, "channels": 0, "patterns": 0, "samples": 0,
+                                   "missing": [], "error": str(e)}
+                        else:
+                            res = ([], [], 0)
+                    if kind == "dir":
+                        subs, flps, excl = res
+                        j.dirs.extend(subs)
+                        j.dirs_done += 1
+                        j.excluded += excl
+                        for p, mt, sz in flps:
+                            if p in seen:
+                                continue
+                            seen.add(p)
+                            j.seen.append(p)
+                            j.found += 1
+                            old = self.projects.get(p)
+                            if old and old.get("mtime") == mt and old.get("size") == sz:
+                                j.cached += 1        # ya analizado y sin cambios: se omite
+                            else:
+                                j.files.append(p)
+                    else:
+                        with self.lock:
+                            self.projects[path] = res
+                        j.analyzed += 1
+                j.elapsed = time.time() - t0
+                if time.time() - self._last_save > 5:
+                    self.save()
+            if j.pause.is_set():
+                j.state = "paused"
+            else:
+                rootl = j.root.lower().rstrip("\\") + "\\"
+                with self.lock:  # quitar proyectos que ya no existen bajo esta raiz
+                    for p in [p for p in self.projects if p.lower().startswith(rootl) and p not in seen]:
                         del self.projects[p]
-                self.projects.update(new)
-            self.save()
+                j.state, j.dirs, j.files = "done", [], []
+        except Exception as e:  # noqa: BLE001
+            j.state, j.error = "error", str(e)
         finally:
-            s.update(running=False, phase="Listo", current="")
+            j.current = ""
+            j.elapsed = time.time() - t0
+            self.save()
 
     # ---- vista
     def listing(self):

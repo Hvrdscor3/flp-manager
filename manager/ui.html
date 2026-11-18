@@ -235,16 +235,10 @@ textarea:focus{border-color:var(--ink)}
 
     <!-- UNIDADES -->
     <section class="view" id="v-drives"><div class="content">
-      <h1>Unidades</h1><p class="sub">Elige dónde buscar. Los .flp de muestra que trae FL Studio se excluyen solos.</p>
+      <h1>Unidades</h1><p class="sub">Elige dónde buscar. Cada disco se escanea por separado: puedes pausarlo, escanear otro y continuar después, incluso tras cerrar la app. Los proyectos ya analizados y sin cambios se omiten.</p>
       <div class="drives" id="drives"></div>
-      <div class="panel">
-        <div class="topbar" style="justify-content:space-between">
-          <div class="topbar"><button class="pri" id="scanBtn"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear seleccionadas</button><span id="scanPhase" style="color:var(--muted)"></span></div>
-          <b id="scanCount" style="font-weight:600"></b>
-        </div>
-        <div class="scanbar"><div id="scanBar" style="width:0"></div></div>
-        <div class="mono" id="scanCur"></div>
-      </div>
+      <div class="topbar" style="margin-top:16px"><button class="pri" id="scanBtn"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear seleccionadas</button><span style="color:var(--muted)" id="scanHint"></span></div>
+      <div id="jobs"></div>
     </div></section>
 
     <!-- ORGANIZAR -->
@@ -398,18 +392,50 @@ $('#scrim').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key
 
 /* ---------- unidades ---------- */
 const selDrives=new Set(JSON.parse(store.get('flpm.drives')||'[]'));
-async function loadDrives(){const {drives,fl}=await api('/api/drives');
-  $('#flinfo').textContent=fl.exe?fl.exe:'FL Studio no detectado';
-  $('#drives').innerHTML=drives.map(d=>{const used=d.total?(1-d.free/d.total)*100:0,on=selDrives.has(d.root);
+let DRIVES=[],JOBS={},POLLING=false;
+const STATE={running:['Escaneando','tag dark'],paused:['En pausa','tag cream'],done:['Completo','tag g'],error:['Error','tag b']};
+const fmtT=s=>s<60?Math.round(s)+' s':Math.floor(s/60)+' min '+Math.round(s%60)+' s';
+async function loadDrives(){const {drives,fl}=await api('/api/drives');DRIVES=drives;
+  $('#flinfo').textContent=fl.exe?fl.exe:'FL Studio no detectado';await refreshJobs();}
+function jobLine(j){const st=STATE[j.state]||['',''];
+  return `<span class="${st[1]}">${st[0]}</span>${j.found?`<small>${(j.analyzed+j.cached).toLocaleString('es')} de ${j.found.toLocaleString('es')} proyectos</small>`:''}`}
+function jobBtns(j,root){if(!j)return '';
+  if(j.state==='running')return `<button class="sec" data-job="pause" data-r="${esc(root)}">Pausar</button>`;
+  if(j.state==='paused')return `<button class="pri" data-job="resume" data-r="${esc(root)}">Continuar</button><button class="sec" data-job="forget" data-r="${esc(root)}">Descartar progreso</button>`;
+  return `<button class="sec" data-job="resume" data-r="${esc(root)}">Escanear de nuevo</button>`}
+function renderDrives(){
+  $('#drives').innerHTML=DRIVES.map(d=>{const used=d.total?(1-d.free/d.total)*100:0,on=selDrives.has(d.root),j=JOBS[d.root];
    return `<div class="drive ${on?'sel':''}" data-r="${esc(d.root)}"><h3>${esc(d.root.slice(0,2))}<span class="chk">${on?ico('i-check',13):''}</span></h3>
-   <small>${esc(d.label)} · ${esc(d.type)}</small><div class="meter"><div style="width:${used.toFixed(0)}%"></div></div><small>${fmtB(d.free)} libres de ${fmtB(d.total)}</small></div>`}).join('');
-  $$('.drive').forEach(c=>c.onclick=()=>{const r=c.dataset.r;selDrives.has(r)?selDrives.delete(r):selDrives.add(r);store.set('flpm.drives',JSON.stringify([...selDrives]));loadDrives()})}
-$('#scanBtn').onclick=async()=>{if(!selDrives.size)return toast('Selecciona al menos una unidad');await api('/api/scan',{roots:[...selDrives]});poll()};
-async function poll(){const s=await api('/api/status');
-  $('#scanPhase').textContent=s.running?s.phase+'…':(s.phase||'');$('#scanCur').textContent=s.current||'';
-  $('#scanCount').textContent=s.found?`${s.done.toLocaleString('es')} / ${s.found.toLocaleString('es')} analizados · ${s.excluded} de FL excluidos`:'';
-  $('#scanBar').style.width=(s.found?s.done/s.found*100:(s.running?6:0))+'%';$('#scanBtn').disabled=s.running;
-  if(s.running)setTimeout(poll,600);else if(s.phase==='Listo'){toast('Escaneo terminado');show('projects')}}
+   <small>${esc(d.label)} · ${esc(d.type)}</small><div class="meter"><div style="width:${d.total>1e15?0:used.toFixed(0)}%"></div></div><small>${d.total>1e15||!d.total?'Espacio no disponible':fmtB(d.free)+' libres de '+fmtB(d.total)}</small>
+   ${d.type==='Red'||/drive|dropbox|cloud|onedrive/i.test(d.label)?'<div style="margin-top:8px;font-size:11.5px;color:var(--warn)">Nube: escanear puede descargar archivos</div>':''}
+   ${j?`<div style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">${jobLine(j)}</div>`:''}</div>`}).join('');
+  $$('.drive').forEach(c=>c.onclick=()=>{const r=c.dataset.r;selDrives.has(r)?selDrives.delete(r):selDrives.add(r);store.set('flpm.drives',JSON.stringify([...selDrives]));renderDrives()});
+  const list=Object.values(JOBS).sort((a,b)=>(a.state==='running'?0:1)-(b.state==='running'?0:1));
+  $('#jobs').innerHTML=list.map(j=>{const total=j.found+j.dirs,pct=j.state==='done'?100:total?Math.min(99,((j.analyzed+j.cached)/Math.max(1,j.found))*100*(j.dirs?0.85:1)):3;
+   return `<div class="panel"><div class="topbar" style="justify-content:space-between"><div class="topbar"><b style="font-size:17px;font-weight:600">${esc(j.root)}</b>${jobLine(j)}</div>
+    <div class="topbar">${jobBtns(j,j.root)}</div></div>
+    <div class="scanbar"><div style="width:${pct.toFixed(1)}%"></div></div>
+    <div class="topbar" style="gap:18px;color:#55554f;font-size:12.5px">
+     <span><b>${j.dirs_done.toLocaleString('es')}</b> carpetas${j.dirs?` (+${j.dirs.toLocaleString('es')} pendientes)`:''}</span>
+     <span><b>${j.found.toLocaleString('es')}</b> .flp encontrados</span><span><b>${j.analyzed.toLocaleString('es')}</b> analizados</span>
+     <span><b>${j.cached.toLocaleString('es')}</b> omitidos (ya analizados)</span><span><b>${j.excluded}</b> de FL excluidos</span>
+     <span style="margin-left:auto">${fmtT(j.elapsed||0)}</span></div>
+    ${j.state==='running'&&j.current?`<div class="mono" style="margin-top:8px">${esc(j.current)}</div>`:''}${j.error?`<div class="miss">${esc(j.error)}</div>`:''}</div>`}).join('');
+  $$('[data-job]').forEach(b=>b.onclick=async e=>{e.stopPropagation();const r=b.dataset.r,a=b.dataset.job;
+    if(a==='pause'){await api('/api/scan/pause',{roots:[r]});toast('Pausando '+r+'…')}
+    if(a==='resume'){await api('/api/scan',{roots:[r]})}
+    if(a==='forget'){if(!await ask('Descartar progreso',`Se olvidará el avance del escaneo de ${r}. Los proyectos ya analizados se conservan.`,'Descartar'))return;await api('/api/scan/forget',{roots:[r]})}
+    refreshJobs()});
+  $('#scanHint').textContent=selDrives.size?`${selDrives.size} unidad(es) seleccionada(s)`:'Toca una unidad para seleccionarla'}
+async function refreshJobs(){let s;try{s=await api('/api/status')}catch{return}
+  const prev=JOBS;JOBS=Object.fromEntries(s.jobs.map(j=>[j.root,j]));
+  const finished=s.jobs.filter(j=>j.state==='done'&&prev[j.root]&&prev[j.root].state==='running');
+  if(finished.length){toast('Escaneo terminado: '+finished.map(j=>j.root).join(', '));loadProjects()}
+  if($('#v-drives').classList.contains('on'))renderDrives();
+  if(s.running&&!POLLING){POLLING=true;setTimeout(()=>{POLLING=false;refreshJobs()},700)}
+  if(s.running&&$('#v-projects').classList.contains('on')&&Date.now()-(refreshJobs._p||0)>4000){refreshJobs._p=Date.now();loadProjects()}}
+const poll=refreshJobs;
+$('#scanBtn').onclick=async()=>{if(!selDrives.size)return toast('Selecciona al menos una unidad');await api('/api/scan',{roots:[...selDrives]});toast('Escaneo iniciado');refreshJobs()};
 
 /* ---------- organizar ---------- */
 $('#dest').value=store.get('flpm.dest')||'';
@@ -439,7 +465,7 @@ api('/api/version').then(v=>{$('#ver').textContent=v.current;if(!v.available)ret
   $('#updBtn').onclick=async()=>{$('#updBtn').disabled=true;$('#updBtn').textContent='Descargando…';
     try{const r=await api('/api/update',{});$('#updBtn').textContent=r.restarting?'Reiniciando…':'No se pudo actualizar'}catch(e){$('#updBtn').textContent='Error: '+e.message}}}).catch(()=>{});
 api('/api/drives').then(d=>$('#flinfo').textContent=d.fl.exe||'FL Studio no detectado').catch(()=>{});
-api('/api/status').then(s=>{if(s.running){show('drives');poll()}}).catch(()=>{});
+api('/api/drives').then(d=>{DRIVES=d.drives;refreshJobs();const h=location.hash.slice(1);if(['drives','organize'].includes(h))show(h)}).catch(()=>{});
 loadProjects();
 </script>
 </body>
