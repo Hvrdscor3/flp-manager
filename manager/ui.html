@@ -120,8 +120,9 @@ h1{display:flex;align-items:center;gap:10px}h1 svg{color:var(--mint-deep)}
 .selbar.on{display:flex}.selbar select{background:#ffffff14;color:#E6E9EC;border:1px solid #ffffff2a;border-radius:8px;padding:5px 8px;font:inherit}
 .selbar .sec{background:#ffffff14;color:#E6E9EC;border-color:#ffffff2a;padding:6px 11px}
 /* reproductor */
-#player{position:fixed;left:264px;right:16px;bottom:14px;background:var(--navy);color:#E6E9EC;border-radius:18px;padding:16px 18px;display:none;align-items:center;gap:16px;z-index:30;box-shadow:0 18px 50px #00203f55}
+#player{position:fixed;left:264px;right:16px;bottom:14px;background:var(--navy);color:#E6E9EC;border-radius:18px;padding:16px 18px;display:none;align-items:center;gap:16px;z-index:45;box-shadow:0 18px 50px #00203f55}
 #player.on{display:flex}
+body:has(#player.on) .modal{padding-bottom:124px;box-sizing:border-box}body:has(#player.on) .modal>*{max-height:calc(100vh - 160px)}
 /* samples: agrupar por carpeta / cuadricula */
 #sView{display:flex;gap:8px;margin-left:12px}
 .sfold{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--cream);border-top:1px solid var(--line);min-width:0}
