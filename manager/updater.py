@@ -51,8 +51,9 @@ def check(force=False):
 def download_and_restart():
     """Descarga el nuevo .exe, programa el reemplazo y devuelve True (la app debe cerrarse)."""
     info = check()
-    if not (info["available"] and frozen()):
-        return False
+    if not (info["available"] and frozen()) or _cache.get("started"):
+        return bool(_cache.get("started"))
+    _cache["started"] = True
     exe = sys.executable
     new = exe + ".new"
     req = urllib.request.Request(info["url"], headers={"User-Agent": UA["User-Agent"]})
@@ -65,11 +66,24 @@ def download_and_restart():
     if os.path.getsize(new) < 1_000_000:  # descarga incompleta
         os.remove(new)
         raise IOError("Descarga incompleta")
+    # El .exe de PyInstaller son 2 procesos (lanzador + app): se espera a ambos y se
+    # reintenta el reemplazo hasta que Windows suelte el archivo.
+    pids = {os.getpid(), os.getppid()}
+    wait = "".join('tasklist /FI "PID eq %d" 2>nul | find " %d " >nul && goto w\n' % (p, p)
+                   for p in pids)
     bat = os.path.join(tempfile.gettempdir(), "flpm_update.bat")
-    with open(bat, "w", encoding="mbcs") as f:
-        f.write('@echo off\r\n:w\r\ntasklist /FI "PID eq %d" | find "%d" >nul && '
-                '(timeout /t 1 /nobreak >nul & goto w)\r\n'
-                'move /y "%s" "%s" >nul\r\nstart "" "%s"\r\ndel "%%~f0"\r\n'
-                % (os.getpid(), os.getpid(), new, exe, exe))
-    subprocess.Popen(["cmd", "/c", bat], creationflags=0x08000000 | 0x00000008)
+    with open(bat, "w", encoding="mbcs", newline="\r\n") as f:
+        f.write('@echo off\n'
+                ':w\nping -n 2 127.0.0.1 >nul\n' + wait +
+                'set n=0\n'
+                ':m\nmove /y "%s" "%s" >nul 2>&1 && goto ok\n'
+                'set /a n+=1\nif %%n%% gtr 30 goto ok\nping -n 2 127.0.0.1 >nul\ngoto m\n'
+                ':ok\nstart "" "%s"\ndel "%%~f0"\n' % (new, exe, exe))
+    # Entorno limpio: si el nuevo .exe hereda las variables de PyInstaller de este
+    # proceso, busca la carpeta temporal vieja y falla ("Failed to load Python DLL").
+    env = {k: v for k, v in os.environ.items() if not k.upper().startswith(("_PYI", "_MEI"))}
+    env["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    subprocess.Popen(["cmd", "/c", bat], creationflags=0x08000000 | 0x00000200, env=env,
+                     close_fds=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL)
     return True

@@ -1,6 +1,7 @@
 """Punto de entrada de FLP Manager.exe: ventana nativa (WebView2) sobre el servidor local."""
 import os
 import sys
+import threading
 import webbrowser
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -16,7 +17,6 @@ def main():
         webview = None
     if webview is None:
         webbrowser.open(url)
-        import threading
         threading.Event().wait()
         return
 
@@ -28,10 +28,13 @@ def main():
         return r[0] if r else ""
 
     def quit_app():
+        # destroy() desde otro hilo puede quedarse esperando a la UI: salida forzada igual.
+        threading.Timer(1.5, lambda: os._exit(0)).start()
         try:
             win.destroy()
-        finally:
-            os._exit(0)
+        except Exception:  # noqa: BLE001
+            pass
+        os._exit(0)
 
     server.HOOKS["pick_folder"] = pick_folder
     server.HOOKS["quit"] = quit_app
