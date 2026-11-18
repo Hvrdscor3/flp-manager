@@ -324,7 +324,7 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:var(--hover)}
 .dh h2{margin:0 0 4px;font-size:22px;font-weight:600;letter-spacing:-.01em;padding-right:36px}
 .x{position:absolute;right:20px;top:20px;width:32px;height:32px;border-radius:9px;display:grid;place-items:center}.x:hover{background:var(--cream2)}
 .db{padding:8px 24px 24px;overflow:auto;flex:1}
-.dtop{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:0 20px}.dtop textarea{min-height:44px}
+.dtop{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:0 20px;margin-top:10px;align-items:start}.dtop textarea{min-height:44px}
 .flist{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:14px;align-items:stretch}
 .flist .file{margin:0;padding:18px;display:flex;flex-direction:column}
 .flist .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto;padding-top:14px}
@@ -718,9 +718,7 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
    <button class="${g.mark==='descartar'?'pri':'sec'}" data-a="mark" data-s="descartar">${ico('i-x',15)}Descartar</button>
    <button class="${g.mark==='pendiente'?'pri':'sec'}" data-a="mark" data-s="pendiente">${ico('i-clock',15)}Por revisar</button>
    <button class="sec danger" data-a="delall" style="margin-left:auto">${ico('i-trash',15)}Borrar</button></div>`;
-  $('#db').innerHTML=`<div class="dtop"><div><div class="lab">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea></div>
-   <div><div class="lab">Plugins del proyecto</div><div id="pPlug"><button class="sec" id="pPlugBtn">${ico('i-plug',15)}Ver plugins y versiones</button></div></div></div>
-   <div class="lab">Archivos (${g.count})</div><div class="flist">`+g.members.map((m,i)=>`<div class="file ${m.latest?'latest':''}">
+  $('#db').innerHTML=`<div class="lab" style="margin-top:16px">Archivos (${g.count})</div><div class="flist">`+g.members.map((m,i)=>`<div class="file ${m.latest?'latest':''}">
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><b style="font-weight:600;word-break:break-word">${esc(m.name)}</b>
      <span style="white-space:nowrap">${m.latest?'<span class="tag dark">Más reciente</span>':''}${m.primary&&!m.latest?'<span class="tag cream">Principal</span>':''}${m.backup?'<span class="tag">Backup</span>':''}${m.error?'<span class="tag b">Error</span>':m.missing.length?`<span class="tag w">${m.missing.length} faltan</span>`:'<span class="tag g">OK</span>'}</span></div>
     <div class="pp" style="max-width:none;white-space:normal;word-break:break-all;margin-top:4px">${esc(m.path)}</div>
@@ -728,7 +726,8 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
      <div>${ico('i-cal',12)}Modificado<b>${fmtD(m.mtime)}</b></div><div>${ico('i-cal',12)}Creado<b>${fmtD(m.created)}</b></div><div>${ico('i-clock',12)}Trabajado<b>${m.worked_h!=null?m.worked_h+' h':'—'}</b></div>
      <div>${ico('i-list',12)}Canales<b>${m.channels}</b></div><div>${ico('i-grid',12)}Patterns<b>${m.patterns}</b></div><div>${ico('i-wave',12)}Samples<b>${m.samples}</b></div></div>
     ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
-    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec" data-a="ordenar" data-i="${i}" title="Junta automatizaciones, nombra y colorea pistas. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button>${m.missing.length?`<button class="sec" data-a="relink" data-i="${i}">${ico('i-unlink',15)}Reparar samples (${m.missing.length})</button>`:''}<button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('')+'</div>';
+    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="reveal" data-i="${i}">${ico('i-folder',15)}Mostrar</button><button class="sec" data-a="ordenar" data-i="${i}" title="Junta automatizaciones, nombra y colorea pistas. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button>${m.missing.length?`<button class="sec" data-a="relink" data-i="${i}">${ico('i-unlink',15)}Reparar samples (${m.missing.length})</button>`:''}<button class="sec danger" data-a="del" data-i="${i}">${ico('i-trash',15)}Papelera</button></div><div class="pv" data-pv="${i}"></div></div>`).join('')+'</div>'+`<div class="dtop"><div><div class="lab">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea></div>
+   <div><div class="lab">Plugins del proyecto</div><div id="pPlug"><button class="sec" id="pPlugBtn">${ico('i-plug',15)}Ver plugins y versiones</button></div></div></div>`;
   $('#drawer').classList.add('on');$('#scrim').classList.add('on');$('#dx').onclick=closeDrawer;
   for(const k in PVS)delete PVS[k];pollPreviews(g);
   $('#pPlugBtn').onclick=()=>projPlugins(p.path,$('#pPlug'));
