@@ -95,6 +95,26 @@ h1{font-size:24px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
 .chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line2);border-radius:7px;padding:2px 7px;font-size:11.5px;font-weight:500}
 .ic{display:inline-flex;align-items:center;gap:3px}
 .warn{color:var(--warn)}.bad{color:var(--bad)}.okc{color:var(--ok)}
+/* carpetas */
+.fold{border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;background:#fff;overflow:hidden}
+.fold .fold{border-radius:12px;margin:8px 0 0}
+.fh{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;user-select:none}
+.fh:hover{background:#fafaf6}
+.fold.open>.fh{background:var(--cream)}
+.fh .chev{transition:transform .2s;color:var(--muted);display:flex}
+.fold.open>.fh .chev{transform:rotate(90deg)}
+.fh .fname{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fh .fpath{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fh .fstats{margin-left:auto;display:flex;gap:12px;align-items:center;color:#55554f;font-size:12.5px;white-space:nowrap}
+.fh .facts{display:flex;gap:6px;opacity:0;transition:.15s}.fh:hover .facts,.fold.open>.fh .facts{opacity:1}
+.fh .facts button{border:1px solid var(--line2);background:#fff;border-radius:8px;padding:4px 9px;font-size:12px;font-weight:500;display:inline-flex;gap:5px;align-items:center}
+.fh .facts button:hover{border-color:#bdbdb4}
+.fb{padding:4px 16px 14px 42px;display:none}.fold.open>.fb{display:block}
+.prow{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;cursor:pointer}
+.prow:hover{background:var(--soft)}.prow.act{background:var(--ink);color:#fff}.prow.act .meta,.prow.act .pp{color:#c9c9c2}
+.prow .pn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.minibar{display:flex;height:6px;width:90px;border-radius:9px;overflow:hidden;background:var(--soft)}
+.minibar i{display:block;height:100%}
 .more{color:var(--muted);font-size:12.5px;padding:8px;text-align:center;border-radius:10px}.more:hover{background:var(--soft)}
 .empty{color:var(--muted);text-align:center;padding:60px 20px;border:1px dashed var(--line2);border-radius:var(--r)}
 
@@ -217,7 +237,7 @@ textarea:focus{border-color:var(--ink)}
           <label class="search"><svg width="18" height="18"><use href="#i-search"/></svg><input id="q" placeholder="Buscar proyecto o ruta…"></label>
           <label class="tbtn"><svg width="17" height="17"><use href="#i-sort"/></svg>
             <select id="sort"><option value="date">Más recientes</option><option value="name">Nombre</option><option value="count">Más versiones</option><option value="missing">Samples faltantes</option><option value="hours">Horas trabajadas</option></select></label>
-          <div class="seg" id="viewseg"><button data-m="board" class="on" title="Tablero"><svg width="17" height="17"><use href="#i-grid"/></svg></button><button data-m="list" title="Lista"><svg width="17" height="17"><use href="#i-list"/></svg></button></div>
+          <div class="seg" id="viewseg"><button data-m="folders" title="Carpetas"><svg width="17" height="17"><use href="#i-folder"/></svg></button><button data-m="board" class="on" title="Tablero"><svg width="17" height="17"><use href="#i-grid"/></svg></button><button data-m="list" title="Lista"><svg width="17" height="17"><use href="#i-list"/></svg></button></div>
           <button class="pri" data-go="drives"><svg width="17" height="17"><use href="#i-scan"/></svg>Escanear</button>
         </div>
         <div class="kpis">
@@ -228,6 +248,7 @@ textarea:focus{border-color:var(--ink)}
         </div>
       </div>
       <div class="content">
+        <div id="foldWrap" style="display:none"><div class="topbar" style="margin-bottom:14px;color:var(--muted)"><span id="foldInfo"></span><span style="margin-left:auto"></span><button class="sec" id="foldExpand">Expandir todo</button><button class="sec" id="foldCollapse">Contraer todo</button></div><div id="folders"></div></div>
         <div id="boardWrap"><div class="board" id="board"></div></div>
         <div id="listWrap" style="display:none"><div class="tablewrap"><table><thead><tr><th>Proyecto</th><th>Versiones</th><th>Modificado</th><th>FL</th><th>Estado</th></tr></thead><tbody id="rows"></tbody></table></div></div>
       </div>
@@ -290,7 +311,7 @@ $$('#mainnav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
 $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 
 /* ---------- proyectos ---------- */
-let GROUPS=[],FILTER=store.get('flpm.filter')||'all',MODE=store.get('flpm.mode')||'board',ACTIVE=null,LIMIT={};
+let GROUPS=[],FILTER=store.get('flpm.filter')||'all',MODE=store.get('flpm.mode2')||'folders',ACTIVE=null,LIMIT={};
 const LANES=[['pendiente','Por revisar'],['util','Útiles'],['descartar','Descartar'],['problemas','Con problemas']];
 const FILTERS=[['all','Todos',g=>true],['missing','Samples faltantes',g=>g.missing>0],['error','No se pueden leer',g=>g.error],['backups','Con backups',g=>g.backups>0],['recent','Últimos 30 días',g=>Date.now()/1000-g.mtime<2592000]];
 const hours=g=>Math.max(0,...g.members.map(m=>m.worked_h||0));
@@ -323,9 +344,63 @@ function visible(){const q=$('#q').value.toLowerCase().trim(),f=FILTERS.find(x=>
   return GROUPS.filter(g=>f(g)&&(!q||g.name.toLowerCase().includes(q)||g.members.some(m=>m.path.toLowerCase().includes(q)))).sort(by)}
 
 function render(){$$('#viewseg button').forEach(b=>b.classList.toggle('on',b.dataset.m===MODE));
-  $('#boardWrap').style.display=MODE==='board'?'':'none';$('#listWrap').style.display=MODE==='list'?'':'none';
-  const list=visible();if(MODE==='board')renderBoard(list);else renderList(list)}
-$$('#viewseg button').forEach(b=>b.onclick=()=>{MODE=b.dataset.m;store.set('flpm.mode',MODE);render()});
+  $('#boardWrap').style.display=MODE==='board'?'':'none';$('#listWrap').style.display=MODE==='list'?'':'none';$('#foldWrap').style.display=MODE==='folders'?'':'none';
+  const list=visible();if(MODE==='board')renderBoard(list);else if(MODE==='folders')renderFolders(list);else renderList(list)}
+
+/* ---------- vista por carpetas ---------- */
+const OPEN=new Set(JSON.parse(store.get('flpm.open')||'[]'));
+const saveOpen=()=>store.set('flpm.open',JSON.stringify([...OPEN].slice(-400)));
+// Carpeta "hogar" de un proyecto: se ignoran Backup/Versiones y la carpeta propia del proyecto.
+function homeOf(g){let parts=g.latest.split('\\').slice(0,-1);
+  while(parts.length>1&&/^(backup|backups|versiones|autosave)$/i.test(parts.at(-1)))parts.pop();
+  return parts}
+function buildTree(list){const root={name:'',path:'',kids:new Map(),groups:[]};
+  list.forEach(g=>{let n=root;homeOf(g).forEach((seg,i,a)=>{if(!n.kids.has(seg.toLowerCase()))n.kids.set(seg.toLowerCase(),{name:seg,path:a.slice(0,i+1).join('\\'),kids:new Map(),groups:[]});n=n.kids.get(seg.toLowerCase())});n.groups.push(g)});
+  // carpeta con un solo proyecto y sin subcarpetas -> el proyecto sube a su carpeta padre
+  (function lift(n){for(const [k,c] of [...n.kids]){lift(c);if(!c.kids.size&&c.groups.length===1&&n!==root){n.groups.push(c.groups[0]);n.kids.delete(k)}}})(root);
+  // compactar cadenas de carpetas con un solo hijo y sin proyectos (A:\ > Musica > FL -> "A:\Musica\FL")
+  (function compact(n){for(const [k,c] of [...n.kids]){let x=c;while(!x.groups.length&&x.kids.size===1){const only=[...x.kids.values()][0];only.label=(x.label||x.name)+'\\'+(only.label||only.name);x=only}
+    if(x!==c){n.kids.delete(k);n.kids.set(x.path.toLowerCase(),x)}compact(x)}})(root);
+  (function stats(n){const all=[...n.groups];n.kids.forEach(c=>{stats(c);all.push(...c.all)});n.all=all;
+    n.mtime=Math.max(0,...all.map(g=>g.mtime));n.miss=all.filter(g=>g.missing||g.error).length;
+    n.util=all.filter(g=>g.mark==='util').length;n.desc=all.filter(g=>g.mark==='descartar').length})(root);
+  return root}
+function folderSort(a,b){const s=$('#sort').value;return s==='name'?(a.label||a.name).localeCompare(b.label||b.name):s==='count'?b.all.length-a.all.length:s==='missing'?b.miss-a.miss:b.mtime-a.mtime}
+function prow(g){return `<div class="prow ${g.key===ACTIVE?'act':''}" data-k="${esc(g.key)}"><span class="pn"><b style="font-weight:600">${esc(g.name)}</b></span>
+  <span class="meta"><span class="chip">${ico('i-cal',12)}${fmtS(g.mtime)}</span><span class="ic" title="Versiones">${ico('i-copy',13)}${g.count}</span>
+  ${g.missing?`<span class="ic warn">${ico('i-alert',13)}${g.missing}</span>`:''}${g.error?`<span class="ic bad">${ico('i-x',13)}</span>`:''}</span>${markTag(g.mark)}</div>`}
+function folderHtml(n,depth){const kids=[...n.kids.values()].sort(folderSort),open=OPEN.has(n.path.toLowerCase()),tot=n.all.length,rev=tot-n.util-n.desc-0;
+  const groups=n.groups.slice().sort((a,b)=>folderSort({name:a.name,all:[a],mtime:a.mtime,miss:a.missing},{name:b.name,all:[b],mtime:b.mtime,miss:b.missing}));
+  return `<div class="fold ${open?'open':''}" data-p="${esc(n.path.toLowerCase())}">
+   <div class="fh"><span class="chev">${ico('i-arrow',15)}</span>${ico('i-folder',19)}
+    <div style="min-width:0"><div class="fname">${esc(n.label||n.name)}</div>${depth===0&&(n.label||n.name)!==n.path?`<div class="fpath">${esc(n.path)}</div>`:''}</div>
+    <div class="fstats"><span class="facts"><button data-fa="util" title="Marcar todo como útil">${ico('i-check',12)}Útil</button><button data-fa="descartar" title="Marcar todo para descartar">${ico('i-x',12)}Descartar</button><button data-fa="reveal" title="Abrir carpeta">${ico('i-folder',12)}</button></span>
+     <span class="minibar" title="${n.util} útiles · ${n.desc} descartar · ${rev} por revisar"><i style="width:${n.util/tot*100}%;background:var(--ink)"></i><i style="width:${n.desc/tot*100}%;background:#c9c9c0"></i></span>
+     <span><b>${tot}</b> proyecto${tot>1?'s':''}</span>${n.miss?`<span class="warn">${ico('i-alert',13)} ${n.miss}</span>`:''}<span>${fmtS(n.mtime)}</span></div></div>
+   <div class="fb">${open?kids.map(c=>folderHtml(c,depth+1)).join('')+groups.map(prow).join(''):''}</div></div>`}
+let TREE=null;
+function renderFolders(list){if(!GROUPS.length){$('#folders').innerHTML=`<div class="empty">Aún no hay proyectos.<br><br><button class="pri" onclick="show('drives')">${ico('i-scan',16)}Escanear unidades</button></div>`;return}
+  TREE=buildTree(list);const tops=[...TREE.kids.values()].sort(folderSort);
+  $('#foldInfo').textContent=`${list.length} proyectos en ${countFolders(TREE)} carpetas`;
+  $('#folders').innerHTML=tops.map(n=>folderHtml(n,0)).join('')+TREE.groups.map(prow).join('')||'<div class="empty">Nada coincide con el filtro.</div>';
+  bindFolders()}
+const countFolders=n=>[...n.kids.values()].reduce((a,c)=>a+1+countFolders(c),0);
+function findNode(n,p){if(n.path.toLowerCase()===p)return n;for(const c of n.kids.values()){const r=findNode(c,p);if(r)return r}return null}
+function bindFolders(){
+  $$('#folders .fh').forEach(h=>h.onclick=e=>{if(e.target.closest('[data-fa]'))return;const f=h.parentElement,p=f.dataset.p;
+    OPEN.has(p)?OPEN.delete(p):OPEN.add(p);saveOpen();
+    const n=findNode(TREE,p);if(!f.classList.contains('open')&&n){const kids=[...n.kids.values()].sort(folderSort);
+      f.querySelector(':scope>.fb').innerHTML=kids.map(c=>folderHtml(c,1)).join('')+n.groups.slice().sort((a,b)=>b.mtime-a.mtime).map(prow).join('');bindFolders()}
+    f.classList.toggle('open')});
+  $$('#folders [data-fa]').forEach(b=>b.onclick=async e=>{e.stopPropagation();const n=findNode(TREE,b.closest('.fold').dataset.p);if(!n)return;
+    const paths=n.all.flatMap(g=>g.members.map(m=>m.path)),a=b.dataset.fa;
+    if(a==='reveal'){await api('/api/reveal',{paths:[n.all[0].latest]});return}
+    if(!await ask(a==='util'?'Marcar carpeta como útil':'Marcar carpeta para descartar',`${n.all.length} proyecto(s) de "${n.label||n.name}" se marcarán como ${a==='util'?'útiles':'para descartar'}.`,'Marcar'))return;
+    await api('/api/mark',{paths,status:a});toast(`${n.all.length} proyecto(s) marcados`);loadProjects()});
+  $$('#folders .prow').forEach(r=>{if(r._b)return;r._b=1;r.onclick=e=>{e.stopPropagation();openDrawer(GROUPS.find(g=>g.key===r.dataset.k))}})}
+$('#foldExpand').onclick=()=>{(function add(n){n.kids.forEach(c=>{OPEN.add(c.path.toLowerCase());add(c)})})(TREE);saveOpen();render()};
+$('#foldCollapse').onclick=()=>{OPEN.clear();saveOpen();render()};
+$$('#viewseg button').forEach(b=>b.onclick=()=>{MODE=b.dataset.m;store.set('flpm.mode2',MODE);render()});
 $('#q').oninput=render;$('#sort').onchange=render;
 
 function card(g){const dark=g.key===ACTIVE,ghost=g.mark==='descartar';
@@ -361,7 +436,7 @@ function renderList(list){
   $$('#rows tr[data-k]').forEach(r=>r.onclick=()=>openDrawer(GROUPS.find(g=>g.key===r.dataset.k)))}
 
 /* ---------- detalle ---------- */
-function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.classList.toggle('dark',c.dataset.k===g.key)});
+function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.classList.toggle('dark',c.dataset.k===g.key)});$$('.prow').forEach(r=>r.classList.toggle('act',r.dataset.k===g.key));
   const all=g.members.map(m=>m.path),p=g.members.find(m=>m.primary)||g.members[0];
   $('#dh').innerHTML=`<button class="x" id="dx">${ico('i-x',18)}</button><h2>${esc(g.name)}</h2>
    <div style="color:#55554f;margin-bottom:16px">${g.count} archivo(s) · modificado ${fmtD(g.mtime)}${hours(g)?` · ${hours(g)} h trabajadas`:''}</div>
@@ -387,7 +462,7 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
     if(a==='mark'){await api('/api/mark',{paths:all,status:b.dataset.s});toast('Marcado');loadProjects()}
     if(a==='del'&&await ask('Enviar a la Papelera',m.path+'\n\nPodrás recuperarlo desde la Papelera de reciclaje.','Enviar a Papelera')){const r=await api('/api/delete',{paths:[m.path]});toast(r.deleted?'Enviado a la Papelera':'No se pudo borrar');loadProjects()}
     if(a==='delall'&&await ask('Borrar proyecto completo',`Los ${g.count} archivo(s) de "${g.name}" irán a la Papelera de reciclaje.`,'Enviar a Papelera')){const r=await api('/api/delete',{paths:all});toast(r.deleted+' archivo(s) a la Papelera');closeDrawer();loadProjects()}})}
-function closeDrawer(){ACTIVE=null;$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');$$('.card.dark').forEach(c=>c.classList.remove('dark'))}
+function closeDrawer(){ACTIVE=null;$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');$$('.card.dark').forEach(c=>c.classList.remove('dark'));$$('.prow.act').forEach(r=>r.classList.remove('act'))}
 $('#scrim').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();$('#modal').classList.remove('on')}});
 
 /* ---------- unidades ---------- */

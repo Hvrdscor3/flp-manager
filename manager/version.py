@@ -1,4 +1,4 @@
-﻿VERSION = "1.3.1"
+﻿VERSION = "1.4.0"
 # Repositorio de GitHub donde se publican los releases (dueno/nombre).
 REPO = "Hvrdscor3/flp-manager"
 ASSET = "FLP-Manager.exe"
