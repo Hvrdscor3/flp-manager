@@ -460,6 +460,9 @@ textarea:focus{border-color:var(--ink)}
 .modal{position:fixed;inset:0;background:#1f1f1f40;display:none;place-items:center;z-index:40;backdrop-filter:blur(2px)}
 .modal.on{display:grid}
 .modal .box{background:var(--card);border-radius:18px;width:min(440px,92vw);padding:24px;box-shadow:0 30px 80px #0003}
+#modal .box{display:flex;flex-direction:column;max-height:86vh}#modal .box>.topbar{flex:none}
+#modal .box.wide{width:min(860px,94vw)}#modal .box.wide #mp{font-size:13px;line-height:1.55;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--text2)}
+#mp{overflow-y:auto;min-height:0}
 .modal h3{margin:0 0 8px;font-size:18px;font-weight:600}.modal p{color:var(--muted);margin:0 0 20px;white-space:pre-wrap;word-break:break-word}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--on-ink);padding:11px 18px;border-radius:12px;transition:.25s;z-index:50;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
@@ -836,7 +839,9 @@ const fmtD=t=>t?new Date(t*1000).toLocaleString('es',{year:'numeric',month:'shor
 const fmtS=t=>t?new Date(t*1000).toLocaleDateString('es',{day:'2-digit',month:'short'}):'—';
 const store={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)};
-const ask=(title,text,yes='Confirmar')=>new Promise(res=>{$('#mt').textContent=title;$('#mp').textContent=text;$('#myes').textContent=yes;$('#modal').classList.add('on');
+const ask=(title,text,yes='Confirmar')=>new Promise(res=>{$('#mt').textContent=title;$('#mp').textContent=text;$('#mp').scrollTop=0;
+  $('#modal .box').classList.toggle('wide',String(text).split(/\n/).length>8||String(text).length>600);   // textos largos: mas ancho y con scroll
+ $('#myes').textContent=yes;$('#modal').classList.add('on');
   const done=v=>{$('#modal').classList.remove('on');res(v)};$('#myes').onclick=()=>done(true);$('#mno').onclick=()=>done(false)});
 
 /* ---------- tema ---------- */
@@ -1035,7 +1040,7 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
     <details class="kx"><summary>${ico('i-expand',12)}Más datos</summary><div class="kv" style="margin:0"><div>${ico('i-hdd',12)}FL Studio<b>${esc(m.version||'—')}</b></div><div>${ico('i-copy',12)}Tamaño<b>${fmtB(m.size)}</b></div><div>${ico('i-cal',12)}Creado<b>${fmtD(m.created)}</b></div>
      <div>${ico('i-list',12)}Canales<b>${m.channels}</b></div><div>${ico('i-grid',12)}Patterns<b>${m.patterns}</b></div><div>${ico('i-wave',12)}Samples<b>${m.samples}</b></div></div></details>
     ${m.error?`<div class="miss">${esc(m.error)}</div>`:''}${m.missing.length?`<div class="miss">${m.missing.map(esc).join('\n')}</div>`:''}
-    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="ordenar" data-i="${i}" title="Junta automatizaciones, nombra y colorea pistas. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button></div>
+    <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="ordenar" data-i="${i}" title="Agrupa patterns, audio y automatizaciones, quita clips y pistas vacías. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button></div>
     <div class="acts2">${m.missing.length?`<button class="warn" data-a="relink" data-i="${i}">${ico('i-unlink',14)}Reparar samples (${m.missing.length})</button>`:''}<button data-a="verorden" data-i="${i}" title="Revisa si las pistas del Playlist están en orden (no cambia nada)">${ico('i-eye',14)}Verificar orden</button><button data-a="reveal" data-i="${i}">${ico('i-folder',14)}Mostrar</button><button class="danger" data-a="del" data-i="${i}">${ico('i-trash',14)}Papelera</button></div><div class="ordres" data-or="${i}"></div><div class="pv" data-pv="${i}"></div></div>`,pi=g.members.indexOf(p),rest=g.members.map((m,i)=>[m,i]).filter(([,i])=>i!==pi).sort((a,b)=>b[0].mtime-a[0].mtime),mains=rest.filter(([m])=>!m.backup),baks=rest.filter(([m])=>m.backup),sec=(t,l,first)=>l.length?`<div class="lab">${t} (${l.length})</div><div class="flist">${l.map(([m,i],k)=>fc(m,i,!k&&first)).join('')}</div>`:'';
   $('#db').innerHTML=`<div class="lab" style="margin-top:16px">Proyecto principal</div><div class="flist main">${fc(p,pi)}</div>
    <div class="lab">Plugins del proyecto</div><div id="pPlug"><button class="sec" id="pPlugBtn">${ico('i-plug',15)}Ver plugins y versiones</button></div>
@@ -1592,7 +1597,7 @@ new MutationObserver(()=>$('.app').classList.toggle('hasupd',$('#upd').classList
 setMini(store.get('flpm.mini')==='1');
 
 /* ---------- scripts ---------- */
-const TOOLS=[{name:'Ordenar pistas',kind:'Herramienta de FLP Manager',what:'Edita el .flp sin abrir FL: junta los clips de cada automatización en una sola pista, la nombra y colorea por categoría, sube las pistas con clips y elimina las vacías.',
+const TOOLS=[{name:'Ordenar pistas',kind:'Herramienta de FLP Manager',what:'Edita el .flp sin abrir FL: agrupa las pistas por tipo (patterns arriba, luego audio y al final automatizaciones, cada grupo en su orden), junta los clips de cada automatización en una sola pista con nombre y color por categoría, quita los clips de patterns vacíos y elimina las pistas vacías.',
   how:['Abre un proyecto en Proyectos.','En el archivo que quieras, pulsa «Ordenar pistas».','Revisa la vista previa y confirma: se crea «<nombre> - ordenado.flp» junto al original.'],limits:'Nunca toca el original. Si el proyecto está abierto en FL, abre la copia para ver el resultado.'},
  {id:'repair',beta:true,icon:'i-unlink',name:'Reparar samples desde FL',kind:'Herramienta externa de FL Studio',what:'Abre Reparar samples (con Comparar A/B) del proyecto que tienes abierto en FL, sin pasar por la app. Detecta el proyecto por la ventana de FL y su lista de recientes; si no lo encuentra, te deja elegir uno.',
   how:['En FL: Options › File settings › External tools.','En File elige FLP-Manager.exe (usa «Copiar ruta del .exe») y en Name escribe «Reparar samples».','Activa «Launch with path». Lánzalo desde el menú Tools de FL cuando un proyecto tenga samples faltantes.','Al terminar pulsa «Volver a abrir en FL» y, si FL pregunta, no guardes los cambios.'],
