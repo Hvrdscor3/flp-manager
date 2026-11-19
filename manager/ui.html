@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FLP Manager</title>
+<!--I18N-->
 <script>/* tema antes de pintar: evita destello blanco */
 (function(){var t;try{t=localStorage.getItem('flpm.theme')}catch(e){}
   if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
@@ -183,6 +184,11 @@ kbd{border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padd
 .vexp .pchips button{border:1px solid var(--line2);background:var(--card);border-radius:8px;padding:4px 9px;font-size:12px}
 .vexp .pchips button:hover{border-color:var(--mint-deep)}
 .plist{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.presc{margin-top:12px;font-size:12.5px;display:flex;flex-direction:column;gap:12px}.presc .ph{color:var(--muted)}.presc .ph b{color:var(--ink)}
+.presc .pg{border:1px solid var(--line);border-radius:12px;padding:12px 14px}.presc .pg.borrar{border-left:3px solid var(--ok)}.presc .pg.directwave,.presc .pg.nativo{border-left:3px solid var(--mint)}.presc .pg.render{border-left:3px solid var(--warn)}.presc .pg.gratis{border-left:3px solid var(--line3)}
+.presc .pgh{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px}.presc .pgh span{margin-left:auto;color:var(--muted);font-weight:600}
+.presc .pgt{color:var(--muted);margin:4px 0 8px}.presc .pi{padding:7px 0;border-top:1px solid var(--line)}.presc .pi>div:first-child{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.presc .pm{color:var(--muted)}.presc .pw{color:var(--text2);margin-top:2px}
 .plist div{display:flex;align-items:center;gap:10px;font-size:12.5px}.plist div b{font-weight:600}
 
 /* main */
@@ -414,6 +420,10 @@ aside{scrollbar-width:thin;scrollbar-color:#ffffff22 transparent}aside::-webkit-
 #tourTip .pri,#tourTip .sec{padding:9px 16px;font-size:13.5px;white-space:nowrap}
 .footrow{display:flex;gap:8px;margin-bottom:14px}.footrow #themeBtn{flex:1;margin:0!important}
 #tourBtn{padding:0 11px}#tourBtn:hover{color:var(--mint)}
+#langBtn{padding:0 10px}.flag{display:inline-flex;width:20px;height:14px;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px #0003;flex:none}.flag svg{width:100%;height:100%;display:block}
+#langMenu{position:fixed;z-index:9999;background:var(--card,var(--bg2));border:1px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;min-width:170px;box-shadow:0 10px 30px #0006}
+#langMenu button{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;text-align:left;background:none;border:0;color:var(--ink);cursor:pointer}#langMenu button:hover{background:var(--mint-soft)}#langMenu button.on{color:var(--mint);font-weight:700}
+.app.mini #langBtn{padding:9px 0;justify-content:center}
 /* drawer */
 .scrim{position:fixed;inset:0;background:#1f1f1f33;opacity:0;pointer-events:none;transition:.2s;z-index:19}
 .scrim.on{opacity:1;pointer-events:auto}
@@ -682,7 +692,7 @@ details.kx[open] summary{margin-bottom:8px}
       <button data-v="community"><svg width="18" height="18"><use href="#i-users"/></svg>Comunidad<span class="soon">Pronto</span></button>
     </div>
     <div class="side-foot">
-      <div class="footrow"><button class="sec" id="themeBtn" style="width:100%;justify-content:center;margin-bottom:14px"></button><button class="sec" id="tourBtn" title="Tour: cómo funciona la app"><svg width="17" height="17"><use href="#i-bulb"/></svg></button></div>
+      <div class="footrow"><button class="sec" id="themeBtn" style="width:100%;justify-content:center;margin-bottom:14px"></button><button class="sec" id="langBtn" title="Idioma" onclick="langMenu(this)"></button><button class="sec" id="tourBtn" title="Tour: cómo funciona la app"><svg width="17" height="17"><use href="#i-bulb"/></svg></button></div>
       <div style="display:flex;align-items:center;gap:6px"><b>Versión <span id="ver">—</span></b>
         <button class="sec" id="chkUpd" style="margin-left:auto;padding:4px 9px;font-size:11.5px" title="Buscar actualizaciones"><svg width="13" height="13"><use href="#i-hist"/></svg>Buscar</button></div>
       <div id="flinfo" style="margin-top:4px;word-break:break-all"></div>
@@ -835,8 +845,8 @@ const ico=(id,s=14)=>`<svg width="${s}" height="${s}"><use href="#${id}"/></svg>
 const api=async(p,b)=>{const r=await fetch(p,{method:b?'POST':'GET',headers:{'X-Token':TOKEN,'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);return j};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtB=n=>{const u=['B','KB','MB','GB','TB'];let i=0;while(n>=1024&&i<4){n/=1024;i++}return n.toFixed(i?1:0)+' '+u[i]};
-const fmtD=t=>t?new Date(t*1000).toLocaleString('es',{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
-const fmtS=t=>t?new Date(t*1000).toLocaleDateString('es',{day:'2-digit',month:'short'}):'—';
+const fmtD=t=>t?new Date(t*1000).toLocaleString(LOC,{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+const fmtS=t=>t?new Date(t*1000).toLocaleDateString(LOC,{day:'2-digit',month:'short'}):'—';
 const store={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)};
 const ask=(title,text,yes='Confirmar')=>new Promise(res=>{$('#mt').textContent=title;$('#mp').textContent=text;$('#mp').scrollTop=0;
@@ -867,13 +877,13 @@ const drv=p=>/^[a-z]:/i.test(p)?p.slice(0,2).toUpperCase():'Red';
 const gDrv=g=>drv((g.members.find(m=>m.primary)||g.members[0]).path);
 function applyDrives(){const have=new Set(ALLG.map(gDrv));[...SHOWD].forEach(d=>{if(!have.has(d))SHOWD.delete(d)});if(SHOWD.size&&[...have].every(d=>SHOWD.has(d))){SHOWD.clear();store.set('flpm.showdrives','[]')}
   GROUPS=SHOWD.size?ALLG.filter(g=>SHOWD.has(gDrv(g))):ALLG;renderDfil()}
-function paintNProj(){$('#nProj').textContent=SHOWD.size?GROUPS.length.toLocaleString('es')+' / '+ALLG.length.toLocaleString('es'):GROUPS.length;$('#nProj').title=SHOWD.size?'Mostrando solo '+[...SHOWD].join(', ')+' · '+(ALLG.length-GROUPS.length)+' proyecto(s) ocultos':''}
+function paintNProj(){$('#nProj').textContent=SHOWD.size?GROUPS.length.toLocaleString(LOC)+' / '+ALLG.length.toLocaleString(LOC):GROUPS.length;$('#nProj').title=SHOWD.size?'Mostrando solo '+[...SHOWD].join(', ')+' · '+(ALLG.length-GROUPS.length)+' proyecto(s) ocultos':''}
 function setShowDrives(list){SHOWD=new Set(list);store.set('flpm.showdrives',JSON.stringify([...SHOWD]));applyDrives();paintNProj();renderFilters();renderKpis();render()}
 function renderDfil(){const n={};ALLG.forEach(g=>{const d=gDrv(g);n[d]=(n[d]||0)+1});const ds=Object.keys(n).sort();
   if(ds.length<2&&!SHOWD.size){$('#dfil').innerHTML='';return}
-  $('#dfil').innerHTML=`<span>${ico('i-hdd',14)} Mostrar:</span><button data-d="" class="${SHOWD.size?'':'on'}">Todos <span>${ALLG.length.toLocaleString('es')}</span></button>`
-    +ds.map(d=>`<button data-d="${esc(d)}" class="${SHOWD.has(d)?'on':''}" title="Clic: mostrar u ocultar ${esc(d)}">${esc(d)} <span>${n[d].toLocaleString('es')}</span></button>`).join('')
-    +`<span class="hint">${SHOWD.size?`Ocultos: ${(ALLG.length-GROUPS.length).toLocaleString('es')} proyecto(s) de otros discos`:'Toca un disco para ver solo ese'}</span><span id="dHid"></span>`;
+  $('#dfil').innerHTML=`<span>${ico('i-hdd',14)} Mostrar:</span><button data-d="" class="${SHOWD.size?'':'on'}">Todos <span>${ALLG.length.toLocaleString(LOC)}</span></button>`
+    +ds.map(d=>`<button data-d="${esc(d)}" class="${SHOWD.has(d)?'on':''}" title="Clic: mostrar u ocultar ${esc(d)}">${esc(d)} <span>${n[d].toLocaleString(LOC)}</span></button>`).join('')
+    +`<span class="hint">${SHOWD.size?`Ocultos: ${(ALLG.length-GROUPS.length).toLocaleString(LOC)} proyecto(s) de otros discos`:'Toca un disco para ver solo ese'}</span><span id="dHid"></span>`;
   $$('#dfil button').forEach(b=>b.onclick=()=>{const d=b.dataset.d;if(!d)return setShowDrives([]);const x=new Set(SHOWD);x.has(d)?x.delete(d):x.add(d);setShowDrives([...x])})}
 let GROUPS=[],FILTER=store.get('flpm.filter')||'all',MODE=store.get('flpm.mode2')||'folders',ACTIVE=null,LIMIT={};
 const LANES=[['pendiente','Por revisar'],['util','Útiles'],['descartar','Descartar'],['problemas','Con problemas']];
@@ -896,7 +906,7 @@ $$('[data-filter]').forEach(b=>b.onclick=()=>{FILTER=b.dataset.filter;store.set(
 $$('[data-sort]').forEach(b=>b.onclick=()=>{$('#sort').value=b.dataset.sort;render()});
 
 function renderKpis(){
-  const now=new Date(),months=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({y:d.getFullYear(),m:d.getMonth(),p:0,b:0,l:d.toLocaleDateString('es',{month:'short'}).replace('.','')})}
+  const now=new Date(),months=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({y:d.getFullYear(),m:d.getMonth(),p:0,b:0,l:d.toLocaleDateString(LOC,{month:'short'}).replace('.','')})}
   GROUPS.forEach(g=>g.members.forEach(m=>{const d=new Date(m.mtime*1000),x=months.find(o=>o.y===d.getFullYear()&&o.m===d.getMonth());if(x){m.backup?x.b++:x.p++}}));
   const max=Math.max(1,...months.flatMap(o=>[o.p,o.b])),step=Math.ceil(max/2);
   $('#chart').innerHTML=`<div class="ax"><span>${step*2}</span><span>${step}</span><span>0</span></div>`+months.map(o=>`<div class="col" title="${o.p} proyecto(s), ${o.b} backup(s)"><div class="bars"><div class="b h" style="height:${o.b/(step*2)*100}%"></div><div class="b" style="height:${o.p/(step*2)*100}%"></div></div><span>${o.l}</span></div>`).join('');
@@ -905,8 +915,8 @@ function renderKpis(){
   for(let i=0;i<=N;i++){const a=Math.PI*(1-i/N),on=i/N<=healthy&&GROUPS.length,len=i%5===0?0:6;
     s+=`<line x1="${(cx+(R1+len)*Math.cos(a)).toFixed(1)}" y1="${(cy-(R1+len)*Math.sin(a)).toFixed(1)}" x2="${(cx+R2*Math.cos(a)).toFixed(1)}" y2="${(cy-R2*Math.sin(a)).toFixed(1)}" style="stroke:${on?'var(--mint-deep)':'var(--line3)'}" stroke-width="2" stroke-linecap="round"/>`}
   $('#gauge').innerHTML=s;$('#gv').textContent=Math.round(healthy*100)+'%';
-  $('#kFiles').textContent=GROUPS.reduce((a,g)=>a+g.count,0).toLocaleString('es');
-  $('#kHours').textContent=Math.round(GROUPS.reduce((a,g)=>a+hours(g),0)).toLocaleString('es')+' h'}
+  $('#kFiles').textContent=GROUPS.reduce((a,g)=>a+g.count,0).toLocaleString(LOC);
+  $('#kHours').textContent=Math.round(GROUPS.reduce((a,g)=>a+hours(g),0)).toLocaleString(LOC)+' h'}
 
 function visible(){const q=$('#q').value.toLowerCase().trim(),f=FILTERS.find(x=>x[0]===FILTER)[2],s=$('#sort').value;
   const by={date:(a,b)=>b.mtime-a.mtime,name:(a,b)=>a.name.localeCompare(b.name),count:(a,b)=>b.count-a.count,missing:(a,b)=>b.missing-a.missing,hours:(a,b)=>hours(b)-hours(a)}[s];
@@ -1043,12 +1053,12 @@ function openDrawer(g){ACTIVE=g.key;if(MODE==='board')$$('.card').forEach(c=>{c.
     <div class="acts"><button class="pri" data-a="open" data-i="${i}">${ico('i-play',13)}Abrir en FL</button><button class="sec bounce" data-a="bounce" data-i="${i}" title="Renderizar vista previa con FL Studio">${ico('i-wave',14)}<span>Bounce preview</span></button><button class="sec" data-a="ordenar" data-i="${i}" title="Agrupa patterns, audio y automatizaciones, quita clips y pistas vacías. Crea una copia; el original no se toca.">${ico('i-list',15)}Ordenar pistas</button></div>
     <div class="acts2">${m.missing.length?`<button class="warn" data-a="relink" data-i="${i}">${ico('i-unlink',14)}Reparar samples (${m.missing.length})</button>`:''}<button data-a="verorden" data-i="${i}" title="Revisa si las pistas del Playlist están en orden (no cambia nada)">${ico('i-eye',14)}Verificar orden</button><button data-a="reveal" data-i="${i}">${ico('i-folder',14)}Mostrar</button><button class="danger" data-a="del" data-i="${i}">${ico('i-trash',14)}Papelera</button></div><div class="ordres" data-or="${i}"></div><div class="pv" data-pv="${i}"></div></div>`,pi=g.members.indexOf(p),rest=g.members.map((m,i)=>[m,i]).filter(([,i])=>i!==pi).sort((a,b)=>b[0].mtime-a[0].mtime),mains=rest.filter(([m])=>!m.backup),baks=rest.filter(([m])=>m.backup),sec=(t,l,first)=>l.length?`<div class="lab">${t} (${l.length})</div><div class="flist">${l.map(([m,i],k)=>fc(m,i,!k&&first)).join('')}</div>`:'';
   $('#db').innerHTML=`<div class="lab" style="margin-top:16px">Proyecto principal</div><div class="flist main">${fc(p,pi)}</div>
-   <div class="lab">Plugins del proyecto</div><div id="pPlug"><button class="sec" id="pPlugBtn">${ico('i-plug',15)}Ver plugins y versiones</button></div>
+   <div class="lab">Plugins del proyecto</div><div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="sec" id="pPlugBtn">${ico('i-plug',15)}Ver plugins y versiones</button><button class="sec" id="pPrescBtn" title="Qué plugins sobran o conviene convertir para mandar el proyecto">${ico('i-broom',15)}Prescindibles</button></div><div id="pPlug"></div><div id="pPresc"></div>
    ${sec('Otras versiones principales',mains,'Principal reciente')}${sec('Backups',baks,'Backup reciente')}
    <div class="lab">Notas</div><textarea id="note" placeholder="¿Qué tiene este proyecto? ¿Vale la pena terminarlo?">${esc(p.note)}</textarea>`;
   $('#drawer').classList.add('on');$('#scrim').classList.add('on');$('#dx').onclick=closeDrawer;
   for(const k in PVS)delete PVS[k];pollPreviews(g);
-  $('#pPlugBtn').onclick=()=>projPlugins(p.path,$('#pPlug'));
+  $('#pPlugBtn').onclick=()=>projPlugins(p.path,$('#pPlug'));$('#pPrescBtn').onclick=()=>projPresc(p.path,$('#pPresc'));
   $('#note').onchange=async e=>{await api('/api/mark',{paths:all,note:e.target.value});toast('Nota guardada')};
   $$('#drawer [data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a,m=g.members[b.dataset.i];
     if(a==='open'){await api('/api/open',{paths:[m.path]});toast('Abriendo en FL Studio…')}
@@ -1103,7 +1113,7 @@ function renderFlInst(fl){const l=fl.installs||[];if(!l.length){$('#flInst').inn
    <ul>${l.map(x=>`<li title="${esc(x)}"><b>${esc(x.slice(0,2))}</b>${esc(x.slice(3)||x)}</li>`).join('')}</ul>
    <p>Tus proyectos, renders y audio sliced dentro de estas carpetas sí se muestran.</p></div>`}
 function jobLine(j){const st=STATE[j.state]||['',''];
-  return `<span class="${st[1]}">${st[0]}</span>${j.found?`<small>${(j.analyzed+j.cached).toLocaleString('es')} de ${j.found.toLocaleString('es')} proyectos</small>`:''}`}
+  return `<span class="${st[1]}">${st[0]}</span>${j.found?`<small>${(j.analyzed+j.cached).toLocaleString(LOC)} de ${j.found.toLocaleString(LOC)} proyectos</small>`:''}`}
 function jobBtns(j,root){if(!j)return '';
   if(j.state==='running')return `<button class="sec" data-job="pause" data-r="${esc(root)}">Pausar</button>`;
   if(j.state==='paused')return `<button class="pri" data-job="resume" data-r="${esc(root)}">Continuar</button><button class="sec" data-job="forget" data-r="${esc(root)}">Descartar progreso</button>`;
@@ -1121,9 +1131,9 @@ function renderDrives(){
     <div class="topbar">${j.state==='done'||j.found?`<button class="sec" data-only="${esc(drv(j.root))}" title="Mostrar en Proyectos solo este disco">${ico('i-eye',15)}Ver solo este</button>`:''}${jobBtns(j,j.root)}</div></div>
     <div class="scanbar"><div style="width:${pct.toFixed(1)}%"></div></div>
     <div class="topbar" style="gap:18px;color:var(--text2);font-size:12.5px">
-     <span><b>${j.dirs_done.toLocaleString('es')}</b> carpetas${j.dirs?` (+${j.dirs.toLocaleString('es')} pendientes)`:''}</span>
-     <span><b>${j.found.toLocaleString('es')}</b> .flp encontrados</span><span><b>${j.analyzed.toLocaleString('es')}</b> analizados</span>
-     <span><b>${j.cached.toLocaleString('es')}</b> omitidos (ya analizados)</span><span><b>${j.excluded}</b> de FL excluidos</span>
+     <span><b>${j.dirs_done.toLocaleString(LOC)}</b> carpetas${j.dirs?` (+${j.dirs.toLocaleString(LOC)} pendientes)`:''}</span>
+     <span><b>${j.found.toLocaleString(LOC)}</b> .flp encontrados</span><span><b>${j.analyzed.toLocaleString(LOC)}</b> analizados</span>
+     <span><b>${j.cached.toLocaleString(LOC)}</b> omitidos (ya analizados)</span><span><b>${j.excluded}</b> de FL excluidos</span>
      <span style="margin-left:auto">${fmtT(j.elapsed||0)}</span></div>
     ${j.state==='running'&&j.current?`<div class="mono" style="margin-top:8px">${esc(j.current)}</div>`:''}${j.error?`<div class="miss">${esc(j.error)}</div>`:''}</div>`}).join('');
   $$('[data-only]').forEach(b=>b.onclick=e=>{e.stopPropagation();if(ALLG.length)setShowDrives([b.dataset.only]);else{SHOWD=new Set([b.dataset.only]);store.set('flpm.showdrives',JSON.stringify([...SHOWD]))}show('projects')});
@@ -1204,20 +1214,20 @@ function renderSDrives(){$('#sDrives').innerHTML=DRIVES.map(d=>{const j=SJOBS[d.
 function renderSJob(){const js=Object.values(SJOBS).filter(j=>j.state==='running'||j.state==='paused'||j.state==='error');
   $('#sJob').innerHTML=js.map(j=>{const pct=j.state==='running'?(j.stage==='Buscando archivos'?20:j.stage==='Leyendo audio'?20+60*(j.analyzed/Math.max(1,j.found-j.cached)):j.stage==='Buscando duplicados'?85:95):100;
     return `<div class="panel" style="margin-top:12px;background:var(--card)"><div class="topbar"><b>${esc(j.root)}</b><span style="color:var(--text2)">${j.state==='running'?esc(j.stage)+'…':j.state==='paused'?'En pausa':esc(j.stage)}</span>
-     <span style="margin-left:auto;color:var(--muted);font-size:12.5px">${j.found.toLocaleString('es')} audios · ${j.analyzed.toLocaleString('es')} leídos · ${j.cached.toLocaleString('es')} en caché · ${fmtT(j.elapsed||0)}</span>
+     <span style="margin-left:auto;color:var(--muted);font-size:12.5px">${j.found.toLocaleString(LOC)} audios · ${j.analyzed.toLocaleString(LOC)} leídos · ${j.cached.toLocaleString(LOC)} en caché · ${fmtT(j.elapsed||0)}</span>
      ${j.state==='running'?`<button class="sec" data-sj="pause" data-r="${esc(j.root)}">${ico('i-pause',13)}Pausar</button>`:`<button class="pri" data-sj="scan" data-r="${esc(j.root)}">${ico('i-play',13)}Continuar</button>`}</div>
      <div class="scanbar"><div style="width:${Math.min(100,pct).toFixed(0)}%"></div></div></div>`}).join('');
   $$('[data-sj]').forEach(b=>b.onclick=async()=>{await api('/api/samples/'+b.dataset.sj,{roots:[b.dataset.r]});sStatus(true)})}
 $('#sScan').onclick=async()=>{if(!SSEL.size)return toast('Toca un disco para seleccionarlo');await api('/api/samples/scan',{roots:[...SSEL]});toast('Escaneando samples…');sStatus(true)};
 
 function renderSKpis(){const s=SSUM;if(!s)return;
-  $('#sKpis').innerHTML=[[s.total.toLocaleString('es'),'samples',ico('i-wave',13),''],[fmtB(s.size),'en disco',ico('i-hdd',13),''],
-    [s.dupFiles.toLocaleString('es'),`copias sobrantes · ${fmtB(s.wasted)}`,ico('i-dup',13),'dups'],[s.similar.toLocaleString('es'),'grupos con mismo nombre',ico('i-ab',13),'similar'],
-    [s.unused.toLocaleString('es'),`sin usar en ${s.projects} proyectos`,ico('i-unlink',13),'unused']]
+  $('#sKpis').innerHTML=[[s.total.toLocaleString(LOC),'samples',ico('i-wave',13),''],[fmtB(s.size),'en disco',ico('i-hdd',13),''],
+    [s.dupFiles.toLocaleString(LOC),`copias sobrantes · ${fmtB(s.wasted)}`,ico('i-dup',13),'dups'],[s.similar.toLocaleString(LOC),'grupos con mismo nombre',ico('i-ab',13),'similar'],
+    [s.unused.toLocaleString(LOC),`sin usar en ${s.projects} proyectos`,ico('i-unlink',13),'unused']]
     .map(([v,l,i,t])=>`<button class="skpi ${t?'act':''}" ${t?`data-kt="${t}"`:''}><b>${v}</b><span>${i}${l}</span></button>`).join('');
   $$('[data-kt]').forEach(b=>b.onclick=()=>{const t=b.dataset.kt;if(t==='unused'){SF={...SF,filter:'unused',offset:0};STAB='explore'}else STAB=t;store.set('flpm.stab',STAB);renderSTabs()});
   const tot=s.total||1;$('#sCatbar').innerHTML=s.cats.map(([c,n])=>`<i title="${esc(c)}: ${n}" style="flex:${n/tot};background:${catColor(c)}"></i>`).join('');
-  $('#sCatleg').innerHTML=s.cats.map(([c,n,b])=>`<button data-cat="${esc(c)}"><i style="background:${catColor(c)}"></i>${esc(c)} <b>${n.toLocaleString('es')}</b></button>`).join('');
+  $('#sCatleg').innerHTML=s.cats.map(([c,n,b])=>`<button data-cat="${esc(c)}"><i style="background:${catColor(c)}"></i>${esc(c)} <b>${n.toLocaleString(LOC)}</b></button>`).join('');
   $$('#sCatleg [data-cat]').forEach(b=>b.onclick=()=>{SF={...SF,cat:b.dataset.cat,offset:0};STAB='explore';store.set('flpm.stab',STAB);renderSTabs()})}
 
 let SGRP=store.get('flpm.sgrp')||'',SLAY=store.get('flpm.slay')||'list';
@@ -1242,7 +1252,7 @@ let SG={exact:{off:0,data:[]},similar:{off:0,data:[]}};
 async function sGroups(kind,more){const g=SG[kind];if(!more){g.off=0;g.data=[]}
   const r=await api('/api/samples/groups',{kind,offset:g.off,limit:30,group:SGRP});g.data.push(...r.items);g.off+=r.items.length;
   g.data.forEach(ps=>ps.forEach(it=>SITEMS[it.id]=it));
-  $('#sTabInfo').textContent=kind==='exact'?`${r.total.toLocaleString('es')} grupos idénticos (bit a bit)`:`${r.total.toLocaleString('es')} grupos con el mismo nombre y distinto contenido`;
+  $('#sTabInfo').textContent=kind==='exact'?`${r.total.toLocaleString(LOC)} grupos idénticos (bit a bit)`:`${r.total.toLocaleString(LOC)} grupos con el mismo nombre y distinto contenido`;
   const head=kind==='exact'?`<div class="panel" style="margin:0 0 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:240px">${ico('i-dup',16)} <b>Se sugiere la copia de ruta más corta</b>, pero puedes marcar otra y pulsar <b>Conservar marcado</b>: los proyectos que usaban las demás pasan a usar la que elegiste. «Limpiar todos» nunca toca copias que use algún proyecto.</div>
     <button class="pri" id="sDedupe">${ico('i-broom',15)}Limpiar todos los duplicados</button></div>`:`<div class="panel" style="margin:0 0 14px">${ico('i-ab',16)} Archivos con el mismo nombre pero distinto audio: pueden ser versiones (otro tono, mezcla o recorte). Usa <b>Comparar A/B</b> para escucharlos con la posición sincronizada.</div>`;
   $('#sBody').innerHTML=head+(g.data.length?'<div class="sgl">'+g.data.map((ps,gi)=>(SGRP&&(!gi||g.data[gi-1][0].dir!==ps[0].dir)?(gi?'</div>':'')+'<div class="sfsec">'+foldHead(ps[0].dir,ps[0].id,''):'')+groupHtml(ps,gi,kind)).join('')+(SGRP?'</div>':'')+'</div>':`<div class="empty">${kind==='exact'?'Sin duplicados 🎉':'No hay grupos con el mismo nombre.'}</div>`)
@@ -1255,7 +1265,7 @@ async function sGroups(kind,more){const g=SG[kind];if(!more){g.off=0;g.data=[]}
     const d=await api('/api/samples/replace',{keep:SITEMS[k].path,paths:del.map(x=>x.path)});if(d.error){toast(d.error);return}
     toast(`${d.deleted} copia(s) a la Papelera${d.projects?` · ${d.projects} proyecto(s) actualizados`:''}${d.failed&&d.failed.length?` · ${d.failed.length} no se pudieron actualizar (sus copias se dejaron)`:''}`);sStatus(true)});
   $('#sMore')&&($('#sMore').onclick=()=>sGroups(kind,true));
-  $('#sDedupe')&&($('#sDedupe').onclick=async()=>{if(!await ask('Limpiar todos los duplicados',`${SSUM.dupFiles.toLocaleString('es')} copias sobrantes (${fmtB(SSUM.wasted)}).\n\nEn cada grupo se conserva la copia sugerida. Las copias usadas por proyectos se dejan intactas. Todo va a la Papelera de reciclaje.`,'Limpiar'))return;
+  $('#sDedupe')&&($('#sDedupe').onclick=async()=>{if(!await ask('Limpiar todos los duplicados',`${SSUM.dupFiles.toLocaleString(LOC)} copias sobrantes (${fmtB(SSUM.wasted)}).\n\nEn cada grupo se conserva la copia sugerida. Las copias usadas por proyectos se dejan intactas. Todo va a la Papelera de reciclaje.`,'Limpiar'))return;
     const d=await api('/api/samples/dedupe',{});toast(`${d.deleted} copia(s) a la Papelera${d.kept?` · ${d.kept} se dejaron por estar en uso`:''}`);sStatus(true)})}
 function groupHtml(ps,gi,kind){const a=ps[0],save=kind==='exact'?a.size*(ps.length-1):0;
   return `<div class="dg"><div class="dgh">${ico(kind==='exact'?'i-dup':'i-ab',16)}<b>${esc(a.name)}</b><span style="color:var(--text2)">${ps.length} archivos${save?` · libera ${fmtB(save)}`:''}</span><span class="grow"></span>
@@ -1267,7 +1277,7 @@ function groupHtml(ps,gi,kind){const a=ps[0],save=kind==='exact'?a.size*(ps.leng
 /* ---- explorar ---- */
 async function sExplore(more){if(!more)SF.offset=0;
   if(!more)SF._dir=null;const r=await api('/api/samples/query',{...SF,limit:150,group:SGRP});r.items.forEach(it=>SITEMS[it.id]=it);
-  $('#sTabInfo').textContent=`${r.total.toLocaleString('es')} samples`;
+  $('#sTabInfo').textContent=`${r.total.toLocaleString(LOC)} samples`;
   const opts=CATS_ALL.map(c=>`<option ${SF.cat===c?'selected':''}>${esc(c)}</option>`).join('');
   const rows=r.items.map(it=>(SGRP&&it.dir!==SF._dir?foldHead(SF._dir=it.dir,it.id,''):'')+`<div class="srow" data-id="${it.id}" style="--cc:${catColor(it.cat||'')}"><input type="checkbox" data-pick="${it.id}">${pbtn(it)}
     <div style="min-width:0"><div class="sname">${esc(it.name)}${it.bad?' <span class="tag b">Dañado</span>':''}</div><div class="spath" title="${esc(it.path)}">&lrm;${esc(it.dir)}</div></div>
@@ -1289,7 +1299,7 @@ async function sExplore(more){if(!more)SF.offset=0;
     if(!await ask('Enviar a la Papelera',`${ps.length} sample(s) irán a la Papelera de reciclaje.${u?`\n\n⚠ ${u} los usan proyectos.`:''}`,'Enviar a Papelera'))return;
     const d=await api('/api/samples/recycle',{paths:ps.map(x=>x.path)});toast(d.deleted+' a la Papelera');SPICK.clear();sStatus(true)};
   $('#sSelClr').onclick=()=>{SPICK.clear();$$('[data-pick]').forEach(c=>c.checked=false);selbar()}}
-  SF.offset+=r.items.length;$('#sMoreWrap').innerHTML=SF.offset<r.total?`<button class="more" id="sMore">Ver más (${(r.total-SF.offset).toLocaleString('es')} restantes)</button>`:'';
+  SF.offset+=r.items.length;$('#sMoreWrap').innerHTML=SF.offset<r.total?`<button class="more" id="sMore">Ver más (${(r.total-SF.offset).toLocaleString(LOC)} restantes)</button>`:'';
   $('#sMore')&&($('#sMore').onclick=()=>sExplore(true));
   bindPlay($('#sRows'));
   $$('#sRows [data-pick]').forEach(c=>c.onchange=()=>{c.checked?SPICK.add(c.dataset.pick):SPICK.delete(c.dataset.pick);selbar()});
@@ -1314,7 +1324,7 @@ function sOrganize(){$('#sTabInfo').textContent='';const cats=SSUM.cats.map(c=>c
   $('#sMove').onchange=()=>{if($('#sMove').checked)$('#sSkip').checked=true;inv()};
   $('#sPick').onclick=async()=>{const {path}=await api('/api/pickfolder',{});if(path){$('#sDest').value=path;$('#sDest').onchange()}};
   $('#sPrev').onclick=async()=>{const x=o();if(!x.dest)return toast('Elige una carpeta destino');const r=await api('/api/samples/plan',x);
-    $('#sPlanInfo').textContent=r.total?`${r.total.toLocaleString('es')} archivo(s) a ${x.copy?'copiar':'mover'}`:'Nada que ordenar';$('#sApply').disabled=!r.total;
+    $('#sPlanInfo').textContent=r.total?`${r.total.toLocaleString(LOC)} archivo(s) a ${x.copy?'copiar':'mover'}`:'Nada que ordenar';$('#sApply').disabled=!r.total;
     const by={};r.plan.forEach(s=>(by[s.cat]=by[s.cat]||[]).push(s));
     $('#sTree').style.display=r.total?'block':'none';$('#sTree').innerHTML=Object.entries(by).map(([c,l])=>`<div class="y"><i style="display:inline-block;width:9px;height:9px;border-radius:3px;background:${catColor(c)}"></i> ${esc(c)}</div>`+l.slice(0,8).map(s=>`<div class="f">${esc(s.src)} → <b>${esc(s.dst.split('\\').pop())}</b></div>`).join('')+(l.length>8?`<div class="f">… y ${l.length-8} más</div>`:'')).join('')+(r.total>r.plan.length?`<div class="f" style="margin-top:8px">(Vista previa de los primeros ${r.plan.length})</div>`:'')};
   $('#sApply').onclick=async()=>{const x=o();if(!await ask(x.copy?'Copiar samples':'Mover samples',`${$('#sPlanInfo').textContent}\nDestino: ${x.dest}${x.copy?'':'\n\nPodrás deshacerlo.'}`,x.copy?'Copiar':'Mover'))return;
@@ -1433,8 +1443,8 @@ async function openRelink(path){$('#rlBox').innerHTML=`<h3>${ico('i-unlink',20)}
 let RLT=0;async function rlWatch(){clearTimeout(RLT);if(!RL||RL.r.index.state!=='running')return;
   RLT=setTimeout(async()=>{if(!RL)return;let st;try{st=await api('/api/relink/index')}catch{return}
     if(st.state==='running'){RL.r.index=st;const el=$('#rlIdx');if(el)el.innerHTML=rlIdxHtml(st);rlWatch()}else openRelink(RL.path)},2000)}
-const rlIdxHtml=st=>st.state==='running'?`${ico('i-scan',13)} Indexando tus discos (solo la primera vez): ${st.dirs.toLocaleString('es')} carpetas · ${st.files.toLocaleString('es')} audios. Los resultados se actualizan solos.`
-  :`${ico('i-check',13)} Discos indexados: ${st.files.toLocaleString('es')} audios · <a href="#" id="rlReidx" style="color:inherit">volver a indexar</a>`;
+const rlIdxHtml=st=>st.state==='running'?`${ico('i-scan',13)} Indexando tus discos (solo la primera vez): ${st.dirs.toLocaleString(LOC)} carpetas · ${st.files.toLocaleString(LOC)} audios. Los resultados se actualizan solos.`
+  :`${ico('i-check',13)} Discos indexados: ${st.files.toLocaleString(LOC)} audios · <a href="#" id="rlReidx" style="color:inherit">volver a indexar</a>`;
 function renderRelink(){const {r}=RL,n=Object.keys(RL.pick).length;
   const row=(it,i,sim)=>{const m=r.missing[i],short=!sim&&m.exact.length>1&&it.path.length===Math.min(...m.exact.map(x=>x.path.length));return `<div class="srow"><input type="radio" name="rl${i}" value="${esc(it.path)}" ${RL.pick[i]===it.path?'checked':''}>${pbtn(it)}
     <div style="min-width:0"><div class="sname">${esc(it.name)} ${sim?`<span class="score" title="Parecido del nombre">${it.score}%</span>`:''}${short?' <span class="tag g">Ruta más corta</span>':''}</div><div class="spath" title="${esc(it.path)}">&lrm;${esc(it.dir)}</div></div>
@@ -1479,7 +1489,7 @@ function renderVst(){const s=VSUM;if(!s)return;const serum=s.plugins.find(x=>x.s
     [s.bits32,'de 32 bits',ico('i-hdd',13),'bits'],[serum?serum.projects:0,'proyectos con Serum 1',ico('i-wave',13),'serum']]
     .map(([v,l,i,t])=>`<button class="skpi act" data-vk="${t}"><b>${v}</b><span>${i}${l}</span></button>`).join('');
   $$('[data-vk]').forEach(b=>b.onclick=()=>{VF.f=b.dataset.vk;renderVst()});
-  $('#vScan').textContent=s.scan.running?`Leyendo proyectos… ${s.scan.done.toLocaleString('es')}/${s.scan.total.toLocaleString('es')} (resultados parciales)`:`${s.projects.toLocaleString('es')} proyectos analizados (sin autoguardados)`;
+  $('#vScan').textContent=s.scan.running?`Leyendo proyectos… ${s.scan.done.toLocaleString(LOC)}/${s.scan.total.toLocaleString(LOC)} (resultados parciales)`:`${s.projects.toLocaleString(LOC)} proyectos analizados (sin autoguardados)`;
   const ex=s.export||{};$('#vSerum').disabled=!!ex.running;
   $('#vSerum').lastChild.textContent=ex.running?`Exportando… ${ex.done}/${ex.total} · ${ex.exported} presets`:'Exportar presets Serum 1 → Serum 2';
   $$('#vSeg button').forEach(b=>b.classList.toggle('on',b.dataset.vf===VF.f));
@@ -1511,6 +1521,22 @@ async function projPlugins(path,el){el.innerHTML='Leyendo plugins…';let r;try{
   el.innerHTML=`<div class="plist">${it.map(x=>`<div><span class="vst ${x.status}">${ico(x.status==='ok'?'i-check':x.status==='falta'?'i-x':'i-alert',11)}${VSTL[x.status]}</span><b>${esc(x.slot||x.name)}</b><span style="color:var(--muted)">${esc(x.name)} · ${esc(x.fmt)}${x.version?' · v'+esc(x.version):''}</span></div>`).join('')||'<span style="color:var(--muted)">Sin plugins externos</span>'}</div>
     ${serum?`<button class="sec" style="margin-top:10px" data-pexp>${ico('i-wave',14)}Exportar ${serum} preset(s) de Serum 1</button>`:''}`;
   const b=el.querySelector('[data-pexp]');if(b)b.onclick=async()=>{const r=await api('/api/plugins/export',{paths:[path]});toast(`${r.exported} preset(s) exportados${r.duplicates?` · ${r.duplicates} ya existían`:''}`)}}
+
+const PRESC={borrar:['Se pueden borrar','i-trash','Canal: clic derecho › Delete. Efecto: menú del slot › Delete. No cambia lo que suena.'],
+  directwave:['Convertir a DirectWave','i-wave','En el plugin: menú ▾ arriba a la izquierda › Create DirectWave instrument, y usa ese canal en su lugar.'],
+  nativo:['Cambiar por un plugin de FL','i-plug','Pon el equivalente de FL y ajústalo a oído. Si ese sonido es clave, mejor renderízalo.'],
+  render:['Renderizar a audio','i-dl','Instrumento: clic derecho en el clip › Consolidate / Render to audio. Efecto: Export › WAV con "Split mixer tracks" y usa el stem.'],
+  gratis:['Gratis: se pueden instalar','i-check','Quien reciba el proyecto puede descargarlos sin pagar. Avísale cuáles son.']};
+async function projPresc(path,el){el.innerHTML='<div class="presc">Revisando plugins…</div>';let r;
+  try{r=await api('/api/prescindibles',{paths:[path]})}catch(e){el.textContent=e.message;return}
+  if(r.error){el.innerHTML=`<div class="presc">${esc(r.error)}</div>`;return}
+  if(!r.total){el.innerHTML='<div class="presc"><b>Sin plugins de terceros.</b> Se abre en cualquier FL Studio tal cual.</div>';return}
+  const c=r.count,easy=c.borrar+c.directwave+c.nativo;
+  el.innerHTML=`<div class="presc"><div class="ph">${r.total} plugin(s) de terceros · <b>${easy}</b> se pueden quitar sin renderizar${c.render?` · <b>${c.render}</b> a renderizar`:''}</div>
+   ${Object.keys(PRESC).filter(k=>c[k]).map(k=>`<div class="pg ${k}"><div class="pgh">${ico(PRESC[k][1],14)}${PRESC[k][0]}<span>${c[k]}</span></div><div class="pgt">${PRESC[k][2]}</div>
+     ${prescGroup(r.items.filter(x=>x.action===k)).map(g=>{const x=g[0],w=g.map(y=>y.where.replace(/ · .*$/,'')),u=[...new Set(w)];
+       return `<div class="pi"><div><b>${esc(x.kind==='fx'?x.plugin:x.label)}</b>${g.length>1?`<span class="tag">×${g.length}</span>`:''}${x.status==='falta'?`<span class="vst falta">${ico('i-x',10)}No instalado</span>`:''}<span class="pm">${esc(x.kind==='inst'&&x.label!==x.plugin?x.plugin+' · ':'')}${esc(x.fmt)} · ${esc(u.length>6?u.slice(0,6).join(', ')+' +'+(u.length-6):u.join(', '))}</span></div><div class="pw">${esc(x.why)}</div></div>`}).join('')}</div>`).join('')}</div>`}
+function prescGroup(l){const m=new Map();for(const x of l){const k=x.kind==='fx'?x.plugin+'|'+x.why:x.label+'|'+Math.random();if(!m.has(k))m.set(k,[]);m.get(k).push(x)}return [...m.values()]}
 
 /* ---------- versión / arranque ---------- */
 function showVer(v){$('#ver').textContent=v.current;if(!v.available)return false;$('#upd').style.display='block';
@@ -1581,7 +1607,7 @@ function tourShow(i){TI=i;const st=TOUR[i];if(st.v&&!$('#v-'+st.v).classList.con
     place();setTimeout(place,350)},st.v?260:30)}
 let TMINI=false;function tourStart(){closeDrawer();TMINI=$('.app').classList.contains('mini');if(TMINI)$('.app').classList.remove('mini');$('#tourBlock').classList.add('on');tourShow(0)}
 function tourEnd(){TI=-1;store.set('flpm.tour','1');if(TMINI){TMINI=false;$('.app').classList.add('mini')}['tourBlock','tourHole','tourTip'].forEach(x=>$('#'+x).className='');show('projects')}
-$('#tourBtn').onclick=tourStart;$('#tourBlock').onclick=e=>e.stopPropagation();
+$('#langBtn').innerHTML=`<i class="flag">${FLAGS[LANG]}</i>`;$('#tourBtn').onclick=tourStart;$('#tourBlock').onclick=e=>e.stopPropagation();
 document.addEventListener('keydown',e=>{if(TI<0)return;if(e.key==='Escape'){e.stopImmediatePropagation();tourEnd()}
   else if(e.key==='ArrowRight'||e.key==='Enter'){e.preventDefault();TI===TOUR.length-1?tourEnd():tourShow(TI+1)}else if(e.key==='ArrowLeft'&&TI>0)tourShow(TI-1)},true);
 addEventListener('resize',()=>{if(TI>=0)tourShow(TI)});

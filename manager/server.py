@@ -16,6 +16,7 @@ import relink  # noqa: E402
 import plugins  # noqa: E402
 import flp_ordenar
 import flscripts  # noqa: E402
+import prescindibles  # noqa: E402
 
 TOKEN = secrets.token_urlsafe(24)
 MGR = core.Manager()
@@ -23,6 +24,7 @@ samples._MGR[0] = MGR
 SMP = samples.SampleManager()
 PIX = plugins.PluginIndex(MGR)
 UI = os.path.join(getattr(sys, "_MEIPASS", core.HERE), "ui.html")
+I18N = os.path.join(getattr(sys, "_MEIPASS", core.HERE), "i18n.js")
 HOOKS = {"pick_folder": core.pick_folder, "quit": lambda: os._exit(0)}
 
 
@@ -80,6 +82,11 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.split("?")[0] in ("/", "/index.html"):
             with open(UI, encoding="utf-8") as f:
                 html = f.read().replace("__TOKEN__", TOKEN)
+            try:
+                with open(I18N, encoding="utf-8") as f:
+                    html = html.replace("<!--I18N-->", "<script>" + f.read() + "</script>", 1)
+            except OSError:
+                pass
             return self._send(200, ctype="text/html", raw=html.encode("utf-8"))
         if self.path.startswith("/preview/") or self.path.startswith("/sample/"):
             return self._audio()
@@ -194,6 +201,16 @@ class Handler(BaseHTTPRequestHandler):
             if p == "/api/plugins/project":
                 for x in _paths(body)[:1]:
                     return self._send(200, {"items": PIX.for_project(x)})
+                return self._send(404, {"error": "Proyecto desconocido"})
+            if p == "/api/prescindibles":
+                for x in _paths(body)[:1]:
+                    try:
+                        r = prescindibles.analizar(x)
+                    except Exception as e:  # noqa: BLE001
+                        return self._send(200, {"error": str(e)})
+                    for it in r["items"]:
+                        it["status"] = PIX.status({"name": it["plugin"], "path": it["path"]})["status"]
+                    return self._send(200, r)
                 return self._send(404, {"error": "Proyecto desconocido"})
             if p == "/api/plugins/export":
                 if body.get("all"):
