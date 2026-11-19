@@ -139,7 +139,7 @@ def candidates(mgr, smp, project):
         q = _expand(raw)
         base = os.path.basename(q).lower()
         exact = list(dict.fromkeys(_other_drives(q) + idx["name"].get(base, []) + _near(info["dir"], base)))
-        exact = [p for p in exact if os.path.isfile(p)]
+        exact = sorted((p for p in exact if os.path.isfile(p)), key=lambda p: (len(p), p.lower()))
         similar = []
         if len(exact) < 3:
             n = samples.norm_name(q)
@@ -169,11 +169,23 @@ def candidates(mgr, smp, project):
 
 def apply(mgr, project, mapping):
     """mapping: {ruta original (tal cual en el .flp): ruta nueva}."""
+    mapping = {k: v for k, v in mapping.items() if v and os.path.isfile(v)}
+    return _rewrite(mgr, project, mapping.get, "antes de reparar samples")
+
+
+def retarget(mgr, project, olds, new):
+    """Cambia en el proyecto cualquier referencia a una de `olds` (rutas reales) por `new`."""
+    if not os.path.isfile(new):
+        raise ValueError("No existe: " + new)
+    keys = {os.path.normcase(os.path.normpath(o)) for o in olds}
+    return _rewrite(mgr, project,
+                    lambda raw: new if os.path.normcase(os.path.normpath(_expand(raw))) in keys else None,
+                    "antes de reemplazar samples")
+
+
+def _rewrite(mgr, project, repl, why):
     if project not in mgr.projects:
         raise ValueError("Proyecto desconocido")
-    mapping = {k: v for k, v in mapping.items() if v and os.path.isfile(v)}
-    if not mapping:
-        return {"changed": 0}
     with open(project, "rb") as f:
         raw = f.read()
     header, events = F.loads(raw)
@@ -184,16 +196,16 @@ def apply(mgr, project, mapping):
     for lst, k in F.walk(events):
         eid, val = lst[k]
         if eid == EV_SAMPLE:
-            s = F.text(val)
-            if s in mapping:
-                lst[k] = [eid, F.enc_text(os.path.normpath(mapping[s]))]
+            new = repl(F.text(val))
+            if new:
+                lst[k] = [eid, F.enc_text(os.path.normpath(new))]
                 changed += 1
     if not changed:
         return {"changed": 0}
     bdir = os.path.join(os.path.dirname(project), "Backup")
     os.makedirs(bdir, exist_ok=True)
     name = os.path.splitext(os.path.basename(project))[0]
-    backup = core._unique(os.path.join(bdir, name + " (antes de reparar samples).flp"))
+    backup = core._unique(os.path.join(bdir, "%s (%s).flp" % (name, why)))
     shutil.copy2(project, backup)
     tmp = project + ".tmp"
     F.save(tmp, header, events)

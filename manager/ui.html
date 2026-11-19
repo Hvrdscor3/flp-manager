@@ -1227,16 +1227,17 @@ async function sGroups(kind,more){const g=SG[kind];if(!more){g.off=0;g.data=[]}
   const r=await api('/api/samples/groups',{kind,offset:g.off,limit:30,group:SGRP});g.data.push(...r.items);g.off+=r.items.length;
   g.data.forEach(ps=>ps.forEach(it=>SITEMS[it.id]=it));
   $('#sTabInfo').textContent=kind==='exact'?`${r.total.toLocaleString('es')} grupos idénticos (bit a bit)`:`${r.total.toLocaleString('es')} grupos con el mismo nombre y distinto contenido`;
-  const head=kind==='exact'?`<div class="panel" style="margin:0 0 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:240px">${ico('i-dup',16)} <b>Se conserva la copia sugerida</b> (la que usan tus proyectos o la de ruta más corta). Las copias usadas por algún proyecto nunca se borran en automático.</div>
+  const head=kind==='exact'?`<div class="panel" style="margin:0 0 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:240px">${ico('i-dup',16)} <b>Se sugiere la copia de ruta más corta</b>, pero puedes marcar otra y pulsar <b>Conservar marcado</b>: los proyectos que usaban las demás pasan a usar la que elegiste. «Limpiar todos» nunca toca copias que use algún proyecto.</div>
     <button class="pri" id="sDedupe">${ico('i-broom',15)}Limpiar todos los duplicados</button></div>`:`<div class="panel" style="margin:0 0 14px">${ico('i-ab',16)} Archivos con el mismo nombre pero distinto audio: pueden ser versiones (otro tono, mezcla o recorte). Usa <b>Comparar A/B</b> para escucharlos con la posición sincronizada.</div>`;
   $('#sBody').innerHTML=head+(g.data.length?'<div class="sgl">'+g.data.map((ps,gi)=>(SGRP&&(!gi||g.data[gi-1][0].dir!==ps[0].dir)?(gi?'</div>':'')+'<div class="sfsec">'+foldHead(ps[0].dir,ps[0].id,''):'')+groupHtml(ps,gi,kind)).join('')+(SGRP?'</div>':'')+'</div>':`<div class="empty">${kind==='exact'?'Sin duplicados 🎉':'No hay grupos con el mismo nombre.'}</div>`)
     +(g.off<r.total?`<button class="more" id="sMore">Ver más grupos (${r.total-g.off} restantes)</button>`:'');
   bindPlay($('#sBody'));
   $$('#sBody [data-cmp]').forEach(b=>b.onclick=()=>openCompare(g.data[+b.dataset.cmp]));
   $$('#sBody [data-keep]').forEach(b=>b.onclick=async()=>{const gi=+b.dataset.keep,ps=g.data[gi],k=$(`input[name="k${gi}"]:checked`).value,del=ps.filter(x=>x.id!==k);
-    const risky=del.filter(x=>x.used);
-    if(!await ask('Conservar una copia',`Se conserva:\n${SITEMS[k].path}\n\n${del.length} archivo(s) irán a la Papelera.${risky.length?`\n\n⚠ ${risky.length} lo usan proyectos: esos proyectos dirán "sample faltante".`:''}`,'Enviar a Papelera'))return;
-    const d=await api('/api/samples/recycle',{paths:del.map(x=>x.path)});toast(d.deleted+' archivo(s) a la Papelera');sStatus(true)});
+    const risky=del.filter(x=>x.used),np=risky.reduce((n,x)=>n+x.used,0);
+    if(!await ask('Reemplazar por esta copia',`Se conserva:\n${SITEMS[k].path}\n\n${del.length} copia(s) irán a la Papelera.${risky.length?`\n\n${np} proyecto(s) usan esas copias: se cambiarán para usar la que conservas (se guarda una copia de seguridad de cada .flp en su carpeta Backup).`:''}`,risky.length?'Reemplazar y limpiar':'Enviar a Papelera'))return;
+    const d=await api('/api/samples/replace',{keep:SITEMS[k].path,paths:del.map(x=>x.path)});if(d.error){toast(d.error);return}
+    toast(`${d.deleted} copia(s) a la Papelera${d.projects?` · ${d.projects} proyecto(s) actualizados`:''}${d.failed&&d.failed.length?` · ${d.failed.length} no se pudieron actualizar (sus copias se dejaron)`:''}`);sStatus(true)});
   $('#sMore')&&($('#sMore').onclick=()=>sGroups(kind,true));
   $('#sDedupe')&&($('#sDedupe').onclick=async()=>{if(!await ask('Limpiar todos los duplicados',`${SSUM.dupFiles.toLocaleString('es')} copias sobrantes (${fmtB(SSUM.wasted)}).\n\nEn cada grupo se conserva la copia sugerida. Las copias usadas por proyectos se dejan intactas. Todo va a la Papelera de reciclaje.`,'Limpiar'))return;
     const d=await api('/api/samples/dedupe',{});toast(`${d.deleted} copia(s) a la Papelera${d.kept?` · ${d.kept} se dejaron por estar en uso`:''}`);sStatus(true)})}
@@ -1244,7 +1245,7 @@ function groupHtml(ps,gi,kind){const a=ps[0],save=kind==='exact'?a.size*(ps.leng
   return `<div class="dg"><div class="dgh">${ico(kind==='exact'?'i-dup':'i-ab',16)}<b>${esc(a.name)}</b><span style="color:var(--text2)">${ps.length} archivos${save?` · libera ${fmtB(save)}`:''}</span><span class="grow"></span>
     <button class="sec" data-cmp="${gi}">${ico('i-ab',15)}Comparar A/B</button><button class="sec" data-keep="${gi}">${ico('i-check',14)}Conservar marcado</button></div>`
    +ps.map((it,i)=>`<div class="srow"><input type="radio" name="k${gi}" value="${it.id}" ${i?'':'checked'} title="Conservar este">${pbtn(it)}
-     <div style="min-width:0"><div class="sname">${esc(it.name)}</div><div class="spath" title="${esc(it.path)}">&lrm;${esc(it.dir)}</div></div>
+     <div style="min-width:0"><div class="sname">${esc(it.name)}${kind==='exact'&&!i?' <span class="tag g">Ruta más corta</span>':''}</div><div class="spath" title="${esc(it.path)}">&lrm;${esc(it.dir)}</div></div>
      <div class="smeta">${usedTag(it)}<span>${fmtDur(it.dur)}</span><span>${fmtB(it.size)}</span><span>${fmtS(it.mtime)}</span><button class="ibtn" data-sreveal="${it.id}" title="Mostrar en carpeta">${ico('i-folder',15)}</button></div></div>`).join('')+'</div>'}
 
 /* ---- explorar ---- */
@@ -1403,13 +1404,14 @@ document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,sele
 
 
 /* ---- reparar samples de UN proyecto ---- */
-let RL=null;
+let RL=null,RLPREF=store.get('flpm.rlpref')||'short';
+const RLSORT={short:(a,b)=>a.path.length-b.path.length,used:(a,b)=>b.used-a.used||a.path.length-b.path.length,long:(a,b)=>b.path.length-a.path.length};
+function rlSuggest(force){RL.r.missing.forEach((m,i)=>{m.exact.sort(RLSORT[RLPREF]);if((force||!RL.pick[i])&&m.exact.length)RL.pick[i]=m.exact[0].path})}
 async function openRelink(path){$('#rlBox').innerHTML=`<h3>${ico('i-unlink',20)}Buscando samples…</h3><p style="color:var(--muted)">Revisando tu librería y las carpetas cercanas al proyecto.</p>`;$('#rl').classList.add('on');
   let r;try{r=await api('/api/relink/scan',{paths:[path]})}catch(e){$('#rlBox').innerHTML=`<h3>No se pudo revisar</h3><p>${esc(e.message)}</p><button class="sec" onclick="closeRelink()">Cerrar</button>`;return}
   const old=RL&&RL.path===path?RL.pick:null,oldRaw=old?Object.fromEntries(Object.entries(old).map(([i,v])=>[RL.r.missing[i].raw,v])):{};
   RL={path,r,pick:{}};
-  r.missing.forEach((m,i)=>{m.exact.sort((a,b)=>b.used-a.used||a.path.length-b.path.length);[...m.exact,...m.similar].forEach(it=>SITEMS[it.id]=it);
-    if(oldRaw[m.raw])RL.pick[i]=oldRaw[m.raw];else if(m.exact.length)RL.pick[i]=m.exact[0].path});
+  r.missing.forEach((m,i)=>{[...m.exact,...m.similar].forEach(it=>SITEMS[it.id]=it);if(oldRaw[m.raw])RL.pick[i]=oldRaw[m.raw]});rlSuggest(false);
   renderRelink();rlWatch()}
 // mientras se indexan los discos (solo la primera vez), los resultados se actualizan solos
 let RLT=0;async function rlWatch(){clearTimeout(RLT);if(!RL||RL.r.index.state!=='running')return;
@@ -1418,11 +1420,12 @@ let RLT=0;async function rlWatch(){clearTimeout(RLT);if(!RL||RL.r.index.state!==
 const rlIdxHtml=st=>st.state==='running'?`${ico('i-scan',13)} Indexando tus discos (solo la primera vez): ${st.dirs.toLocaleString('es')} carpetas · ${st.files.toLocaleString('es')} audios. Los resultados se actualizan solos.`
   :`${ico('i-check',13)} Discos indexados: ${st.files.toLocaleString('es')} audios · <a href="#" id="rlReidx" style="color:inherit">volver a indexar</a>`;
 function renderRelink(){const {r}=RL,n=Object.keys(RL.pick).length;
-  const row=(it,i,sim)=>`<div class="srow"><input type="radio" name="rl${i}" value="${esc(it.path)}" ${RL.pick[i]===it.path?'checked':''}>${pbtn(it)}
-    <div style="min-width:0"><div class="sname">${esc(it.name)} ${sim?`<span class="score" title="Parecido del nombre">${it.score}%</span>`:''}</div><div class="spath" title="${esc(it.path)}">&lrm;${esc(it.dir)}</div></div>
-    <div class="smeta">${usedTag(it)}<span>${fmtDur(it.dur)}</span><span>${fmtB(it.size)}</span><span>${fmtS(it.mtime)}</span><button class="ibtn" data-sreveal="${it.id}" title="Mostrar">${ico('i-folder',15)}</button></div></div>`;
+  const row=(it,i,sim)=>{const m=r.missing[i],short=!sim&&m.exact.length>1&&it.path.length===Math.min(...m.exact.map(x=>x.path.length));return `<div class="srow"><input type="radio" name="rl${i}" value="${esc(it.path)}" ${RL.pick[i]===it.path?'checked':''}>${pbtn(it)}
+    <div style="min-width:0"><div class="sname">${esc(it.name)} ${sim?`<span class="score" title="Parecido del nombre">${it.score}%</span>`:''}${short?' <span class="tag g">Ruta más corta</span>':''}</div><div class="spath" title="${esc(it.path)}">&lrm;${esc(it.dir)}</div></div>
+    <div class="smeta">${usedTag(it)}<span>${fmtDur(it.dur)}</span><span>${fmtB(it.size)}</span><span>${fmtS(it.mtime)}</span><button class="ibtn" data-sreveal="${it.id}" title="Mostrar">${ico('i-folder',15)}</button></div></div>`};
   $('#rlBox').innerHTML=`<div style="display:flex;align-items:center;gap:10px"><h3>${ico('i-unlink',20)}Reparar samples · ${esc(r.name)}</h3><button class="ibtn" style="margin-left:auto" onclick="closeRelink()">${ico('i-x',16)}</button></div>
     <p style="color:var(--text2);margin:4px 0 16px">${r.missing.length} sample(s) no se encuentran. Elige el reemplazo de cada uno (escúchalos o usa <b>Comparar A/B</b> si hay varios con el mismo nombre). Se guarda una copia del proyecto original en su carpeta <i>Backup</i>.
+     <br><span style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--muted)">Sugerir:<span class="seg txt" id="rlPref"><button data-p="short" class="${RLPREF==='short'?'on':''}">Ruta más corta</button><button data-p="used" class="${RLPREF==='used'?'on':''}">Más usado</button><button data-p="long" class="${RLPREF==='long'?'on':''}">Ruta más larga</button></span><span>o marca tú el que quieras</span></span>
      <br><span id="rlIdx" style="font-size:12.5px;color:var(--muted)">${rlIdxHtml(r.index)}</span></p>`
    +r.missing.map((m,i)=>{const all=[...m.exact,...m.similar];return `<div class="dg"><div class="dgh">${ico('i-alert',16)}<div style="min-width:0;flex:1"><b>${esc(m.name)}</b><div class="spath" title="${esc(m.raw)}">&lrm;${esc(m.dir)}</div></div>
      <span class="${m.exact.length?'used':'used no'}">${m.exact.length?`${m.exact.length} con el mismo nombre`:m.similar.length?'Sin coincidencia exacta · parecidos':'Sin coincidencias'}</span>
@@ -1433,6 +1436,7 @@ function renderRelink(){const {r}=RL,n=Object.keys(RL.pick).length;
    +`<div class="rlfoot"><button class="pri" id="rlGo" ${n?'':'disabled'}>${ico('i-check',16)}Aplicar ${n} cambio(s)</button><button class="sec" onclick="closeRelink()">Cancelar</button>
      <span style="color:var(--muted);font-size:12.5px;margin-left:auto">${n} de ${r.missing.length} con reemplazo elegido</span></div>`;
   bindPlay($('#rlBox'));
+  $$('#rlPref button').forEach(b=>b.onclick=()=>{RLPREF=b.dataset.p;store.set('flpm.rlpref',RLPREF);rlSuggest(true);renderRelink()});
   const ri=$('#rlReidx');if(ri)ri.onclick=async e=>{e.preventDefault();await api('/api/relink/index',{});RL.r.index={state:'running',dirs:0,files:0};$('#rlIdx').innerHTML=rlIdxHtml(RL.r.index);rlWatch()};
   $$('#rlBox input[type=radio]').forEach(x=>x.onchange=()=>{const i=+x.name.slice(2);x.value?RL.pick[i]=x.value:delete RL.pick[i];renderRelink()});
   $$('#rlBox [data-rcmp]').forEach(b=>b.onclick=()=>{const i=+b.dataset.rcmp,m=RL.r.missing[i];openCompare([...m.exact,...m.similar],it=>{RL.pick[i]=it.path;renderRelink()})});

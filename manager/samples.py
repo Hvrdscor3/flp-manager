@@ -421,7 +421,7 @@ class SampleManager:
             if d.get("fh"):
                 exact.setdefault((d["size"], d["fh"]), []).append(p)
             names.setdefault(k[1], []).append(p)
-        dups = [sorted(ps, key=lambda x: (-len(use.get(os.path.normcase(x), [])), len(x)))
+        dups = [sorted(ps, key=lambda x: (len(x), x.lower()))       # sugerida: la ruta mas corta
                 for ps in exact.values() if len(ps) > 1]
         dups.sort(key=lambda ps: -files[ps[0]]["size"] * (len(ps) - 1))
         in_dup = {p for ps in dups for p in ps}
@@ -535,6 +535,35 @@ class SampleManager:
         self._idx_t = 0          # accion del usuario: refrescar ya
         self.save()
         return {"deleted": ok, "errors": err}
+
+    def replace(self, keep, dels):
+        """Conserva `keep`: los proyectos que usan las otras copias pasan a usar `keep`
+        (con copia de seguridad del .flp) y luego esas copias van a la Papelera.
+        Una copia cuyo proyecto no se pudo actualizar no se borra."""
+        import relink
+        mgr = core_mgr()
+        idx = self.index()
+        dels = [p for p in dels if p in self.files and p != keep]
+        projs = {}
+        for p in dels:
+            for flp in idx["use"].get(os.path.normcase(p), []):
+                projs.setdefault(flp, []).append(p)
+        updated, failed, blocked, backups = 0, [], set(), []
+        ph = core.placeholders()
+        for flp, olds in projs.items():
+            try:
+                r = relink.retarget(mgr, flp, olds, keep)
+                updated += 1 if r.get("changed") else 0
+                if r.get("backup"):
+                    backups.append(r["backup"])
+                with self.lock:
+                    self.refs[flp] = [os.stat(flp).st_mtime, sample_refs(flp, ph)]
+            except Exception as e:  # noqa: BLE001 - proyecto ilegible o formato raro
+                failed.append("%s: %s" % (os.path.basename(flp), str(e)[:80]))
+                blocked.update(os.path.normcase(o) for o in olds)
+        r = self.recycle([p for p in dels if os.path.normcase(p) not in blocked])
+        r.update(projects=updated, failed=failed, backups=len(backups), kept=len(blocked))
+        return r
 
     def dedupe(self):
         """Envia a la Papelera las copias sobrantes de cada grupo identico (conserva la sugerida).

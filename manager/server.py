@@ -334,6 +334,10 @@ def _samples_post(h, a, b):
         return {"ok": True}
     if a == "recycle":
         return SMP.recycle(known)
+    if a == "replace":
+        if b.get("keep") not in SMP.files:
+            return {"error": "Copia a conservar desconocida"}
+        return SMP.replace(b["keep"], known)
     if a == "reveal":
         for x in known[:1]:
             core.reveal(x)
