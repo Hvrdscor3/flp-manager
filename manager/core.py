@@ -332,6 +332,12 @@ def group_key(name):
     return s or name.lower()
 
 
+def project_home(path):
+    """Carpeta del proyecto: la del .flp, o la de arriba si esta dentro de su carpeta Backup."""
+    d = os.path.dirname(path)
+    return os.path.dirname(d) if os.path.basename(d).lower() == "backup" else d
+
+
 def is_backup(path):
     low = path.lower()
     return bool(_AUTOSAVE.search(os.path.basename(path))) or "\\backup\\" in low
@@ -591,7 +597,8 @@ class Manager:
         groups = {}
         for it in items:
             it["backup"] = is_backup(it["path"])
-            it["key"] = group_key(it["name"])
+            # mismo nombre base Y misma carpeta: "DEMO" de otra carpeta es otro proyecto
+            it["key"] = project_home(it["path"]).lower() + "|" + group_key(it["name"])
             it["mark"] = self.marks.get(it["path"], {}).get("status", "pendiente")
             it["note"] = self.marks.get(it["path"], {}).get("note", "")
             groups.setdefault(it["key"], []).append(it)
