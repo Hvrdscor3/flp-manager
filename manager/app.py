@@ -39,8 +39,70 @@ def windows_dark():
         return False
 
 
+def repair_mode(argv):
+    """Reparar samples del proyecto abierto en FL: con --reparar o si FL Studio
+    (Opciones > Archivos > Herramientas externas) lanza el .exe pasandole una ruta."""
+    args = [a for a in argv if a]
+    return "--reparar" in args or any(os.path.exists(a.strip('"')) for a in args if not a.startswith("--"))
+
+
+def run_repair(url):
+    """Ventana solo con Reparar samples (y Comparar A/B) del proyecto abierto en FL."""
+    import webview
+    win = webview.create_window("Reparar samples · FLP Manager", url + "?reparar=1", width=600, height=300,
+                                min_size=(480, 220), background_color="#0A0E16")
+    icon = os.path.join(getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))), "icon.ico")
+
+    def on_ui(fn):
+        # BeginInvoke: llamar a la ventana y esperar desde otro hilo la congela (GIL de pythonnet)
+        from System import Action
+        win.native.BeginInvoke(Action(fn))
+
+    def fit(w, h):
+        """Ajusta la ventana al contenido (en px CSS) y la centra en su pantalla."""
+        def go():
+            from System.Drawing import Point, Size
+            from System.Windows.Forms import Screen
+            f = win.native
+            k = f.DeviceDpi / 96.0
+            wa = Screen.FromControl(f).WorkingArea
+            W = min(int(w * k), wa.Width - 40)
+            H = min(int(h * k), wa.Height - 40)
+            f.Size = Size(W, H)
+            f.Location = Point(wa.X + (wa.Width - W) // 2, wa.Y + (wa.Height - H) // 2)
+        on_ui(go)
+
+    def shown():
+        def go():
+            from System.Drawing import Icon
+            if os.path.isfile(icon):
+                win.native.Icon = Icon(icon)
+        on_ui(go)
+        fit(600, 300)
+
+    win.events.shown += shown
+    server.HOOKS["fit"] = fit
+
+    def quit_app():
+        threading.Timer(1.5, lambda: os._exit(0)).start()
+        try:
+            win.destroy()
+        except Exception:  # noqa: BLE001
+            pass
+        os._exit(0)
+
+    server.HOOKS["quit"] = quit_app
+    # carpeta propia: WebView2 no deja compartir la de la app principal si esta abierta
+    webview.start(private_mode=False,
+                  storage_path=os.path.join(os.environ.get("APPDATA", "."), "FLP Manager", "webview-reparar"))
+    os._exit(0)
+
+
 def main():
     url = server.serve(0)
+    if repair_mode(sys.argv[1:]):
+        run_repair(url)
+        return
     try:
         import webview
     except ImportError:

@@ -332,6 +332,67 @@ def group_key(name):
     return s or name.lower()
 
 
+def fl_open_title():
+    """Nombre del .flp abierto en FL Studio (titulo de la ventana principal) o ''."""
+    try:
+        import ctypes
+        from ctypes import wintypes as w
+        u = ctypes.windll.user32
+        found = []
+
+        @ctypes.WINFUNCTYPE(w.BOOL, w.HWND, w.LPARAM)
+        def cb(h, _):
+            b = ctypes.create_unicode_buffer(64)
+            u.GetClassNameW(h, b, 64)
+            if b.value == "TFruityLoopsMainForm" and u.IsWindowVisible(h):
+                t = ctypes.create_unicode_buffer(512)
+                u.GetWindowTextW(h, t, 512)
+                found.append(t.value)
+            return True
+        u.EnumWindows(cb, 0)
+    except (OSError, AttributeError):
+        return ""
+    for t in found:
+        name = re.sub(r"\s+-\s+FL Studio.*$", "", t).strip().lstrip("*").strip()
+        if name and name.lower() != "fl studio":
+            return name if name.lower().endswith(".flp") else name + ".flp"
+    return ""
+
+
+def fl_mru():
+    """Rutas recientes de FL Studio (todas las versiones), la mas reciente primero."""
+    out = []
+    try:
+        import winreg
+        base = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Image-Line")
+    except OSError:
+        return out
+    i = 0
+    while True:
+        try:
+            sub = winreg.EnumKey(base, i)
+        except OSError:
+            break
+        i += 1
+        if not sub.lower().startswith("fl studio"):
+            continue
+        try:
+            k = winreg.OpenKey(base, sub + r"\MRU")
+        except OSError:
+            continue
+        j, vals = 0, []
+        while True:
+            try:
+                n, v, _ = winreg.EnumValue(k, j)
+            except OSError:
+                break
+            j += 1
+            if isinstance(v, str) and v.lower().endswith(".flp") and n.isdigit():
+                vals.append((int(n), v))
+        out += [v for _, v in sorted(vals)]
+    return list(dict.fromkeys(out))
+
+
 def project_home(path):
     """Carpeta del proyecto: la del .flp, o la de arriba si esta dentro de su carpeta Backup."""
     d = os.path.dirname(path)
@@ -581,6 +642,35 @@ class Manager:
             j.current = ""
             j.elapsed = time.time() - t0
             self.save()
+
+    def fl_current(self):
+        """Proyecto abierto en FL Studio: titulo de la ventana + lista de recientes de FL.
+        Lo vuelve a analizar (los samples faltantes pueden haber cambiado)."""
+        name = fl_open_title()
+        mru = [p for p in fl_mru() if os.path.isfile(p) and not is_program_file(p)]
+        path = ""
+        if name:
+            low = name.lower()
+            hits = [p for p in mru if os.path.basename(p).lower() == low]
+            if not hits:
+                with self.lock:
+                    hits = sorted((p for p in self.projects if os.path.basename(p).lower() == low),
+                                  key=lambda p: -self.projects[p]["mtime"])
+            path = hits[0] if hits else ""
+        recent = []
+        for p in ([path] if path else []) + mru[:12]:
+            if p in recent:
+                continue
+            try:
+                info = fastscan.analyze(p, fastscan.FsCache(), placeholders())
+            except Exception:  # noqa: BLE001 - archivo ilegible
+                continue
+            with self.lock:
+                self.projects[p] = info
+            recent.append({"path": p, "name": info["name"], "missing": len(info["missing"]), "mtime": info["mtime"]})
+        if recent:
+            self.touch()
+        return {"running": bool(name), "title": name, "path": path, "recent": recent}
 
     # ---- vista
     def listing(self):

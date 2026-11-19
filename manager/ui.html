@@ -161,6 +161,11 @@ body:has(#player.on) .modal{padding-bottom:124px;box-sizing:border-box}body:has(
 .cstats span b{color:var(--ink);font-weight:600}.cstats span.dif b{color:var(--warn)}
 .cacts{display:flex;gap:6px;margin-top:6px}
 .cacts .sec{padding:5px 10px;font-size:12.5px;border-radius:8px}
+body.solo .app,body.solo #player{display:none!important}
+body.solo #rl{background:var(--white)!important;backdrop-filter:none;padding:0!important}
+body.solo #rlBox{width:100vw;max-width:none;height:100vh;max-height:none;border-radius:0;box-shadow:none;box-sizing:border-box}
+.solo-pick{display:grid;gap:8px;margin-top:14px}.solo-pick button{display:flex;align-items:center;gap:10px;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--text)}
+.solo-pick button:hover{border-color:var(--acc)}.solo-pick small{color:var(--muted);margin-left:auto;white-space:nowrap}
 .rlfoot{position:sticky;bottom:-22px;background:var(--card);padding:14px 0 4px;margin-top:8px;display:flex;gap:8px;align-items:center;border-top:1px solid var(--line)}
 .rlnone{display:flex;gap:10px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
 .score{display:inline-flex;border-radius:7px;padding:1px 7px;font-size:11px;font-weight:700;background:var(--warn-bg);color:var(--warn)}
@@ -821,6 +826,7 @@ details.kx[open] summary{margin-bottom:8px}
 
 <script>
 const TOKEN="__TOKEN__";
+const SOLO=new URLSearchParams(location.search).has('reparar');   // ventana Reparar lanzada desde FL
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const ico=(id,s=14)=>`<svg width="${s}" height="${s}"><use href="#${id}"/></svg>`;
 const api=async(p,b)=>{const r=await fetch(p,{method:b?'POST':'GET',headers:{'X-Token':TOKEN,'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);return j};
@@ -1447,9 +1453,9 @@ function renderRelink(){const {r}=RL,n=Object.keys(RL.pick).length;
   $$('#rlBox [data-rcmp]').forEach(b=>b.onclick=()=>{const i=+b.dataset.rcmp,m=RL.r.missing[i];openCompare([...m.exact,...m.similar],it=>{RL.pick[i]=it.path;renderRelink()})});
   $('#rlGo').onclick=async()=>{const map={};Object.entries(RL.pick).forEach(([i,v])=>map[RL.r.missing[i].raw]=v);
     $('#rlGo').disabled=true;$('#rlGo').textContent='Guardando…';
-    try{const d=await api('/api/relink/apply',{paths:[RL.path],map});toast(`${d.changed} sample(s) reparados · faltan ${d.missing} · copia en Backup`);closeRelink();loadProjects()}
+    try{const d=await api('/api/relink/apply',{paths:[RL.path],map});toast(`${d.changed} sample(s) reparados · faltan ${d.missing} · copia en Backup`);if(SOLO){soloDone(RL.path,d);return}closeRelink();loadProjects()}
     catch(e){toast('Error: '+e.message);renderRelink()}}}
-function closeRelink(){clearTimeout(RLT);stopPlay();$('#rl').classList.remove('on');RL=null}
+function closeRelink(){clearTimeout(RLT);stopPlay();if(SOLO){api('/api/close',{}).catch(()=>{});return}$('#rl').classList.remove('on');RL=null}
 
 
 /* =================== METADATA VST =================== */
@@ -1574,7 +1580,7 @@ $('#tourBtn').onclick=tourStart;$('#tourBlock').onclick=e=>e.stopPropagation();
 document.addEventListener('keydown',e=>{if(TI<0)return;if(e.key==='Escape'){e.stopImmediatePropagation();tourEnd()}
   else if(e.key==='ArrowRight'||e.key==='Enter'){e.preventDefault();TI===TOUR.length-1?tourEnd():tourShow(TI+1)}else if(e.key==='ArrowLeft'&&TI>0)tourShow(TI-1)},true);
 addEventListener('resize',()=>{if(TI>=0)tourShow(TI)});
-if(!store.get('flpm.tour'))setTimeout(()=>{if(TI<0&&!$('#modal').classList.contains('on'))tourStart()},1500);
+if(!SOLO&&!store.get('flpm.tour'))setTimeout(()=>{if(TI<0&&!$('#modal').classList.contains('on'))tourStart()},1500);
 /* ---------- menu lateral plegable ---------- */
 function setMini(on){$('.app').classList.toggle('mini',on);store.set('flpm.mini',on?'1':'0');
   $('#sideTgl').title=on?'Mostrar menú (Ctrl+B)':'Ocultar menú (Ctrl+B)';
@@ -1587,7 +1593,10 @@ setMini(store.get('flpm.mini')==='1');
 
 /* ---------- scripts ---------- */
 const TOOLS=[{name:'Ordenar pistas',kind:'Herramienta de FLP Manager',what:'Edita el .flp sin abrir FL: junta los clips de cada automatización en una sola pista, la nombra y colorea por categoría, sube las pistas con clips y elimina las vacías.',
-  how:['Abre un proyecto en Proyectos.','En el archivo que quieras, pulsa «Ordenar pistas».','Revisa la vista previa y confirma: se crea «<nombre> - ordenado.flp» junto al original.'],limits:'Nunca toca el original. Si el proyecto está abierto en FL, abre la copia para ver el resultado.'}];
+  how:['Abre un proyecto en Proyectos.','En el archivo que quieras, pulsa «Ordenar pistas».','Revisa la vista previa y confirma: se crea «<nombre> - ordenado.flp» junto al original.'],limits:'Nunca toca el original. Si el proyecto está abierto en FL, abre la copia para ver el resultado.'},
+ {id:'repair',beta:true,icon:'i-unlink',name:'Reparar samples desde FL',kind:'Herramienta externa de FL Studio',what:'Abre Reparar samples (con Comparar A/B) del proyecto que tienes abierto en FL, sin pasar por la app. Detecta el proyecto por la ventana de FL y su lista de recientes; si no lo encuentra, te deja elegir uno.',
+  how:['En FL: Options › File settings › External tools.','En File elige FLP-Manager.exe (usa «Copiar ruta del .exe») y en Name escribe «Reparar samples».','Activa «Launch with path». Lánzalo desde el menú Tools de FL cuando un proyecto tenga samples faltantes.','Al terminar pulsa «Volver a abrir en FL» y, si FL pregunta, no guardes los cambios.'],
+  limits:'Beta: estamos buscando una forma más integrada en el flujo de trabajo. FL no recarga solo el proyecto: hay que volver a abrirlo.'}];
 function scStep(list){return `<ol>${list.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`}
 async function loadScripts(){let d;try{d=await api('/api/scripts',{})}catch{$('#scBody').innerHTML='<div class="empty">No se pudo leer la carpeta de FL Studio.</div>';return}
   const n=d.installed.reduce((a,k)=>a+k.items.length,0);$('#nScr').textContent=n;$('#nScr').style.display=n?'':'none';
@@ -1599,9 +1608,9 @@ async function loadScripts(){let d;try{d=await api('/api/scripts',{})}catch{$('#
          :`${c.current?`<button class="sec" data-scin="${c.id}" title="Vuelve a copiar el script">${ico('i-hist',15)}Reinstalar</button>`:`<button class="pri" data-scin="${c.id}">${ico('i-dl',15)}Actualizar</button>`}
            <button class="sec" data-screv="${esc(c.path)}">${ico('i-folder',15)}Abrir carpeta</button>
            <button class="sec danger" data-scun="${c.id}" data-n="${esc(c.name)}">${ico('i-trash',15)}Desinstalar</button>`}</div></div>`).join('')
-   +TOOLS.map(t=>`<div class="sccard"><h3>${ico('i-list',18)}${esc(t.name)}<span class="tag g">Incluido</span></h3><div class="k">${esc(t.kind)}</div>
+   +TOOLS.map(t=>`<div class="sccard"><h3>${ico(t.icon||'i-list',18)}${esc(t.name)}${t.beta?'<span class="tag w">Beta</span>':'<span class="tag g">Incluido</span>'}</h3><div class="k">${esc(t.kind)}</div>
       <p>${esc(t.what)}</p><div class="lab" style="margin:0">Cómo se usa</div>${scStep(t.how)}<div class="lim">${ico('i-alert',13)} ${esc(t.limits)}</div>
-      <div class="acts"><button class="sec" onclick="show('projects')">${ico('i-grid',15)}Ir a Proyectos</button></div></div>`).join('')
+      <div class="acts">${t.id==='repair'?`<button class="pri" data-rpgo>${ico('i-play',13)}Probar ahora</button><button class="sec" data-rpexe>${ico('i-copy',15)}Copiar ruta del .exe</button>`:`<button class="sec" onclick="show('projects')">${ico('i-grid',15)}Ir a Proyectos</button>`}</div></div>`).join('')
    +`</div><div class="lab" style="margin-top:28px">Instalados en FL Studio</div>
      <p style="margin:0 0 4px;color:var(--muted);font-size:12.5px">Carpeta: ${esc(d.settings)}</p>`
    +d.installed.map(k=>`<div class="sctab"><div class="h">${esc(k.kind)} <span>${k.items.length} script(s)</span></div>
@@ -1615,7 +1624,10 @@ async function loadScripts(){let d;try{d=await api('/api/scripts',{})}catch{$('#
   $$('[data-scun]').forEach(b=>b.onclick=async()=>{if(!await ask('Desinstalar '+b.dataset.n,'El script irá a la Papelera de reciclaje (puedes recuperarlo). Reinicia FL Studio para que deje de aparecer en MIDI Settings.','Desinstalar'))return;
     b.disabled=true;const r=await api('/api/scripts/uninstall',{id:b.dataset.scun});if(r.error){toast(r.error);b.disabled=false;return}
     toast(b.dataset.n+' desinstalado (está en la Papelera)');loadScripts();api('/api/flscript',{}).then(fsShow).catch(()=>{})});
-  $$('[data-screv]').forEach(b=>b.onclick=()=>api('/api/scripts/reveal',{path:b.dataset.screv}))}
+  $$('[data-screv]').forEach(b=>b.onclick=()=>api('/api/scripts/reveal',{path:b.dataset.screv}));
+  $$('[data-rpgo]').forEach(b=>b.onclick=async()=>{await api('/api/repair/launch',{});toast('Abriendo Reparar samples…')});
+  $$('[data-rpexe]').forEach(b=>b.onclick=async()=>{const r=await api('/api/repair/exe',{});if(!r.exe){toast('Solo disponible en la versión instalada (FLP-Manager.exe)');return}
+    try{await navigator.clipboard.writeText(r.exe);toast('Ruta copiada: pégala en External tools de FL')}catch{toast(r.exe)}})}
 /* ---------- acerca de ---------- */
 function openAbout(){$('#aboutV').textContent=$('#ver').textContent;$('#about').classList.add('on')}
 function closeAbout(){$('#about').classList.remove('on')}
@@ -1623,7 +1635,23 @@ $$('.brand>svg,.brand .bt').forEach(e=>e.onclick=openAbout);$('#aboutX').onclick
 $('#about').onclick=e=>{if(e.target.id==='about')closeAbout()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#about').classList.contains('on')){e.stopImmediatePropagation();closeAbout()}},true);
 $('#aboutIg').onclick=()=>api('/api/openurl',{url:'https://www.instagram.com/xidian_dj/'}).catch(()=>toast('No se pudo abrir el navegador'));
-loadProjects();
+/* ---------- modo Reparar lanzado desde FL Studio (Herramientas externas) ---------- */
+function soloMsg(h,body,w){$('#rlBox').innerHTML=`<div style="display:flex;align-items:center;gap:10px"><h3>${h}</h3><button class="ibtn" style="margin-left:auto" onclick="closeRelink()">${ico('i-x',16)}</button></div>${body}`;$('#rl').classList.add('on');soloFit(w||600)}
+// la ventana toma el alto del contenido (+ barra de titulo) y se centra
+function soloFit(w){requestAnimationFrame(()=>{const b=$('#rlBox'),h=[...b.children].reduce((a,c)=>a+c.offsetHeight+(parseFloat(getComputedStyle(c).marginTop)||0)+(parseFloat(getComputedStyle(c).marginBottom)||0),0);
+  api('/api/winfit',{w,h:Math.min(Math.round(h+44+40),860)}).catch(()=>{})})}
+const soloList=l=>l.length?`<div class="solo-pick">${l.map(x=>`<button data-sp="${esc(x.path)}">${ico('i-grid',16)}<span style="min-width:0"><b>${esc(x.name)}</b><div class="spath">&lrm;${esc(x.path)}</div></span><small>${x.missing?`${x.missing} faltan`:'completo'}</small></button>`).join('')}</div>`:'';
+function soloBind(){$$('[data-sp]').forEach(b=>b.onclick=()=>soloOpen(b.dataset.sp))}
+async function soloOpen(path){await openRelink(path);if(RL&&RL.r.missing.length)soloFit(1000);if(RL&&!RL.r.missing.length)soloMsg(`${ico('i-check',20)}Todo en orden`,`<p style="color:var(--text2)"><b>${esc(RL.r.name)}</b> no tiene samples faltantes.</p><div class="rlfoot"><button class="sec" onclick="closeRelink()">Cerrar</button></div>`)}
+function soloDone(path,d){soloMsg(`${ico('i-check',20)}Samples reparados`,`<p style="color:var(--text2)">${d.changed} sample(s) reparados${d.missing?` · aún faltan ${d.missing}`:''}. Se guardó una copia del original en la carpeta <i>Backup</i> del proyecto.</p>
+  <div class="panel" style="margin:12px 0">${ico('i-alert',15)} FL Studio todavía tiene abierta la versión anterior. Vuelve a abrir el proyecto y, si FL pregunta si quieres guardar los cambios, responde <b>No</b>; si guardas, se pierde la reparación.</div>
+  <div class="rlfoot"><button class="pri" id="soloRe">${ico('i-play',13)}Volver a abrir en FL</button><button class="sec" onclick="closeRelink()">Cerrar</button></div>`);
+  $('#soloRe').onclick=async()=>{await api('/api/open',{paths:[path]});closeRelink()}}
+async function soloStart(){document.body.classList.add('solo');soloMsg(`${ico('i-scan',20)}Buscando el proyecto abierto en FL…`,'');
+  let c;try{c=await api('/api/fl/current')}catch(e){soloMsg('No se pudo leer FL Studio',`<p>${esc(e.message)}</p>`);return}
+  if(c.path){soloOpen(c.path);return}
+  soloMsg(`${ico('i-unlink',20)}Reparar samples`,`<p style="color:var(--text2)">${c.running?`No encontré la ruta de <b>${esc(c.title)}</b>. Guárdalo en FL (Ctrl+S) y vuelve a intentarlo, o elige uno de tus proyectos recientes:`:'FL Studio no está abierto. Elige uno de tus proyectos recientes de FL:'}</p>${soloList(c.recent)||'<p style="color:var(--muted)">No hay proyectos recientes.</p>'}`,760);soloBind()}
+if(SOLO)soloStart();else loadProjects();
 </script>
 </body>
 </html>

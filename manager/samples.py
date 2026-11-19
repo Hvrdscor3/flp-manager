@@ -475,13 +475,15 @@ class SampleManager:
 
     def query(self, cat=None, q="", flt="all", sort="name", offset=0, limit=200, group=""):
         idx = self.index()
-        q = (q or "").lower().strip()
+        toks = (q or "").lower().split()       # varias palabras: deben aparecer todas (en nombre o ruta)
         out = []
         for p in idx["files"]:
             if cat and idx["cat"][p] != cat:
                 continue
-            if q and q not in p.lower():
-                continue
+            if toks:
+                pl = p.lower()
+                if not all(t in pl for t in toks):
+                    continue
             if flt == "unused" and os.path.normcase(p) in idx["use"]:
                 continue
             if flt == "used" and os.path.normcase(p) not in idx["use"]:

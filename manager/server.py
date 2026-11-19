@@ -77,7 +77,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self._ok_host():
             return self._send(403, {"error": "host"})
-        if self.path in ("/", "/index.html"):
+        if self.path.split("?")[0] in ("/", "/index.html"):
             with open(UI, encoding="utf-8") as f:
                 html = f.read().replace("__TOKEN__", TOKEN)
             return self._send(200, ctype="text/html", raw=html.encode("utf-8"))
@@ -101,6 +101,8 @@ class Handler(BaseHTTPRequestHandler):
             if not PIX.state["running"] and PIX.mgr_rev != MGR.rev:
                 PIX.refresh()
             return self._send(200, PIX.summary())
+        if self.path == "/api/fl/current":
+            return self._send(200, MGR.fl_current())
         if self.path == "/api/relink/index":
             return self._send(200, relink.index_status())
         if self.path == "/api/samples/status":
@@ -289,6 +291,22 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, MGR.recycle([x for x in body.get("paths", []) if x in ok]))
             if p == "/api/delete":
                 return self._send(200, MGR.recycle(_paths(body)))
+            if p == "/api/repair/exe":
+                return self._send(200, {"exe": sys.executable if getattr(sys, "frozen", False) else "",
+                                        "frozen": bool(getattr(sys, "frozen", False))})
+            if p == "/api/repair/launch":
+                import subprocess
+                cmd = [sys.executable, "--reparar"] if getattr(sys, "frozen", False) else \
+                    [sys.executable, os.path.join(core.HERE, "app.py"), "--reparar"]
+                subprocess.Popen(cmd, close_fds=True)  # noqa: S603 - nuestro propio ejecutable
+                return self._send(200, {"ok": True})
+            if p == "/api/winfit":
+                if "fit" in HOOKS:
+                    HOOKS["fit"](int(body.get("w", 600)), int(body.get("h", 300)))
+                return self._send(200, {"ok": True})
+            if p == "/api/close":
+                threading.Timer(0.3, HOOKS["quit"]).start()
+                return self._send(200, {"ok": True})
             if p == "/api/pickfolder":
                 return self._send(200, {"path": HOOKS["pick_folder"]() or ""})
             if p == "/api/update":
